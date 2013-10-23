@@ -39,6 +39,7 @@
 		<junit.version>4.10</junit.version>
 		<websphere-MQ.version>7.0.1.9</websphere-MQ.version>
 		<exec.mainClass>net.sf.juffrou.mq.ui.Main</exec.mainClass>
+		<javafx.version>2.2</javafx.version>
 		<javafx.tools.ant.jar>${java.home}/../lib/ant-javafx.jar</javafx.tools.ant.jar>
 	</properties>
 
@@ -106,9 +107,112 @@
 					<showDeprecation>true</showDeprecation>
 				</configuration>
 			</plugin>
-			 
+			
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/libs</outputDirectory>
+							<!-- 
+							<includeScope>compile</includeScope>
+							<includeScope>runtime</includeScope>
+							 -->
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<!-- 
+							<excludeArtifactIds>javafx</excludeArtifactIds>
+							 -->
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<implementation-version>1.0</implementation-version>
+							<JavaFX-Version>${javafx.version}</JavaFX-Version>
+							<Main-Class>${exec.mainClass}</Main-Class>
+							<JavaFX-Application-Class>${exec.mainClass}</JavaFX-Application-Class>
+							<JavaFX-Class-Path>
+							</JavaFX-Class-Path>
+							<Class-Path>javafx-${javafx.version}.jar</Class-Path>
+						</manifestEntries>
+						<manifest>
+							<addClasspath>true</addClasspath>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>JavaFx-Packaging</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<!-- define the deploy ANT task-->
+								<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" classpathref="maven.plugin.classpath" />
+								<!-- define the JarSing ANT task-->
+								<taskdef name="jfxsignjar" classname="com.sun.javafx.tools.ant.FXSignJarTask" classpathref="maven.plugin.classpath" />
+								<jfxdeploy width="1024" height="768" outdir="${project.build.directory}/deploy" outfile="${build.finalName}" nativeBundles="all">
+									<info title="${project.name}" />
+									<!-- set the main class of your applcation; I had to create a Main.class (class Main extends MyMain) otherwise it will return an error on start-->
+									<application name="${project.name}" mainClass="com.javafx.main.Main" />
+									<resources>
+										<fileset dir="${project.build.directory}" includes="*.jar" />
+										<fileset dir="${project.build.directory}/libs" includes="*.jar" />
+									</resources>
+									<!-- set your jvm args-->
+									<platform javafx="${javafx.version}+">
+										<jvmarg value="-Xms512m" />
+										<jvmarg value="-Xmx1024m" />
+									</platform>
+								</jfxdeploy>
+								<!-- you need to generate a key yourself -->
+								<!-- 
+								<jfxsignjar destdir="${project.build.directory}/deploy" keyStore="path/to/your/keystore" storePass="yourPass" alias="yourAlias" keyPass="keyPass">
+									<fileset dir="${project.build.directory}/deploy" includes="*.jar" />
+								</jfxsignjar>
+								 -->
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>com.oracle</groupId>
+						<artifactId>javafx</artifactId>
+						<version>${javafx.version}</version>
+						<systemPath>${java.home}/lib/jfxrt.jar</systemPath>
+						<scope>system</scope>
+					</dependency>
+					<dependency>
+						<groupId>com.oracle</groupId>
+						<artifactId>ant-javafx</artifactId>
+						<version>${javafx.version}</version>
+						<systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
+						<scope>system</scope>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<!-- 			 
 			 <plugin>
-			 	<!-- http://zenjava.com/javafx/maven -->
 			 	<groupId>com.zenjava</groupId>
 			 	<artifactId>javafx-maven-plugin</artifactId>
 				<executions>
@@ -143,7 +247,8 @@
 					</descriptors>
 				</configuration>
 			</plugin>
-
+			 -->
+			 
 		</plugins>
 	</build>
 
@@ -153,7 +258,7 @@
 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>javafx</artifactId>
-			<version>2.2</version>
+			<version>${javafx.version}</version>
 			<systemPath>${java.home}/lib/jfxrt.jar</systemPath>
 			<scope>system</scope>
 		</dependency>
