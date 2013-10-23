@@ -6,7 +6,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>WebsphereMQ Console</name>
 	<description>JavaFX 2 Application implementing a IBM WebsphereMQ broker console</description>
-	<url>https://sourceforge.net/projects/mqconsole</url>
+	<url>https://mqconsole.sourceforge.net</url>
 	
 	<inceptionYear>2013</inceptionYear>
 	<licenses>
@@ -38,7 +38,7 @@
 		<log4j.version>1.2.17</log4j.version>
 		<junit.version>4.10</junit.version>
 		<websphere-MQ.version>7.0.1.9</websphere-MQ.version>
-		<exec.mainClass>com.ibm.mq.pcf.ui.Main</exec.mainClass>
+		<exec.mainClass>net.sf.juffrou.mq.ui.Main</exec.mainClass>
 		<javafx.tools.ant.jar>${java.home}/../lib/ant-javafx.jar</javafx.tools.ant.jar>
 	</properties>
 

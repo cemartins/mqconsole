@@ -1,3 +1,5 @@
-Run in windows:
-java -Dmq.console.dir=%CD%\ -jar examples-0.0.1-SNAPSHOT-jfx.jar
+MQConsole - JavaFX Console for IBM Websphere MQ
+ 
+To run in windows execute:
+java -Dmq.console.dir=%CD%\ -jar MQConsole.jar
 
