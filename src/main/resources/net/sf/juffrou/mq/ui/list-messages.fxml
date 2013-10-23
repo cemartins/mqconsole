@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="search-queues" prefHeight="395.0" prefWidth="627.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.sf.juffrou.mq.controller.ListMessages">
+  <!-- TODO Add Nodes -->
+  <children>
+    <TableView fx:id="table" prefHeight="329.0" prefWidth="487.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="23.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="26.0">
+      <columns>
+        <TableColumn editable="false" maxWidth="500.0" minWidth="10.0" prefWidth="436.0" text="ID">
+          <cellValueFactory>
+            <PropertyValueFactory property="messageId" />
+          </cellValueFactory>
+        </TableColumn>
+        <TableColumn editable="false" prefWidth="500.0" text="Correlation">
+          <cellValueFactory>
+            <PropertyValueFactory property="correlationId" />
+          </cellValueFactory>
+        </TableColumn>
+        <TableColumn editable="false" prefWidth="800.0" text="Text">
+          <cellValueFactory>
+            <PropertyValueFactory property="shortText" />
+          </cellValueFactory>
+        </TableColumn>
+      </columns>
+      <contextMenu>
+        <ContextMenu fx:id="messagesCM">
+          <items>
+            <MenuItem mnemonicParsing="false" onAction="#openMessage" text="Open" />
+          </items>
+        </ContextMenu>
+      </contextMenu>
+    </TableView>
+  </children>
+</AnchorPane>

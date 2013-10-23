@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="MessageRead" fx:id="messageRead" prefHeight="342.0" prefWidth="435.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.sf.juffrou.mq.controller.MessageViewControler">
+  <!-- TODO Add Nodes -->
+  <children>
+    <Accordion AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <expandedPane>
+        <TitledPane fx:id="x2" animated="false" text="Headers">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <TableView fx:id="headersTable" editable="false" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <columns>
+                    <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="218.0" text="Name">
+			          <cellValueFactory>
+			            <PropertyValueFactory property="name" />
+			          </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="212.0" text="Value">
+			          <cellValueFactory>
+			            <PropertyValueFactory property="valueAsString" />
+			          </cellValueFactory>
+                    </TableColumn>
+                  </columns>
+                </TableView>
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+      </expandedPane>
+      <panes>
+        <fx:reference source="x2" />
+        <TitledPane fx:id="x1" animated="false" prefHeight="245.0" prefWidth="355.0" text="Payload">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="207.0" prefWidth="398.0">
+              <children>
+                <TextArea fx:id="payload" prefWidth="200.0" text="" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+      </panes>
+    </Accordion>
+  </children>
+</AnchorPane>

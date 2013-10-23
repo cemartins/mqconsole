@@ -1,0 +1,3 @@
+Run in windows:
+java -Dmq.console.dir=%CD%\ -jar examples-0.0.1-SNAPSHOT-jfx.jar
+
