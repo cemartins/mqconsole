@@ -2,7 +2,7 @@
 	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-	<id>bin</id>
+	<id>x86</id>
 	<formats>
 		<format>zip</format>
 	</formats>
@@ -10,17 +10,9 @@
 	<fileSets>
 		<fileSet>
 			<!-- zenjava generated structure  -->
-			<directory>${project.build.directory}/jfx/app</directory>
-			<outputDirectory>/</outputDirectory>
+			<directory>${project.build.directory}/bundles/${project.build.finalName}</directory>
+			<outputDirectory>${project.build.finalName}</outputDirectory>
 			<filtered>false</filtered>
 		</fileSet>
 	</fileSets>
-	<files>
-		<file>
-			<!-- Configuration file for jboss -->
-			<source>${project.basedir}/src/main/resources/broker.properties</source>
-			<outputDirectory>/</outputDirectory>
-			<filtered>false</filtered>
-		</file>
-	</files>
 </assembly>

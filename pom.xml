@@ -44,6 +44,7 @@
 	</properties>
 
 	<build>
+		<finalName>MQConsole</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -55,6 +56,11 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.5.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.6</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -119,40 +125,39 @@
 						</goals>
 						<configuration>
 							<outputDirectory>${project.build.directory}/libs</outputDirectory>
-							<!-- 
-							<includeScope>compile</includeScope>
-							<includeScope>runtime</includeScope>
-							 -->
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
-							<!-- 
-							<excludeArtifactIds>javafx</excludeArtifactIds>
-							 -->
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 			
+			<!-- 
 			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestEntries>
-							<implementation-version>1.0</implementation-version>
-							<JavaFX-Version>${javafx.version}</JavaFX-Version>
-							<Main-Class>${exec.mainClass}</Main-Class>
-							<JavaFX-Application-Class>${exec.mainClass}</JavaFX-Application-Class>
-							<JavaFX-Class-Path>
-							</JavaFX-Class-Path>
-							<Class-Path>javafx-${javafx.version}.jar</Class-Path>
-						</manifestEntries>
-						<manifest>
-							<addClasspath>true</addClasspath>
-						</manifest>
-					</archive>
-				</configuration>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-deploy-resources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/package</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/main/deploy/package</directory>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
+			 -->
 
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -164,91 +169,53 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<target>
-								<!-- define the deploy ANT task-->
-								<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" classpathref="maven.plugin.classpath" />
-								<!-- define the JarSing ANT task-->
-								<taskdef name="jfxsignjar" classname="com.sun.javafx.tools.ant.FXSignJarTask" classpathref="maven.plugin.classpath" />
-								<jfxdeploy width="1024" height="768" outdir="${project.build.directory}/deploy" outfile="${build.finalName}" nativeBundles="all">
-									<info title="${project.name}" />
-									<!-- set the main class of your applcation; I had to create a Main.class (class Main extends MyMain) otherwise it will return an error on start-->
-									<application name="${project.name}" mainClass="com.javafx.main.Main" />
-									<resources>
-										<fileset dir="${project.build.directory}" includes="*.jar" />
-										<fileset dir="${project.build.directory}/libs" includes="*.jar" />
-									</resources>
-									<!-- set your jvm args-->
-									<platform javafx="${javafx.version}+">
-										<jvmarg value="-Xms512m" />
-										<jvmarg value="-Xmx1024m" />
-									</platform>
-								</jfxdeploy>
-								<!-- you need to generate a key yourself -->
+							<target xmlns:fx="javafx:com.sun.javafx.tools.ant">
+								<taskdef uri="javafx:com.sun.javafx.tools.ant" resource="com/sun/javafx/tools/ant/antlib.xml" classpath="${basedir}/src/main/deploy:${javafx.tools.ant.jar}" />
+
 								<!-- 
-								<jfxsignjar destdir="${project.build.directory}/deploy" keyStore="path/to/your/keystore" storePass="yourPass" alias="yourAlias" keyPass="keyPass">
-									<fileset dir="${project.build.directory}/deploy" includes="*.jar" />
-								</jfxsignjar>
+								<fx:application id="fxApp" name="${project.name}" mainClass="${exec.mainClass}" preloaderClass="net.sf.juffrou.mq.ui.ConsolePreloader" />
 								 -->
+								<fx:application id="fxApp" name="${project.build.finalName}" mainClass="${exec.mainClass}" />
+
+                                <!-- Note: this will overwrite the JAR produced by maven-jar-plugin, change destfile if you don't want this -->
+                                <fx:jar destfile="${project.build.directory}/${project.build.finalName}">
+                                    <fx:application refid="fxApp"/>
+                                    <fx:fileset dir="${project.build.directory}/classes"/>
+                                    <fx:resources>
+                                        <fx:fileset dir="${project.build.directory}" includes="libs/*.jar"/>
+                                    </fx:resources>
+									<manifest>
+										<attribute name="Implementation-Vendor" value="Juffrou Team"/>
+										<attribute name="Implementation-Version" value="${project.version}"/>
+									</manifest>
+                                </fx:jar>
+                                <!-- 
+								<fx:signjar destdir="${project.build.directory}/deploy"
+								        keyStore="sampleKeystore.jks" storePass="****"
+								        alias="javafx" keyPass="****">
+								    <fileset dir="${project.build.directory}/deploy" file="${project.build.finalName}"/> 
+								</fx:signjar>
+								 -->
+                                <fx:deploy outdir="${project.build.directory}" outfile="${project.build.finalName}" nativeBundles="all" verbose="true" >
+                                    <fx:application refid="fxApp"/>
+                                    <fx:resources>
+                                        <!-- If you changed <fx:jar> above, don't forget to modify the line below -->
+                                        <fx:fileset dir="${project.build.directory}" includes="${project.build.finalName}.jar"/>
+                                        <fx:fileset dir="${project.build.directory}" includes="libs/*.jar"/>
+                                        <fx:fileset dir="${basedir}/src/main/deploy/package" includes="*.properties"/>
+                                    </fx:resources>
+									<fx:platform>
+										<fx:jvmarg value="-Xmx768m"/>
+										<fx:property name="mq.console.dir" value="./" />
+									</fx:platform>
+                                </fx:deploy>
+
 							</target>
 						</configuration>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>com.oracle</groupId>
-						<artifactId>javafx</artifactId>
-						<version>${javafx.version}</version>
-						<systemPath>${java.home}/lib/jfxrt.jar</systemPath>
-						<scope>system</scope>
-					</dependency>
-					<dependency>
-						<groupId>com.oracle</groupId>
-						<artifactId>ant-javafx</artifactId>
-						<version>${javafx.version}</version>
-						<systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
-						<scope>system</scope>
-					</dependency>
-				</dependencies>
 			</plugin>
 
-			<!-- 			 
-			 <plugin>
-			 	<groupId>com.zenjava</groupId>
-			 	<artifactId>javafx-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>make-jfx-structure</id>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			 	<configuration>
-			 		<mainClass>${exec.mainClass}</mainClass>
-			 		<jfxMainAppJarName>MQConsole</jfxMainAppJarName>
-			 	</configuration>
-			 </plugin>
-
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptors>
-						<descriptor>src/main/assembly/descriptor.xml</descriptor>
-					</descriptors>
-				</configuration>
-			</plugin>
-			 -->
-			 
 		</plugins>
 	</build>
 
@@ -343,21 +310,24 @@
 			</activation>
 			<build>
 				<plugins>
-					<!-- 
 					<plugin>
-						<artifactId>maven-shade-plugin</artifactId>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>make-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+							</execution>
+						</executions>
 						<configuration>
-							<filters>
-								<filter>
-									<artifact>com.oracle:javafx</artifact>
-									<includes>
-										<include>**</include>
-									</includes>
-								</filter>
-							</filters>
+							<finalName>${artifactId}-${project.version}</finalName>
+							<descriptors>
+								<descriptor>src/main/assembly/win32.xml</descriptor>
+							</descriptors>
 						</configuration>
 					</plugin>
-					 -->
 				</plugins>
 			</build>
 		</profile>

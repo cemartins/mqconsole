@@ -8,9 +8,11 @@ import javafx.stage.Stage;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class Main extends Application {
+public class Main extends Application implements ConsolePreloader.SharedScene {
 
 	public static ApplicationContext applicationContext;
+
+	private Parent parentNode;
 
 	public static void main(String[] args) {
 		System.setProperty("mq.console.dir", ".");
@@ -19,21 +21,32 @@ public class Main extends Application {
 
 	@Override
 	public void init() {
-		System.out.println("PCF started");
+		System.out.println("Console started");
 		applicationContext = new ClassPathXmlApplicationContext(
 				new String[] { "META-INF/context/mq-console-application-context.xml" });
-		System.out.println("PCF context loaded");
+		System.out.println("Console context loaded");
+		//prepare application scene
+		//		Rectangle rect = new Rectangle(0, 0, 40, 40);
+		//		rect.setArcHeight(10);
+		//		rect.setArcWidth(10);
+		//		rect.setFill(Color.ORANGE);
+		//		parentNode = new Group(rect);
+		//		System.out.println("Parent loaded");
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-
 		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(applicationContext);
-		Parent root = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/list-queues.fxml");
-		Scene scene = new Scene(root, 768, 480);
+		parentNode = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/list-queues.fxml");
+		Scene scene = new Scene(parentNode, 768, 480);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Websphere-MQ Queues");
 		primaryStage.show();
+	}
+
+	@Override
+	public Parent getParentNode() {
+		return parentNode;
 	}
 
 }
