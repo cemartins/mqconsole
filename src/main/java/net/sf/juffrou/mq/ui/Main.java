@@ -5,11 +5,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Main extends Application implements ConsolePreloader.SharedScene {
 
+	private static final Logger log = LoggerFactory.getLogger(Main.class);
 	public static ApplicationContext applicationContext;
 
 	private Parent parentNode;
@@ -21,10 +24,14 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 
 	@Override
 	public void init() {
-		System.out.println("Console started");
+		if(log.isDebugEnabled()) {
+			log.debug("Console started");
+			log.debug("Working Directory=" + System.getProperty("user.dir"));
+		}
 		applicationContext = new ClassPathXmlApplicationContext(
 				new String[] { "META-INF/context/mq-console-application-context.xml" });
-		System.out.println("Console context loaded");
+		if(log.isDebugEnabled())
+			log.debug("Console context loaded");
 		//prepare application scene
 		//		Rectangle rect = new Rectangle(0, 0, 40, 40);
 		//		rect.setArcHeight(10);
