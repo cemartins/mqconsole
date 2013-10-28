@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.ui.Main;
 import net.sf.juffrou.mq.ui.SpringFxmlLoader;
+import net.sf.juffrou.mq.util.MessageDescriptorHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,11 +35,6 @@ import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQQueue;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.headers.MQDataException;
-import com.ibm.mq.headers.MQHeader;
-import com.ibm.mq.headers.MQHeaderIterator;
-import com.ibm.mq.headers.MQHeaderList;
-import com.ibm.mq.headers.MQRFH2;
-import com.ibm.mq.headers.MQRFH2.Element;
 import com.ibm.mq.pcf.PCFConstants;
 
 @Component
@@ -81,8 +77,6 @@ public class ListMessages implements Initializable {
 		for (TablePosition<?, ?> cell : cells) {
 			MessageDescriptor message = table.getItems().get(cell.getRow());
 
-			System.out.println("Opening message" + message.getMessageId());
-
 			SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(Main.applicationContext);
 			Parent root = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/message-read.fxml");
 
@@ -115,24 +109,7 @@ public class ListMessages implements Initializable {
 				message.correlationId = null;
 				queue.get(message, gmo);
 
-				MessageDescriptor messageDescriptor = new MessageDescriptor();
-				messageDescriptor.setMessageId(new String(message.messageId));
-				messageDescriptor.setCorrelationId(new String(message.correlationId));
-
-				int msglen = message.getMessageLength();
-				MQRFH2 header = null;
-
-				MQHeaderList list = new MQHeaderList(message);
-				int indexOf = list.indexOf("MQRFH2");
-				if (indexOf >= 0) {
-					header = (MQRFH2) list.get(indexOf);
-					msglen = msglen - header.size();
-				}
-
-				readMessageHeaders(messageDescriptor, message, header);
-
-				String msgTest = message.readStringOfCharLength(msglen);
-				messageDescriptor.setText(msgTest);
+				MessageDescriptor messageDescriptor = MessageDescriptorHelper.createMessageDescriptor(message);
 
 				messageList.add(messageDescriptor);
 
@@ -155,25 +132,6 @@ public class ListMessages implements Initializable {
 		}
 
 		return messageList;
-	}
-
-	private void readMessageHeaders(MessageDescriptor messageDescriptor, MQMessage message, MQRFH2 rfh2) throws IOException {
-
-		if (rfh2 != null) {
-			for (Element folder : rfh2.getFolders()) {
-				String prefix = folder.getName() + ".";
-				for (Element element : folder.getChildren()) {
-					messageDescriptor.setHeader(prefix + element.getName(), element.getValue());
-				}
-			}
-		} else if (message != null) {
-			MQHeaderIterator it = new MQHeaderIterator(message);
-			while (it.hasNext()) {
-				MQHeader header = it.nextHeader();
-				String key = header.toString();
-				messageDescriptor.setHeader(key, key);
-			}
-		}
 	}
 
 	@Override

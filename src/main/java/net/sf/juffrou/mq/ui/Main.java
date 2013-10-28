@@ -18,7 +18,8 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 
 	static {
 		if (System.getProperty("os.name").startsWith("Mac"))
-			System.setProperty("mq.console.log.dir", System.getProperty("user.home") + "/Library/Application Support/MQConsole");
+			System.setProperty("mq.console.log.dir", System.getProperty("user.home")
+					+ "/Library/Application Support/MQConsole");
 		else
 			System.setProperty("mq.console.log.dir", System.getenv("APPDATA") + "/MQConsole");
 	}
@@ -28,24 +29,25 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 	private Parent parentNode;
 
 	public static void main(String[] args) {
-		System.setProperty("mq.console.dir", System.getProperty("user.dir") + File.separator);
+		System.setProperty("mq.console.dir", System.getProperty("user.dir") + File.separator + "src" + File.separator
+				+ "main" + File.separator + "deploy" + File.separator + "package");
 		launch(args);
 	}
-	
+
 	private static void setMQConsoleDir() {
 		String mqConsoleDir = System.getProperty("user.dir") + File.separator;
-		if(System.getProperty("os.name").startsWith("Mac")) {
+		if (System.getProperty("os.name").startsWith("Mac")) {
 			URL mySource = Main.class.getProtectionDomain().getCodeSource().getLocation();
-			mqConsoleDir= mySource.getPath().substring(0, mySource.getPath().lastIndexOf('/'));
+			mqConsoleDir = mySource.getPath().substring(0, mySource.getPath().lastIndexOf('/'));
 		}
 		System.setProperty("mq.console.dir", mqConsoleDir);
 	}
 
 	@Override
 	public void init() {
-		if(System.getProperty("mq.console.dir") == null)
+		if (System.getProperty("mq.console.dir") == null)
 			setMQConsoleDir();
-		if(log.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			log.debug("Console started");
 			log.debug("user.dir=" + System.getProperty("user.dir"));
 			log.debug("mq.console.dir=" + System.getProperty("mq.console.dir"));
@@ -54,15 +56,14 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 		try {
 			applicationContext = new ClassPathXmlApplicationContext(
 					new String[] { "META-INF/context/mq-console-application-context.xml" });
-		}
-		catch(BeansException be) {
-			if(log.isErrorEnabled()) {
+		} catch (BeansException be) {
+			if (log.isErrorEnabled()) {
 				log.error("Cannot start application.");
 				log.error(be.getMessage());
 			}
-			throw be;	
+			throw be;
 		}
-		if(log.isDebugEnabled())
+		if (log.isDebugEnabled())
 			log.debug("Console context loaded");
 		//prepare application scene
 		//		Rectangle rect = new Rectangle(0, 0, 40, 40);
