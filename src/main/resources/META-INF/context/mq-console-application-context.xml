@@ -11,7 +11,7 @@
 
 
 	<!-- configuration properties -->
-	<context:property-placeholder location="file:${mq.console.dir}broker.properties" />
+	<context:property-placeholder location="file:${mq.console.dir}/broker.properties" />
 
 	<util:map id="mqQueueManagerOptions" map-class="java.util.HashMap">
 		<entry key="hostname" value="${broker_hostname}" />

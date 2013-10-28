@@ -41,7 +41,6 @@
 	<key>JVMOptions</key>
 	<array>
 		<string>-Xmx768m</string>
-		<string>-Dmq.console.dir=./</string>
 	</array>
 	<key>JVMUserOptions</key>
 	<dict/>
