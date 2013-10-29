@@ -4,13 +4,19 @@ import java.util.Collections;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
+import javafx.util.Callback;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.dom.ReturnInfo;
 import net.sf.juffrou.mq.util.MessageDescriptorHelper;
 
@@ -36,13 +42,25 @@ public class MessageSendControler {
 	private Accordion messageAccordion;
 
 	@FXML
-	private TitledPane payloadPane;
+	private TitledPane sendPayloadPane;
 
 	@FXML
-	private TableView<HeaderDescriptor> headersTable;
+	private TitledPane receivePayloadPane;
 
 	@FXML
-	private TextArea payload;
+	private TableView<HeaderDescriptor> sendHeadersTable;
+
+	@FXML
+	private TableView<HeaderDescriptor> receiveHeadersTable;
+
+	@FXML
+	private TextArea sendPayload;
+
+	@FXML
+	private TextArea receivePayload;
+
+	@FXML
+	private ComboBox<QueueDescriptor> replyQueueCB;
 
 	@Autowired
 	@Qualifier("mqQueueManager")
@@ -50,33 +68,73 @@ public class MessageSendControler {
 
 	private String queueNameSend;
 
-	private MessageDescriptor messageDescriptorSend;
-
-	public MessageDescriptor getMessageDescriptor() {
-		return messageDescriptorSend;
+	public String getQueueNameSend() {
+		return queueNameSend;
 	}
 
-	public void setMessageDescriptor(MessageDescriptor messageDescriptor) {
-		this.messageDescriptorSend = messageDescriptor;
+	public void setQueueNameSend(String queueNameSend) {
+		this.queueNameSend = queueNameSend;
+	}
+
+	public MessageDescriptor getSendMessage() {
+		MessageDescriptor messageDescriptor = new MessageDescriptor();
+		messageDescriptor.setText(sendPayload.getText());
+		receivePayload.setText(messageDescriptor.getText());
+
+		receiveHeadersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		receiveHeadersTable.getItems();
+		ObservableList<HeaderDescriptor> rows = receiveHeadersTable.getItems();
+		messageDescriptor.getHeaders().addAll(rows);
+		return messageDescriptor;
+	}
+
+	public void setReceiveMessage(MessageDescriptor messageDescriptor) {
+		receivePayload.setText(messageDescriptor.getText());
+
+		receiveHeadersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		ObservableList<HeaderDescriptor> rows = FXCollections.observableArrayList();
+		rows.addAll(messageDescriptor.getHeaders());
+		receiveHeadersTable.setItems(rows);
+		receivePayloadPane.setExpanded(true);
+	}
+
+	public void setQueueDescriptors(ObservableList<QueueDescriptor> queues) {
+		replyQueueCB.setItems(queues);
 	}
 
 	public void initialize() {
-		if (messageDescriptorSend != null) {
-			payload.setText(messageDescriptorSend.getText());
+		final Callback<ListView<QueueDescriptor>, ListCell<QueueDescriptor>> factory = new Callback<ListView<QueueDescriptor>, ListCell<QueueDescriptor>>() {
+			@Override
+			public ListCell<QueueDescriptor> call(ListView<QueueDescriptor> arg0) {
+				return new QueueDescriptorCell();
+			}
 
-			headersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		};
+		replyQueueCB.setCellFactory(factory);
+		replyQueueCB.setButtonCell(new QueueDescriptorCell());
+	}
 
-			ObservableList<HeaderDescriptor> rows = FXCollections.observableArrayList();
-			rows.addAll(messageDescriptorSend.getHeaders());
-			headersTable.setItems(rows);
-			payloadPane.setExpanded(true);
+	private static class QueueDescriptorCell extends ListCell<QueueDescriptor> {
+		@Override
+		protected void updateItem(QueueDescriptor item, boolean empty) {
+			super.updateItem(item, empty);
+			if (item != null)
+				setText(item.getName());
 		}
+	}
+
+	protected void sendButton(ActionEvent actionEvent) {
+		QueueDescriptor queue = replyQueueCB.getValue();
+		MessageDescriptor messageDescriptor = getSendMessage();
+		sendMessage(messageDescriptor.getText(), queue.getName());
 	}
 
 	// This method called to send MQ message to the norma messaging server
 	// RECEIVES a message STRING and returns a message object (used as a
 	// reference for the reply)
-	public ReturnInfo sendMessage(String messageText, String queueNameReceive) {
+	public void sendMessage(String messageText, String queueNameReceive) {
 
 		MQQueue requestQueue = null;
 		try {
@@ -104,7 +162,6 @@ public class MessageSendControler {
 				sendMessage = new MQMessage();
 			} catch (NullPointerException e) {
 				e.printStackTrace();
-				return null;
 			}
 
 			sendMessage.format = MQConstants.MQFMT_STRING; // Set message format
@@ -142,7 +199,6 @@ public class MessageSendControler {
 				requestQueue.put(sendMessage, pmo);
 			} catch (NullPointerException e) {
 				System.out.println("Request Q is null - cannot put message");
-				return null;
 			}
 			System.out.println("Message placed on queue");
 
@@ -159,28 +215,17 @@ public class MessageSendControler {
 			System.out.println("Message ID for sent message = '" + new String(sendMessage.messageId) + "'");
 			System.out.println("Correlation ID stored = '" + new String(storedMessage.correlationId) + "'");
 
-			ReturnInfo info = new ReturnInfo();
-			info.replyMessage = storedMessage;
-			info.headers = ReturnInfo.getMessageHeaders(sendMessage, null);
-			return info;
+			// activate the receiving thread
+			ReceivingThread responseThread = new ReceivingThread(storedMessage, queueNameReceive);
+			responseThread.run();
 
 		} catch (MQException ex) {
 			System.out.println("MQCommunicator.send - MQException occurred : Completion code " + ex.completionCode
 					+ " Reason code " + ex.reasonCode);
-			return null;
 		} catch (java.io.IOException ex) {
 			System.out.println("MQCommunicator.send - IOException occurred: " + ex);
-			return null;
 		} catch (Exception ex) {
 			System.out.println("MQCommunicator.send - General Exception occurred: " + ex);
-			return null;
-		} finally {
-			if (requestQueue != null)
-				try {
-					requestQueue.close();
-				} catch (MQException e) {
-					e.printStackTrace();
-				}
 		}
 	}
 
@@ -285,18 +330,8 @@ public class MessageSendControler {
 		public void run() {
 
 			// get the reply
-			MessageDescriptor info = receive();
-
-			//			if (info == null) {
-			//				info = new ReturnInfo();
-			//				info.headers = Collections.EMPTY_MAP;
-			//				info.messageText = "TIMEOUT: no reply";
-			//			}
-
-			// Open the window that shows the reply
-			//			JFrame responseFrame = new NormaResponseFrame(info.headers, info.messageText);
-			//			responseFrame.setVisible(true);
-
+			MessageDescriptor messageDescriptor = receive();
+			setReceiveMessage(messageDescriptor);
 		}
 
 	}

@@ -20,7 +20,6 @@ import javafx.stage.Stage;
 
 import javax.annotation.Resource;
 
-import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.ui.Main;
 import net.sf.juffrou.mq.ui.SpringFxmlLoader;
@@ -100,8 +99,8 @@ public class ListQueues implements Initializable {
 			Parent root = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/message-send.fxml");
 
 			MessageSendControler controller = springFxmlLoader.<MessageSendControler> getController();
-			controller.setMessageDescriptor(new MessageDescriptor());
-			controller.initialize();
+			controller.setQueueNameSend(queue.getName());
+			controller.setQueueDescriptors(table.getItems());
 
 			Scene scene = new Scene(root, 768, 480);
 			Stage stage = new Stage();
