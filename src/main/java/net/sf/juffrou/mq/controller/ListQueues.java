@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 
 import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.ui.Main;
+import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.ui.SpringFxmlLoader;
 
 import org.slf4j.Logger;
@@ -155,18 +156,21 @@ public class ListQueues implements Initializable {
 		catch (MQException mqe) {
 			if (log.isErrorEnabled())
 				log.error(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+			NotificationPopup popup = new NotificationPopup(getStage());
+			popup.display(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
 		}
 
 		catch (IOException ioe) {
 			if (log.isErrorEnabled())
 				log.error(ioe.getMessage());
-		}
-
-		catch (ArrayIndexOutOfBoundsException abe) {
-			if (log.isErrorEnabled())
-				log.error("Usage: java " + ListQueues.class.getName() + " local-queue-manager-name | host port channel");
+			NotificationPopup popup = new NotificationPopup(getStage());
+			popup.display(ioe.getMessage());
 		}
 
 		return queueList;
+	}
+
+	private Stage getStage() {
+		return (Stage) table.getScene().getWindow();
 	}
 }

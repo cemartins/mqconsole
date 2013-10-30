@@ -19,9 +19,12 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.ui.Main;
+import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.ui.SpringFxmlLoader;
 import net.sf.juffrou.mq.util.MessageDescriptorHelper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -40,6 +43,8 @@ import com.ibm.mq.pcf.PCFConstants;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ListMessages implements Initializable {
+
+	private static final Logger log = LoggerFactory.getLogger(ListMessages.class);
 
 	private static final int MAX_TEXT_LEN_DISPLAY = 160;
 
@@ -121,14 +126,24 @@ public class ListMessages implements Initializable {
 
 		catch (MQException mqe) {
 			if (mqe.reasonCode == MQException.MQRC_NO_MSG_AVAILABLE) {
-				System.out.println(messageList.size() + (messageList.size() == 1 ? " message." : " messages."));
+				if (log.isDebugEnabled())
+					log.debug(messageList.size() + (messageList.size() == 1 ? " message." : " messages."));
 			} else {
-				System.err.println(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+				if (log.isErrorEnabled())
+					log.error(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+				NotificationPopup popup = new NotificationPopup(getStage());
+				popup.display(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (log.isErrorEnabled())
+				log.error(e.getMessage());
+			NotificationPopup popup = new NotificationPopup(getStage());
+			popup.display(e.getMessage());
 		} catch (MQDataException e) {
-			System.err.println(e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
+			if (log.isErrorEnabled())
+				log.error(e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
+			NotificationPopup popup = new NotificationPopup(getStage());
+			popup.display(e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
 		}
 
 		return messageList;
@@ -144,5 +159,9 @@ public class ListMessages implements Initializable {
 		ObservableList<MessageDescriptor> rows = FXCollections.observableArrayList();
 		rows.addAll(listMessages());
 		table.setItems(rows);
+	}
+
+	private Stage getStage() {
+		return (Stage) table.getScene().getWindow();
 	}
 }

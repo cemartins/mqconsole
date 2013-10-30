@@ -1,7 +1,5 @@
 package net.sf.juffrou.mq.controller;
 
-import java.util.Collections;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,33 +8,41 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
-import net.sf.juffrou.mq.dom.ReturnInfo;
-import net.sf.juffrou.mq.util.MessageDescriptorHelper;
+import net.sf.juffrou.mq.ui.NotificationPopup;
+import net.sf.juffrou.mq.util.MessageReceivingTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.ibm.mq.MQException;
-import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQPutMessageOptions;
 import com.ibm.mq.MQQueue;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
+import com.ibm.mq.pcf.PCFConstants;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MessageSendControler {
+
+	private static final Logger log = LoggerFactory.getLogger(MessageSendControler.class);
 
 	@FXML
 	private Accordion messageAccordion;
@@ -62,9 +68,18 @@ public class MessageSendControler {
 	@FXML
 	private ComboBox<QueueDescriptor> replyQueueCB;
 
+	@FXML
+	private TabPane messageTabs;
+
+	@FXML
+	private Tab responseTab;
+
 	@Autowired
 	@Qualifier("mqQueueManager")
 	private MQQueueManager qm;
+
+	@Value("${broker_timeout}")
+	private Integer brokerTimeout;
 
 	private String queueNameSend;
 
@@ -125,8 +140,13 @@ public class MessageSendControler {
 		}
 	}
 
-	protected void sendButton(ActionEvent actionEvent) {
+	public void sendButton(ActionEvent actionEvent) {
 		QueueDescriptor queue = replyQueueCB.getValue();
+		if (queue == null) {
+			NotificationPopup popup = new NotificationPopup(getStage());
+			popup.display("Please select a response queue");
+			return;
+		}
 		MessageDescriptor messageDescriptor = getSendMessage();
 		sendMessage(messageDescriptor.getText(), queue.getName());
 	}
@@ -198,9 +218,11 @@ public class MessageSendControler {
 			try {
 				requestQueue.put(sendMessage, pmo);
 			} catch (NullPointerException e) {
-				System.out.println("Request Q is null - cannot put message");
+				if (log.isErrorEnabled())
+					log.error("Request Q is null - cannot put message");
 			}
-			System.out.println("Message placed on queue");
+			if (log.isDebugEnabled())
+				log.debug("Message placed on queue");
 
 			// Store the messageId for future use...
 			// Define a MQMessage object to store the message ID as a
@@ -212,128 +234,48 @@ public class MessageSendControler {
 			storedMessage.correlationId = sendMessage.messageId;
 			// storedMessage.characterSet = 1208; // UTF-8
 
-			System.out.println("Message ID for sent message = '" + new String(sendMessage.messageId) + "'");
-			System.out.println("Correlation ID stored = '" + new String(storedMessage.correlationId) + "'");
-
-			// activate the receiving thread
-			ReceivingThread responseThread = new ReceivingThread(storedMessage, queueNameReceive);
-			responseThread.run();
-
-		} catch (MQException ex) {
-			System.out.println("MQCommunicator.send - MQException occurred : Completion code " + ex.completionCode
-					+ " Reason code " + ex.reasonCode);
-		} catch (java.io.IOException ex) {
-			System.out.println("MQCommunicator.send - IOException occurred: " + ex);
-		} catch (Exception ex) {
-			System.out.println("MQCommunicator.send - General Exception occurred: " + ex);
-		}
-	}
-
-	private class ReceivingThread implements Runnable {
-
-		private final MQMessage replyMessage;
-		private final String queueNameReceive;
-
-		public ReceivingThread(MQMessage replyMessage, String queueNameReceive) {
-			this.replyMessage = replyMessage;
-			this.queueNameReceive = queueNameReceive;
-		}
-
-		// Get the reply from MVS containing account information
-		public MessageDescriptor receive() {
-			MQQueue replyQueue = null;
-			try {
-				// Construct new MQGetMessageOptions object
-				MQGetMessageOptions gmo = new MQGetMessageOptions();
-
-				// Set the get message options.. specify that we want to wait
-				// for reply message
-				// AND *** SET OPTION TO CONVERT CHARS TO RIGHT CHAR SET ***
-				gmo.options = MQConstants.MQGMO_WAIT | MQConstants.MQGMO_CONVERT;
-
-				gmo.options |= MQConstants.MQGMO_PROPERTIES_FORCE_MQRFH2;
-				gmo.options |= MQConstants.MQGMO_CONVERT;
-
-				// Specify the wait interval for the message in milliseconds
-				gmo.waitInterval = 40000;
-
-				System.out.println("Current Msg ID used for receive: '" + new String(replyMessage.messageId) + "'");
-				System.out.println("Correlation ID to use for receive: '" + new String(replyMessage.correlationId)
-						+ "'");
-				System.out.println("Supported character set to use for receive: " + replyMessage.characterSet);
-
-				// If the name of the request queue is the same as the reply
-				// queue...(again...)
-				int openOptions;
-				if (queueNameReceive.equals(queueNameSend)) {
-					openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF | MQConstants.MQOO_OUTPUT; // Same options as out
-																								// bound queue
-				} else {
-					openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF; // in bound
-																	// options
-																	// only
-				}
-				// openOptions |= MQConstants.MQOO_READ_AHEAD;
-				replyQueue = qm.accessQueue(queueNameReceive, openOptions, null, // default q manager
-						null, // no dynamic q name
-						null); // no alternate user id
-
-				// Following test lines will cause any message on the queue to
-				// be received regardless of
-				// whatever message ID or correlation ID it might have
-				// replyMessage.messageId = MQConstants.MQMI_NONE;
-				// replyMessage.correlationId = MQConstants.MQCI_NONE;
-
-				//				replyMessage.characterSet = 1208; // UTF-8 (will be charset=819 when the msg has Portuguese accented chars)
-
-				replyMessage.format = MQConstants.MQFMT_RF_HEADER_2;
-				// replyMessage.setBooleanProperty(MQConstants.WMQ_MQMD_READ_ENABLED,
-				// true);
-
-				// The replyMessage will have the correct correlation id for the
-				// message we want to get.
-				// Get the message off the queue..
-				replyQueue.get(replyMessage, gmo);
-				// And prove we have the message by displaying the message text
-				System.out.println("The receive message character set is: " + replyMessage.characterSet);
-
-				MessageDescriptor replyMessageDescriptor = MessageDescriptorHelper.createMessageDescriptor(replyMessage);
-
-				return replyMessageDescriptor;
-
-			} catch (MQException ex) {
-				System.out.println("MQCommunicator.receive - MQ error occurred : Completion code " + ex.completionCode
-						+ "\n>MQStatus: Reason code " + ex.reasonCode);
-				ReturnInfo info = new ReturnInfo();
-				info.headers = Collections.EMPTY_MAP;
-				info.messageText = "MQ error occurred : Completion code " + ex.completionCode
-						+ "\n>MQStatus: Reason code " + ex.reasonCode;
-				return null;
-			} catch (java.io.IOException ex) {
-				System.out.println("MQCommunicator.receive - error occurred: " + ex);
-			} catch (Exception ex) {
-				System.out.println("MQCommunicator.receive - general error occurred: " + ex);
-			} finally {
-				if (replyQueue != null)
-					try {
-						replyQueue.close();
-					} catch (MQException e) {
-						e.printStackTrace();
-					}
+			if (log.isDebugEnabled()) {
+				log.debug("Message ID for sent message = '" + new String(sendMessage.messageId) + "'");
+				log.debug("Correlation ID stored = '" + new String(storedMessage.correlationId) + "'");
 			}
 
-			// Return null if unsucessful
-			return null;
+			// activate the receiving thread
+			MessageReceivingTask.MessageReceivedHandler handler = new MessageReceivingTask.MessageReceivedHandler() {
+				@Override
+				public void messageReceived(MessageDescriptor messageDescriptor) {
+					setReceiveMessage(messageDescriptor);
+					receivePayloadPane.setExpanded(true);
+					messageTabs.getSelectionModel().clearAndSelect(1);
+				}
+
+				@Override
+				public Stage getStage() {
+					return (Stage) messageAccordion.getScene().getWindow();
+				}
+			};
+			MessageReceivingTask task = new MessageReceivingTask(handler, qm, queueNameReceive, brokerTimeout,
+					storedMessage, queueNameSend);
+
+			new Thread(task).start();
+
+		} catch (MQException ex) {
+			if (log.isErrorEnabled())
+				log.error(ex + ": " + PCFConstants.lookupReasonCode(ex.reasonCode));
+			NotificationPopup popup = new NotificationPopup(getStage());
+			popup.display(ex + ": " + PCFConstants.lookupReasonCode(ex.reasonCode));
+		} catch (java.io.IOException ex) {
+			if (log.isErrorEnabled())
+				log.error(ex.getMessage());
+			NotificationPopup popup = new NotificationPopup(getStage());
+			popup.display(ex.getMessage());
+		} catch (Exception ex) {
+			if (log.isErrorEnabled())
+				log.error(ex.getMessage());
+			NotificationPopup popup = new NotificationPopup(getStage());
 		}
-
-		@Override
-		public void run() {
-
-			// get the reply
-			MessageDescriptor messageDescriptor = receive();
-			setReceiveMessage(messageDescriptor);
-		}
-
 	}
 
+	private Stage getStage() {
+		return (Stage) messageAccordion.getScene().getWindow();
+	}
 }
