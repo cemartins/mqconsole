@@ -129,6 +129,7 @@ public class MessageSendControler {
 		};
 		replyQueueCB.setCellFactory(factory);
 		replyQueueCB.setButtonCell(new QueueDescriptorCell());
+		sendPayloadPane.setExpanded(true);
 	}
 
 	private static class QueueDescriptorCell extends ListCell<QueueDescriptor> {
