@@ -1,5 +1,8 @@
 package net.sf.juffrou.mq.controller;
 
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -46,6 +49,9 @@ public class MessageSendControler {
 
 	@FXML
 	private Accordion messageAccordion;
+
+	@FXML
+	private TitledPane sendHeadersPane;
 
 	@FXML
 	private TitledPane sendPayloadPane;
@@ -96,21 +102,32 @@ public class MessageSendControler {
 		messageDescriptor.setText(sendPayload.getText());
 		receivePayload.setText(messageDescriptor.getText());
 
-		receiveHeadersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
 		receiveHeadersTable.getItems();
 		ObservableList<HeaderDescriptor> rows = receiveHeadersTable.getItems();
-		messageDescriptor.getHeaders().addAll(rows);
+		if (rows != null) {
+			Iterator<HeaderDescriptor> iterator = rows.iterator();
+			while (iterator.hasNext())
+				messageDescriptor.addHeader(iterator.next());
+		}
 		return messageDescriptor;
+	}
+
+	public void setSentMessage(MessageDescriptor messageDescriptor) {
+		sendPayload.setText(messageDescriptor.getText());
+
+		ObservableList<HeaderDescriptor> rows = FXCollections.observableArrayList();
+		rows.addAll(messageDescriptor.getHeaders());
+		sendHeadersTable.getItems().clear();
+		sendHeadersTable.setItems(rows);
+		sendHeadersPane.setExpanded(true);
 	}
 
 	public void setReceiveMessage(MessageDescriptor messageDescriptor) {
 		receivePayload.setText(messageDescriptor.getText());
 
-		receiveHeadersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
 		ObservableList<HeaderDescriptor> rows = FXCollections.observableArrayList();
 		rows.addAll(messageDescriptor.getHeaders());
+		receiveHeadersTable.getItems().clear();
 		receiveHeadersTable.setItems(rows);
 		receivePayloadPane.setExpanded(true);
 	}
@@ -120,6 +137,8 @@ public class MessageSendControler {
 	}
 
 	public void initialize() {
+		sendHeadersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		receiveHeadersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		final Callback<ListView<QueueDescriptor>, ListCell<QueueDescriptor>> factory = new Callback<ListView<QueueDescriptor>, ListCell<QueueDescriptor>>() {
 			@Override
 			public ListCell<QueueDescriptor> call(ListView<QueueDescriptor> arg0) {
@@ -149,13 +168,13 @@ public class MessageSendControler {
 			return;
 		}
 		MessageDescriptor messageDescriptor = getSendMessage();
-		sendMessage(messageDescriptor.getText(), queue.getName());
+		sendMessage(messageDescriptor, queue.getName());
 	}
 
 	// This method called to send MQ message to the norma messaging server
 	// RECEIVES a message STRING and returns a message object (used as a
 	// reference for the reply)
-	public void sendMessage(String messageText, String queueNameReceive) {
+	public void sendMessage(MessageDescriptor messageDescriptor, String queueNameReceive) {
 
 		MQQueue requestQueue = null;
 		try {
@@ -208,7 +227,7 @@ public class MessageSendControler {
 			// Set message text
 			// String buffer = new String(bufferFront + messageText +
 			// bufferEnd);
-			String buffer = messageText;
+			String buffer = messageDescriptor.getText();
 			sendMessage.writeString(buffer);
 
 			// Specify the message options...(default)
@@ -224,6 +243,17 @@ public class MessageSendControler {
 			}
 			if (log.isDebugEnabled())
 				log.debug("Message placed on queue");
+
+			//Put the sent message with updated headers from the broker to the request tab
+			messageDescriptor.addHeader("MQMDmessageId", sendMessage.messageId == null ? "null" : "'"
+					+ new String(sendMessage.messageId) + "'");
+			GregorianCalendar putDateTime = sendMessage.putDateTime;
+			messageDescriptor.addHeader("MQMDputDateTime", putDateTime == null ? "null"
+					: putDateTime.getTime().toString());
+			messageDescriptor.addHeader("MQMDcorrelationId", sendMessage.correlationId == null ? "null" : "'"
+					+ new String(sendMessage.correlationId) + "'");
+
+			setSentMessage(messageDescriptor);
 
 			// Store the messageId for future use...
 			// Define a MQMessage object to store the message ID as a

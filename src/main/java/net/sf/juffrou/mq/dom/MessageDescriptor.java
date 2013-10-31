@@ -48,8 +48,12 @@ public class MessageDescriptor {
 		return headers.values();
 	}
 
-	public void setHeader(String key, Object value) {
+	public void addHeader(String key, Object value) {
 		headers.put(key, new HeaderDescriptor(key, value));
+	}
+
+	public void addHeader(HeaderDescriptor headerDescriptor) {
+		headers.put(headerDescriptor.getName(), headerDescriptor);
 	}
 
 	public Object getHeader(String key) {

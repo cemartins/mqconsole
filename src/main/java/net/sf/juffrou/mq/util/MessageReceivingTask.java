@@ -120,8 +120,11 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 			// message we want to get.
 			// Get the message off the queue..
 			replyQueue.get(replyMessage, gmo);
+			if (isCancelled())
+				return null;
 			// And prove we have the message by displaying the message text
-			System.out.println("The receive message character set is: " + replyMessage.characterSet);
+			if (log.isDebugEnabled())
+				log.debug("The receive message character set is: " + replyMessage.characterSet);
 
 			MessageDescriptor replyMessageDescriptor = MessageDescriptorHelper.createMessageDescriptor(replyMessage);
 
