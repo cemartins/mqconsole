@@ -78,7 +78,7 @@
             </AnchorPane>
           </content>
         </Tab>
-        <Tab text="Response">
+        <Tab fx:id="responseTab" text="Response">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
               <children>
