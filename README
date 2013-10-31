@@ -1,5 +1,15 @@
 MQConsole - JavaFX Console for IBM Websphere MQ
- 
-To run in windows execute:
-java -Dmq.console.dir=%CD%\ -jar MQConsole.jar
+
+Before running, edit the broker.properties file and fill in the details of your Websphere message broker:
+	broker_hostname = <ip address or hostname where the broker is running>
+	broker_port = <port where the broker listens to (default=1414)>
+	broker_channel = <channel name>
+	broker_queue_manager = <queue manager name>
+	broker_timeout = <timeout in milliseconds when waiting for a messsage response> 
+
+On Mac OSX the broker.properties file is located inside the application package (right click and select "show package contents"), 
+in the folder Contents/Java.
+
+On Windows the broker.properties file is located in the app folder.
+
 
