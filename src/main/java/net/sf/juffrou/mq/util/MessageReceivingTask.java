@@ -75,6 +75,8 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 
 			gmo.options |= MQConstants.MQGMO_PROPERTIES_FORCE_MQRFH2;
 			gmo.options |= MQConstants.MQGMO_CONVERT;
+			
+			gmo.matchOptions = MQConstants.MQMO_MATCH_CORREL_ID;
 
 			// Specify the wait interval for the message in milliseconds
 			gmo.waitInterval = brokerTimeout.intValue();

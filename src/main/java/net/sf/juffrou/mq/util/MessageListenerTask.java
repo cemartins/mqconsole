@@ -67,10 +67,13 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 			// for reply message
 			// AND *** SET OPTION TO CONVERT CHARS TO RIGHT CHAR SET ***
 			gmo.options = MQConstants.MQGMO_WAIT;
+			
+			gmo.waitInterval = MQConstants.MQWI_UNLIMITED;
 
 			gmo.options |= MQConstants.MQGMO_PROPERTIES_FORCE_MQRFH2;
 			gmo.options |= MQConstants.MQGMO_CONVERT;
 
+			gmo.matchOptions = MQConstants.MQMO_NONE;
 
 			// If the name of the request queue is the same as the reply
 			// queue...(again...)
@@ -132,7 +135,7 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 					inboundQueue.close();
 				} catch (MQException e) {
 					if (log.isErrorEnabled())
-						log.error("Error closing queue " + e.getMessage());
+						log.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
 				}
 		}
 	}

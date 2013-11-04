@@ -28,6 +28,7 @@
           <items>
             <MenuItem mnemonicParsing="false" onAction="#openMessageList" text="Message List" fx:id="mItemList" />
             <MenuItem mnemonicParsing="false" onAction="#sendMessage" text="Send New Message" fx:id="mItemSend" />
+            <MenuItem id="mItemListen" mnemonicParsing="false" onAction="#listenToNewMessages" text="Listen to New Messages" />
           </items>
         </ContextMenu>
       </contextMenu>

@@ -27,6 +27,7 @@ import net.sf.juffrou.mq.ui.SpringFxmlLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -57,6 +58,9 @@ public class ListQueues implements Initializable {
 
 	@Value("${broker_channel}")
 	private String brokerChannel;
+	
+	@Autowired
+	private MessageListenerController messageListenerController;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -66,6 +70,15 @@ public class ListQueues implements Initializable {
 		rows.addAll(getQueues());
 		table.setItems(rows);
 
+	}
+	
+	public void listenToNewMessages(ActionEvent event) {
+		ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
+		for (TablePosition<?, ?> cell : cells) {
+			QueueDescriptor queue = table.getItems().get(cell.getRow());
+			messageListenerController.startMessageListener(getStage(), queue.getName());
+		}
+		
 	}
 
 	public void openMessageList(ActionEvent event) {
