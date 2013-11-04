@@ -2,6 +2,7 @@ package net.sf.juffrou.mq.util;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.stage.Stage;
@@ -19,23 +20,17 @@ import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFConstants;
 
-public class MessageReceivingTask extends Task<MessageDescriptor> {
+public class MessageListenerTask extends Task<MessageDescriptor> {
 
-	private static final Logger log = LoggerFactory.getLogger(MessageReceivingTask.class);
+	private static final Logger log = LoggerFactory.getLogger(MessageListenerTask.class);
 
 	private final MQQueueManager qm;
-	private final MQMessage replyMessage;
 	private final String queueNameReceive;
-	private final String queueNameSend;
-	private final Integer brokerTimeout;
 
-	public MessageReceivingTask(final MessageReceivedHandler handler, MQQueueManager qm, String queueNameReceive, Integer brokerTimeout, MQMessage replyMessage, String queueNameSent) {
+	public MessageListenerTask(final MessageReceivedHandler handler, MQQueueManager qm, String queueNameReceive) {
 		super();
 		this.qm = qm;
 		this.queueNameReceive = queueNameReceive;
-		this.brokerTimeout = brokerTimeout;
-		this.replyMessage = replyMessage;
-		this.queueNameSend = queueNameSent;
 
 		stateProperty().addListener(new ChangeListener<Worker.State>() {
 			@Override
@@ -76,23 +71,11 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 			gmo.options |= MQConstants.MQGMO_PROPERTIES_FORCE_MQRFH2;
 			gmo.options |= MQConstants.MQGMO_CONVERT;
 
-			// Specify the wait interval for the message in milliseconds
-			gmo.waitInterval = brokerTimeout.intValue();
-
-			if (log.isDebugEnabled()) {
-				log.debug("Current Msg ID used for receive: '" + new String(replyMessage.messageId) + "'");
-				log.debug("Correlation ID to use for receive: '" + new String(replyMessage.correlationId) + "'");
-				log.debug("Supported character set to use for receive: " + replyMessage.characterSet);
-			}
 
 			// If the name of the request queue is the same as the reply
 			// queue...(again...)
 			int openOptions;
-			if (queueNameReceive != null && queueNameReceive.equals(queueNameSend)) {
-				openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF | MQConstants.MQOO_OUTPUT; // Same options as out bound queue
-			} else {
-				openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF; // in bound options only
-			}
+			openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF; // in bound options only
 			// openOptions |= MQConstants.MQOO_READ_AHEAD;
 			inboundQueue = qm.accessQueue(queueNameReceive, openOptions, null, // default q manager
 					null, // no dynamic q name
@@ -107,23 +90,24 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 			// replyMessage.messageId = MQConstants.MQMI_NONE;
 			// replyMessage.correlationId = MQConstants.MQCI_NONE;
 
-			//				replyMessage.characterSet = 1208; // UTF-8 (will be charset=819 when the msg has Portuguese accented chars)
-
-			replyMessage.format = MQConstants.MQFMT_RF_HEADER_2;
+			MQMessage inboundMessage = new MQMessage();
+			inboundMessage.messageId = null;
+			inboundMessage.correlationId = null;
+			inboundMessage.format = MQConstants.MQFMT_RF_HEADER_2;
 			// replyMessage.setBooleanProperty(MQConstants.WMQ_MQMD_READ_ENABLED,
 			// true);
 
 			// The replyMessage will have the correct correlation id for the
 			// message we want to get.
 			// Get the message off the queue..
-			inboundQueue.get(replyMessage, gmo);
+			inboundQueue.get(inboundMessage, gmo);
 			if (isCancelled())
 				return null;
 			// And prove we have the message by displaying the message text
 			if (log.isDebugEnabled())
-				log.debug("The receive message character set is: " + replyMessage.characterSet);
+				log.debug("The receive message character set is: " + inboundMessage.characterSet);
 
-			MessageDescriptor replyMessageDescriptor = MessageDescriptorHelper.createMessageDescriptor(replyMessage);
+			MessageDescriptor replyMessageDescriptor = MessageDescriptorHelper.createMessageDescriptor(inboundMessage);
 
 			return replyMessageDescriptor;
 

@@ -37,6 +37,7 @@ import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQQueue;
 import com.ibm.mq.MQQueueManager;
+import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.headers.MQDataException;
 import com.ibm.mq.pcf.PCFConstants;
 
@@ -103,11 +104,11 @@ public class ListMessages implements Initializable {
 
 		try {
 			MQException.log = null;
-			MQQueue queue = qm.accessQueue(queueName, MQC.MQOO_BROWSE | MQC.MQOO_FAIL_IF_QUIESCING);
+			MQQueue queue = qm.accessQueue(queueName, MQConstants.MQOO_BROWSE | MQConstants.MQOO_FAIL_IF_QUIESCING);
 			MQMessage message = new MQMessage();
 			MQGetMessageOptions gmo = new MQGetMessageOptions();
 
-			gmo.options = MQC.MQGMO_BROWSE_NEXT | MQC.MQGMO_NO_WAIT | MQC.MQGMO_CONVERT;
+			gmo.options = MQConstants.MQGMO_BROWSE_NEXT | MQConstants.MQGMO_NO_WAIT | MQConstants.MQGMO_CONVERT;
 
 			while (true) {
 				message.messageId = null;

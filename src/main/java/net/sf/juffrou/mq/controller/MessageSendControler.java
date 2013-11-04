@@ -22,6 +22,7 @@ import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.ui.NotificationPopup;
+import net.sf.juffrou.mq.util.MessageReceivedHandler;
 import net.sf.juffrou.mq.util.MessageReceivingTask;
 
 import org.slf4j.Logger;
@@ -271,7 +272,7 @@ public class MessageSendControler {
 			}
 
 			// activate the receiving thread
-			MessageReceivingTask.MessageReceivedHandler handler = new MessageReceivingTask.MessageReceivedHandler() {
+			MessageReceivedHandler handler = new MessageReceivedHandler() {
 				@Override
 				public void messageReceived(MessageDescriptor messageDescriptor) {
 					setReceiveMessage(messageDescriptor);
