@@ -2,10 +2,8 @@ package net.sf.juffrou.mq.util;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
-import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.ui.NotificationPopup;
 
@@ -40,16 +38,10 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 					handler.messageReceived(getValue());
 					break;
 				case FAILED:
-					MessageDescriptor messageDescriptor = new MessageDescriptor();
-					messageDescriptor.setText(getMessage());
-					handler.messageReceived(messageDescriptor);
 					NotificationPopup popup = new NotificationPopup(handler.getStage());
 					popup.display(getMessage());
 					break;
 				case CANCELLED:
-					MessageDescriptor canceledDescriptor = new MessageDescriptor();
-					canceledDescriptor.setText(getMessage());
-					handler.messageReceived(canceledDescriptor);
 					break;
 				}
 			}
@@ -67,7 +59,7 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 			// for reply message
 			// AND *** SET OPTION TO CONVERT CHARS TO RIGHT CHAR SET ***
 			gmo.options = MQConstants.MQGMO_WAIT;
-			
+
 			gmo.waitInterval = MQConstants.MQWI_UNLIMITED;
 
 			gmo.options |= MQConstants.MQGMO_PROPERTIES_FORCE_MQRFH2;
@@ -78,7 +70,8 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 			// If the name of the request queue is the same as the reply
 			// queue...(again...)
 			int openOptions;
-			openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF; // in bound options only
+			//			openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF; // in bound options only
+			openOptions = MQConstants.MQOO_INPUT_SHARED;
 			// openOptions |= MQConstants.MQOO_READ_AHEAD;
 			inboundQueue = qm.accessQueue(queueNameReceive, openOptions, null, // default q manager
 					null, // no dynamic q name
