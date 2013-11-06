@@ -19,6 +19,7 @@
 			<value type="java.lang.Integer">${broker_port}</value>
 		</entry>
 		<entry key="channel" value="${broker_channel}" />
+		<entry key="transport" value="MQSeries Client" />
 	</util:map>
 	
 	<!-- Scans the framework for annotated classes(beans!) -->
