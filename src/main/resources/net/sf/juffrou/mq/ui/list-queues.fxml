@@ -7,31 +7,37 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="search-queues" prefHeight="395.0" prefWidth="535.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.sf.juffrou.mq.controller.ListQueues">
+<AnchorPane id="search-queues" prefHeight="395.0" prefWidth="598.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.sf.juffrou.mq.controller.ListQueues">
   <!-- TODO Add Nodes -->
   <children>
     <TableView fx:id="table" prefHeight="329.0" prefWidth="487.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="23.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="26.0">
       <columns>
-        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="436.0" text="Queue">
+        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="175.0" text="Queue">
           <cellValueFactory>
             <PropertyValueFactory property="name" />
           </cellValueFactory>
         </TableColumn>
-        <TableColumn editable="false" prefWidth="50.0" text="Dept">
+        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="296.0" text="Description">
+          <cellValueFactory>
+            <PropertyValueFactory property="description" />
+          </cellValueFactory>
+        </TableColumn>
+        <TableColumn editable="false" maxWidth="90.0" minWidth="10.0" prefWidth="82.0" resizable="false" text="Messages">
           <cellValueFactory>
             <PropertyValueFactory property="dept" />
           </cellValueFactory>
         </TableColumn>
       </columns>
       <contextMenu>
-        <ContextMenu fx:id="messageListCM">
+        <ContextMenu onShowing="#contextMenuOnShowingAction" fx:id="messageListCM">
           <items>
             <MenuItem mnemonicParsing="false" onAction="#openMessageList" text="Message List" fx:id="mItemList" />
             <MenuItem mnemonicParsing="false" onAction="#sendMessage" text="Send New Message" fx:id="mItemSend" />
-            <MenuItem id="mItemListen" mnemonicParsing="false" onAction="#listenToNewMessages" text="Listen to New Messages" />
+            <MenuItem id="mItemListen" mnemonicParsing="false" onAction="#listenToNewMessagesAction" text="Listen to New Messages" fx:id="miListenToNewMessages" />
           </items>
         </ContextMenu>
       </contextMenu>
     </TableView>
+    <Button mnemonicParsing="false" onAction="#refreshButtonAction" text="Refresh" AnchorPane.bottomAnchor="13.0" AnchorPane.rightAnchor="25.0" />
   </children>
 </AnchorPane>

@@ -12,8 +12,10 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -30,8 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.ibm.mq.MQC;
 import com.ibm.mq.MQException;
+import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.CMQC;
 import com.ibm.mq.pcf.CMQCFC;
 import com.ibm.mq.pcf.PCFConstants;
@@ -47,6 +49,9 @@ public class ListQueues {
 
 	@FXML
 	private TableView<QueueDescriptor> table;
+	
+	@FXML
+	private MenuItem miListenToNewMessages;
 
 	@Resource(name = "mqQueueManagerOptions")
 	private Map<String, Object> mqQueueManagerOptions;
@@ -71,16 +76,33 @@ public class ListQueues {
 		table.setItems(rows);
 	}
 
-	public void listenToNewMessages(ActionEvent event) {
+	@FXML
+	private void listenToNewMessagesAction(ActionEvent event) {
 		ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
 		for (TablePosition<?, ?> cell : cells) {
 			QueueDescriptor queue = table.getItems().get(cell.getRow());
-			messageListenerController.startMessageListener(getStage(), queue.getName());
+			if(messageListenerController.isCurrentListeningQueue(queue.getName()))
+				messageListenerController.stopMessageListener();
+			else
+				messageListenerController.startMessageListener(getStage(), queue.getName());
 		}
 
 	}
+	
+	@FXML
+	private void contextMenuOnShowingAction() {
+		String listenerText = "Listen to New Messages";
+		ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
+		for (TablePosition<?, ?> cell : cells) {
+			QueueDescriptor queue = table.getItems().get(cell.getRow());
+			if(messageListenerController.isCurrentListeningQueue(queue.getName()))
+				listenerText = "Stop Listening to New Messages";
+		}
+		miListenToNewMessages.setText(listenerText);
+	}
 
-	public void openMessageList(ActionEvent event) {
+	@FXML
+	private void openMessageList(ActionEvent event) {
 		ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
 		for (TablePosition<?, ?> cell : cells) {
 			QueueDescriptor queue = table.getItems().get(cell.getRow());
@@ -103,7 +125,8 @@ public class ListQueues {
 		}
 	}
 
-	public void sendMessage(ActionEvent event) {
+	@FXML
+	private void sendMessage(ActionEvent event) {
 		ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
 		for (TablePosition<?, ?> cell : cells) {
 			QueueDescriptor queue = table.getItems().get(cell.getRow());
@@ -126,6 +149,13 @@ public class ListQueues {
 		}
 	}
 
+	@FXML
+	private void refreshButtonAction(ActionEvent event) {
+		ObservableList<QueueDescriptor> rows = FXCollections.observableArrayList();
+		rows.addAll(getQueues());
+		table.setItems(rows);
+	}
+	
 	private List<QueueDescriptor> getQueues() {
 
 		List<QueueDescriptor> queueList = new ArrayList<QueueDescriptor>();
@@ -139,7 +169,7 @@ public class ListQueues {
 			PCFMessage request = new PCFMessage(CMQCFC.MQCMD_INQUIRE_Q);
 
 			request.addParameter(CMQC.MQCA_Q_NAME, "*");
-			request.addParameter(CMQC.MQIA_Q_TYPE, MQC.MQQT_LOCAL);
+			request.addParameter(CMQC.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
 			//			request.addFilterParameter(CMQC.MQIA_CURRENT_Q_DEPTH, CMQCFC.MQCFOP_GREATER, 0);
 
 			PCFMessage[] responses = agent.send(request);
@@ -151,7 +181,10 @@ public class ListQueues {
 				String qName = (String) response.getParameterValue(CMQC.MQCA_Q_NAME);
 				if (qName != null) {
 
+					String qDesc = (String) response.getParameterValue(CMQC.MQCA_Q_DESC);
+
 					queue.setName(qName.trim());
+					queue.setDescription(qDesc.trim());
 					queue.setDept((Integer) response.getParameterValue(CMQC.MQIA_CURRENT_Q_DEPTH));
 
 					queueList.add(queue);

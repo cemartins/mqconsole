@@ -3,6 +3,7 @@ package net.sf.juffrou.mq.dom;
 public class QueueDescriptor {
 
 	private String name;
+	private String description;
 	private Integer dept;
 
 	public String getName() {
@@ -11,6 +12,14 @@ public class QueueDescriptor {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public Integer getDept() {

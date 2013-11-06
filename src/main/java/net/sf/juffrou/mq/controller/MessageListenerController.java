@@ -22,29 +22,32 @@ public class MessageListenerController {
 	@Qualifier("mqListeningQueueManager")
 	private MQQueueManager qm;
 
+	private MessageListenerTask currentListeningTask;
 	private Thread currentListeningThread = null;
 	private String currentListeningQueue;
 
 	public void startMessageListener(Stage parentStage, String listeningQueue) {
-
+		
 		if (currentListeningThread != null) {
+			currentListeningTask.cancel(true);
 			currentListeningThread.interrupt(); // cannot have more than one active listener
 		}
 
 		IncomingMessageHandler handler = new IncomingMessageHandler(parentStage, listeningQueue);
-		MessageListenerTask task = new MessageListenerTask(handler, qm, listeningQueue);
+		currentListeningTask = new MessageListenerTask(handler, qm, listeningQueue);
 
 		currentListeningQueue = listeningQueue;
-		currentListeningThread = new Thread(task);
+		currentListeningThread = new Thread(currentListeningTask);
 		currentListeningThread.start();
 	}
 
 	public boolean isCurrentListeningQueue(String listeningQueue) {
-		return listeningQueue.equals(currentListeningQueue);
+		return currentListeningThread != null && listeningQueue.equals(currentListeningQueue);
 	}
 
 	public void stopMessageListener() {
 		if (currentListeningThread != null) {
+			currentListeningTask.cancel(true);
 			currentListeningThread.interrupt(); // cannot have more than one active listener
 		}
 
@@ -77,6 +80,7 @@ public class MessageListenerController {
 			stage.setTitle("Message Event");
 			stage.show();
 
+			currentListeningQueue = null;
 			startMessageListener(parentStage, listeningQueue);
 		}
 

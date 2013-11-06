@@ -108,9 +108,11 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 			return replyMessageDescriptor;
 
 		} catch (MQException mqe) {
-			if (log.isErrorEnabled())
-				log.error("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
-			updateMessage("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+			if(!isCancelled()) {
+				if (log.isErrorEnabled())
+					log.error("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+				updateMessage("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+			}
 			throw mqe;
 		} catch (java.io.IOException ex) {
 			if (log.isErrorEnabled())
