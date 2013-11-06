@@ -19,21 +19,43 @@ import com.ibm.mq.MQQueueManager;
 public class MessageListenerController {
 
 	@Autowired
-	@Qualifier("mqQueueManager")
+	@Qualifier("mqListeningQueueManager")
 	private MQQueueManager qm;
 
+	private Thread currentListeningThread = null;
+	private String currentListeningQueue;
+
 	public void startMessageListener(Stage parentStage, String listeningQueue) {
+
+		if (currentListeningThread != null) {
+			currentListeningThread.interrupt(); // cannot have more than one active listener
+		}
+
 		IncomingMessageHandler handler = new IncomingMessageHandler(parentStage, listeningQueue);
 		MessageListenerTask task = new MessageListenerTask(handler, qm, listeningQueue);
-		
-		new Thread(task).start();
+
+		currentListeningQueue = listeningQueue;
+		currentListeningThread = new Thread(task);
+		currentListeningThread.start();
 	}
-	
+
+	public boolean isCurrentListeningQueue(String listeningQueue) {
+		return listeningQueue.equals(currentListeningQueue);
+	}
+
+	public void stopMessageListener() {
+		if (currentListeningThread != null) {
+			currentListeningThread.interrupt(); // cannot have more than one active listener
+		}
+
+		currentListeningQueue = null;
+	}
+
 	private class IncomingMessageHandler implements MessageReceivedHandler {
-		
+
 		private final Stage parentStage;
 		private final String listeningQueue;
-		
+
 		public IncomingMessageHandler(Stage parentStage, String listeningQueue) {
 			this.parentStage = parentStage;
 			this.listeningQueue = listeningQueue;
@@ -54,7 +76,7 @@ public class MessageListenerController {
 			stage.setScene(scene);
 			stage.setTitle("Message Event");
 			stage.show();
-			
+
 			startMessageListener(parentStage, listeningQueue);
 		}
 
@@ -62,7 +84,7 @@ public class MessageListenerController {
 		public Stage getStage() {
 			return parentStage;
 		}
-		
+
 	}
-	
+
 }

@@ -65,7 +65,7 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 			gmo.options |= MQConstants.MQGMO_PROPERTIES_FORCE_MQRFH2;
 			gmo.options |= MQConstants.MQGMO_CONVERT;
 
-			gmo.matchOptions = MQConstants.MQMO_NONE;
+			gmo.matchOptions = MQConstants.MQMO_MATCH_CORREL_ID;
 
 			// If the name of the request queue is the same as the reply
 			// queue...(again...)

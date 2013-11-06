@@ -189,8 +189,7 @@ public class MessageSendControler {
 				if (queueNameSend.equals(queueNameReceive)) {
 					openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF | MQConstants.MQOO_OUTPUT;
 				} else {
-					openOptions = MQConstants.MQOO_INPUT_SHARED | MQConstants.MQOO_OUTPUT; // Open queue to
-					// perform MQPUTs
+					openOptions = MQConstants.MQOO_OUTPUT; // Open queue to perform MQPUTs
 				}
 
 				// Now specify the queue that we wish to open, and the open

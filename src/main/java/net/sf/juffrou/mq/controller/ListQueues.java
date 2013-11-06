@@ -1,22 +1,21 @@
 package net.sf.juffrou.mq.controller;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import javax.annotation.Resource;
 
@@ -40,9 +39,11 @@ import com.ibm.mq.pcf.PCFMessage;
 import com.ibm.mq.pcf.PCFMessageAgent;
 
 @Component
-public class ListQueues implements Initializable {
+public class ListQueues {
 
 	private static final Logger log = LoggerFactory.getLogger(ListQueues.class);
+
+	private Stage stage;
 
 	@FXML
 	private TableView<QueueDescriptor> table;
@@ -58,27 +59,25 @@ public class ListQueues implements Initializable {
 
 	@Value("${broker_channel}")
 	private String brokerChannel;
-	
+
 	@Autowired
 	private MessageListenerController messageListenerController;
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
+	public void initialize() {
 		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
 		ObservableList<QueueDescriptor> rows = FXCollections.observableArrayList();
 		rows.addAll(getQueues());
 		table.setItems(rows);
-
 	}
-	
+
 	public void listenToNewMessages(ActionEvent event) {
 		ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
 		for (TablePosition<?, ?> cell : cells) {
 			QueueDescriptor queue = table.getItems().get(cell.getRow());
 			messageListenerController.startMessageListener(getStage(), queue.getName());
 		}
-		
+
 	}
 
 	public void openMessageList(ActionEvent event) {
@@ -183,7 +182,17 @@ public class ListQueues implements Initializable {
 		return queueList;
 	}
 
+	public void setStage(Stage stage) {
+		this.stage = stage;
+		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(WindowEvent we) {
+				messageListenerController.stopMessageListener();
+			}
+		});
+	}
+
 	private Stage getStage() {
-		return (Stage) table.getScene().getWindow();
+		return stage;
 	}
 }

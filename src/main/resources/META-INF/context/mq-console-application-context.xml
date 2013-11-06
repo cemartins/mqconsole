@@ -32,4 +32,12 @@
 		<constructor-arg ref="mqQueueManagerOptions" />
 	</bean>
 
+	<!-- // Create a connection to the QueueManager for the listening deamon -->
+	<bean id="mqListeningQueueManager" class="com.ibm.mq.MQQueueManager">
+		<constructor-arg>
+			<value>${broker_queue_manager}</value>
+		</constructor-arg>
+		<constructor-arg ref="mqQueueManagerOptions" />
+	</bean>
+
 </beans>

@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import net.sf.juffrou.mq.controller.ListQueues;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,8 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 	public void start(Stage primaryStage) throws Exception {
 		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(applicationContext);
 		parentNode = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/list-queues.fxml");
+		ListQueues controller = springFxmlLoader.<ListQueues> getController();
+		controller.setStage(primaryStage);
 		Scene scene = new Scene(parentNode, 768, 480);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Websphere-MQ Queues");
