@@ -12,4 +12,6 @@ in the folder Contents/Java.
 
 On Windows the broker.properties file is located in the app folder.
 
-
+The project is configured as a maven project
+Main class is net.sf.juffrou.mq.ui.Main
+In the development environment the broker.properties file is located in ${basedir}/src/main/deploy

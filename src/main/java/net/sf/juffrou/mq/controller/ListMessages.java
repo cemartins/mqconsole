@@ -107,6 +107,8 @@ public class ListMessages implements Initializable {
 			MQQueue queue = qm.accessQueue(queueName, MQConstants.MQOO_BROWSE | MQConstants.MQOO_FAIL_IF_QUIESCING);
 			MQMessage message = new MQMessage();
 			MQGetMessageOptions gmo = new MQGetMessageOptions();
+			
+			String i = MQC.TRANSPORT_MQSERIES_CLIENT;
 
 			gmo.options = MQConstants.MQGMO_BROWSE_NEXT | MQConstants.MQGMO_NO_WAIT | MQConstants.MQGMO_CONVERT;
 
