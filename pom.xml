@@ -331,7 +331,36 @@
 
 	<profiles>
 		<profile>
-			<id>JavaFX_classpath</id>
+			<id>MacOSX_specific_package</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<build>
+				<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>Rename_DMG_Package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<move file="${project.build.directory}/bundles/${project.build.finalName}.dmg" tofile="${project.build.directory}/bundles/${artifactId}-${project.version}.dmg"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>Windows_specific_package</id>
 			<activation>
 				<os>
 					<family>windows</family>
