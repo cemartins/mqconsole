@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html version="-//W3C//DTD XHTML 1.1//EN"
+      xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.w3.org/1999/xhtml
+                          http://www.w3.org/MarkUp/SCHEMA/xhtml11.xsd">
+  <head>
+    <title>Virtual Library</title>
+  </head>
+  <body>
+  	<table align="center">
+  	<tr>
+  	<td align="center"><img src="images/mqconsole-body-banner.jpg" /></td>
+  	</tr>
+  	<tr>
+  	<td align="center">JavaFX Manager Console for IBM Websphere MQ</td>
+  	</tr>
+  	<tr>
+  	<td align="center">The latest version is ${project.version}</td>
+  	</tr>
+  	<tr>
+  	<td align="center"><p>Please see the <a href="https://sourceforge.net/p/mqconsole">project page</a> at sourceforge for downloads, source code, wiki pages and issue tickets.</p></td>
+  	</tr>
+  	</table>
+  </body>
+</html>
