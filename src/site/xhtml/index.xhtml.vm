@@ -1,28 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html version="-//W3C//DTD XHTML 1.1//EN"
-      xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.w3.org/1999/xhtml
-                          http://www.w3.org/MarkUp/SCHEMA/xhtml11.xsd">
-  <head>
-    <title>Virtual Library</title>
-  </head>
-  <body>
-  	<table align="center">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<body>
+	<table id="outerTable"><tr><td>
+  	<table id="contentTable">
   	<tr>
-  	<td align="center"><img src="images/mqconsole-body-banner.jpg" /></td>
+  	<td><img src="images/mqconsole-body-banner.jpg" style="border: solid; border-width: 1px; border-color: gray;" /></td>
   	</tr>
   	<tr>
-  	<td align="center">JavaFX Manager Console for IBM Websphere MQ</td>
+  	<td>JavaFX Manager Console for IBM Websphere MQ</td>
   	</tr>
   	<tr>
-  	<td align="center">The latest version is ${project.version}</td>
+  	<td>The latest version is ${project.version}</td>
   	</tr>
   	<tr>
-  	<td align="center"><p>Please see the <a href="https://sourceforge.net/p/mqconsole">project page</a> at sourceforge for downloads, source code, wiki pages and issue tickets.</p></td>
+  	<td><p>Please see the <a href="https://sourceforge.net/p/mqconsole">project page</a> at sourceforge for downloads, source code, user guide and support.</p></td>
   	</tr>
   	</table>
-  </body>
+  	</td></tr></table>
+</body>
 </html>
