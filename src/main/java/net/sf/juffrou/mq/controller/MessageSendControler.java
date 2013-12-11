@@ -6,13 +6,20 @@ import java.util.Iterator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
@@ -22,6 +29,7 @@ import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.ui.NotificationPopup;
+import net.sf.juffrou.mq.util.MessageDescriptorHelper;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 import net.sf.juffrou.mq.util.MessageReceivingTask;
 
@@ -62,6 +70,12 @@ public class MessageSendControler {
 
 	@FXML
 	private TableView<HeaderDescriptor> sendHeadersTable;
+	
+	@FXML
+	private TableColumn<HeaderDescriptor, String> sendHeadersTableName;
+
+	@FXML
+	private TableColumn<HeaderDescriptor, Object> sendHeadersTableValue;
 
 	@FXML
 	private TableView<HeaderDescriptor> receiveHeadersTable;
@@ -101,10 +115,8 @@ public class MessageSendControler {
 	public MessageDescriptor getSendMessage() {
 		MessageDescriptor messageDescriptor = new MessageDescriptor();
 		messageDescriptor.setText(sendPayload.getText());
-		receivePayload.setText(messageDescriptor.getText());
 
-		receiveHeadersTable.getItems();
-		ObservableList<HeaderDescriptor> rows = receiveHeadersTable.getItems();
+		ObservableList<HeaderDescriptor> rows = sendHeadersTable.getItems();
 		if (rows != null) {
 			Iterator<HeaderDescriptor> iterator = rows.iterator();
 			while (iterator.hasNext())
@@ -139,6 +151,24 @@ public class MessageSendControler {
 
 	public void initialize() {
 		sendHeadersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		sendHeadersTableName.setOnEditCommit(
+				new EventHandler<CellEditEvent<HeaderDescriptor, String>>() {
+	                public void handle(CellEditEvent<HeaderDescriptor, String> t) {
+	                    ((HeaderDescriptor) t.getTableView().getItems().get(
+	                        t.getTablePosition().getRow())
+	                        ).setName(t.getNewValue());
+	                }
+	            }
+	        );
+		sendHeadersTableValue.setOnEditCommit(
+				new EventHandler<CellEditEvent<HeaderDescriptor, Object>>() {
+	                public void handle(CellEditEvent<HeaderDescriptor, Object> t) {
+	                    ((HeaderDescriptor) t.getTableView().getItems().get(
+	                        t.getTablePosition().getRow())
+	                        ).setValue(t.getNewValue());
+	                }
+	            }
+	        );
 		receiveHeadersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		final Callback<ListView<QueueDescriptor>, ListCell<QueueDescriptor>> factory = new Callback<ListView<QueueDescriptor>, ListCell<QueueDescriptor>>() {
 			@Override
@@ -159,6 +189,31 @@ public class MessageSendControler {
 			if (item != null)
 				setText(item.getName());
 		}
+	}
+	
+	@FXML
+	private void addHeader(ActionEvent event) {
+		// user selected Add Row from the context menu on the send headers table
+		
+		HeaderDescriptor hd = new HeaderDescriptor();
+		hd.setName("header_name (double click to change)");
+		hd.setValue("value (double click to change)");
+		ObservableList<HeaderDescriptor> items = sendHeadersTable.getItems();
+		if(items != null)
+			items.add(hd);
+		else {
+			items = FXCollections.observableArrayList();
+			items.add(hd);
+			sendHeadersTable.setItems(items);
+		}
+	}
+
+	@FXML
+	private void removeHeader(ActionEvent event) {
+		
+		ObservableList<TablePosition> cells = sendHeadersTable.getSelectionModel().getSelectedCells();
+		int row = cells.get(0).getRow();
+		sendHeadersTable.getItems().remove(row);
 	}
 
 	public void sendButton(ActionEvent actionEvent) {
@@ -229,6 +284,9 @@ public class MessageSendControler {
 			// bufferEnd);
 			String buffer = messageDescriptor.getText();
 			sendMessage.writeString(buffer);
+			
+			// set the message headers
+			MessageDescriptorHelper.setMessageHeaders(sendMessage, messageDescriptor);
 
 			// Specify the message options...(default)
 			MQPutMessageOptions pmo = new MQPutMessageOptions();
@@ -245,12 +303,12 @@ public class MessageSendControler {
 				log.debug("Message placed on queue");
 
 			//Put the sent message with updated headers from the broker to the request tab
-			messageDescriptor.addHeader("MQMDmessageId", sendMessage.messageId == null ? "null" : "'"
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_MESSAGE_ID, sendMessage.messageId == null ? "null" : "'"
 					+ new String(sendMessage.messageId) + "'");
 			GregorianCalendar putDateTime = sendMessage.putDateTime;
-			messageDescriptor.addHeader("MQMDputDateTime", putDateTime == null ? "null"
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_PUT_DATETIME, putDateTime == null ? "null"
 					: putDateTime.getTime().toString());
-			messageDescriptor.addHeader("MQMDcorrelationId", sendMessage.correlationId == null ? "null" : "'"
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_CORRELATION_ID, sendMessage.correlationId == null ? "null" : "'"
 					+ new String(sendMessage.correlationId) + "'");
 
 			setSentMessage(messageDescriptor);

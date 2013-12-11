@@ -24,19 +24,33 @@
                       <content>
                         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                           <children>
-                            <TableView id="headersTable" fx:id="sendHeadersTable" editable="false" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <TableView id="headersTable" fx:id="sendHeadersTable" editable="true" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                               <columns>
-                                <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="218.0" text="Name">
+                                <TableColumn fx:id="sendHeadersTableName" maxWidth="5000.0" minWidth="10.0" prefWidth="218.0" text="Name">
                                   <cellValueFactory>
                                     <PropertyValueFactory property="name" />
                                   </cellValueFactory>
+                                  <cellFactory>
+                                  	<net.sf.juffrou.mq.ui.EditableTableCellFactory />
+                                  </cellFactory>
                                 </TableColumn>
-                                <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="212.0" text="Value">
+                                <TableColumn fx:id="sendHeadersTableValue" maxWidth="5000.0" minWidth="10.0" prefWidth="212.0" text="Value">
                                   <cellValueFactory>
                                     <PropertyValueFactory property="valueAsString" />
                                   </cellValueFactory>
+                                  <cellFactory>
+                                  	<net.sf.juffrou.mq.ui.EditableTableCellFactory />
+                                  </cellFactory>
                                 </TableColumn>
                               </columns>
+                              <contextMenu>
+                                <ContextMenu>
+                                  <items>
+                                    <MenuItem mnemonicParsing="false" onAction="#addHeader" text="Add Header" fx:id="menuItemAddHeader" />
+                                    <MenuItem mnemonicParsing="false" onAction="#removeHeader" text="Remove Header" fx:id="menuItemRemoveHeader" />
+                                  </items>
+                                </ContextMenu>
+                              </contextMenu>
                             </TableView>
                           </children>
                         </AnchorPane>
@@ -58,7 +72,7 @@
                 </Accordion>
                 <HBox alignment="BOTTOM_RIGHT" prefHeight="22.0" prefWidth="435.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                   <children>
-                    <ComboBox fx:id="replyQueueCB" prefHeight="-1.0" prefWidth="-1.0" promptText="Reply queue" HBox.hgrow="ALWAYS">
+                    <ComboBox fx:id="replyQueueCB" prefHeight="21.0" prefWidth="388.0" promptText="Reply queue" HBox.hgrow="ALWAYS">
                       <items>
                         <FXCollections fx:factory="observableArrayList">
                           <String fx:value="Item 1" />

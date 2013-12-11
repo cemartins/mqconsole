@@ -2,11 +2,13 @@ package net.sf.juffrou.mq.util;
 
 import java.io.IOException;
 
+import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ibm.mq.MQException;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.headers.MQDataException;
 import com.ibm.mq.headers.MQHeader;
@@ -48,6 +50,49 @@ public class MessageDescriptorHelper {
 		return messageDescriptor;
 	}
 
+	public static void setMessageHeaders(MQMessage message, MessageDescriptor messageDescriptor) throws MQException {
+
+		if(messageDescriptor.getHeaders() != null) {
+			for(HeaderDescriptor hdesc : messageDescriptor.getHeaders()) {
+				String key = hdesc.getName();
+				if(key.isEmpty())
+					continue;
+				int folderPos = key.indexOf('.');
+				if(folderPos != -1) {
+					String folder = key.substring(0, folderPos);
+					if( !folder.equalsIgnoreCase("usr") )
+						continue;
+					key = key.substring(folderPos + 1);
+				}
+				
+				if(key.equals(HeaderDescriptor.HEADER_MESSAGE_ID) || key.equals(HeaderDescriptor.HEADER_PUT_DATETIME))
+					continue;
+				
+				if(key.equals(HeaderDescriptor.HEADER_SEQUENCE_NUMBER))
+					message.messageSequenceNumber = Integer.parseInt(hdesc.getValueAsString());
+				
+//				if(key.equals(HeaderDescriptor.HEADER_SEQUENCE_SIZE))
+//					message.
+				
+				if(key.equals(HeaderDescriptor.HEADER_CORRELATION_ID))
+					message.correlationId = hdesc.getValueAsString().getBytes();
+				else {
+					try {
+						message.setIntProperty(key, Integer.parseInt(hdesc.getValueAsString()));
+					}
+					catch(NumberFormatException e) {
+						try {
+							message.setDoubleProperty(key, Double.parseDouble(hdesc.getValueAsString()));
+						}
+						catch(NumberFormatException ee) {
+								message.setStringProperty(key, hdesc.getValueAsString());
+						}
+					}
+				}
+			}
+		}
+	}
+
 	private static void readMessageHeaders(MessageDescriptor messageDescriptor, MQMessage message, MQRFH2 rfh2) throws IOException {
 
 		if (rfh2 != null) {
@@ -64,6 +109,11 @@ public class MessageDescriptorHelper {
 				String key = header.toString();
 				messageDescriptor.addHeader(key, key);
 			}
+		}
+		
+		if (message != null) {
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_MESSAGE_ID, new String(message.messageId));
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_CORRELATION_ID, new String(message.correlationId));
 		}
 	}
 

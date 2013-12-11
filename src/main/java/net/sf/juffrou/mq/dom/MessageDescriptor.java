@@ -60,4 +60,7 @@ public class MessageDescriptor {
 		return headers.get(key) != null ? headers.get(key).getValue() : null;
 	}
 
+	public HeaderDescriptor removeHeader(String key) {
+		return headers.remove(key);
+	}
 }
