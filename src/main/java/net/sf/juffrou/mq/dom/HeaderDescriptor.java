@@ -5,8 +5,9 @@ public class HeaderDescriptor {
 	public static final String HEADER_MESSAGE_ID = "MessageId";
 	public static final String HEADER_CORRELATION_ID = "CorrelationId";
 	public static final String HEADER_PUT_DATETIME = "PutDateTime";
-	public static final String HEADER_SEQUENCE_NUMBER = "SEQUENCE_NUMBER";
-	public static final String HEADER_SEQUENCE_SIZE = "SEQUENCE_SIZE";
+	public static final String HEADER_SEQUENCE_ID = "sequenceId";
+	public static final String HEADER_SEQUENCE_NUMBER = "sequenceNumber";
+	public static final String HEADER_SEQUENCE_SIZE = "sequenceSize";
 	public static final String HEADER_EXPIRATION_DATE = "EXPIRATION_DATE";
 
 	private String name;

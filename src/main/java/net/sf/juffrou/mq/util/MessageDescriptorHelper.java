@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQMessage;
+import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.headers.MQDataException;
 import com.ibm.mq.headers.MQHeader;
 import com.ibm.mq.headers.MQHeaderIterator;
@@ -68,6 +69,9 @@ public class MessageDescriptorHelper {
 				if(key.equals(HeaderDescriptor.HEADER_MESSAGE_ID) || key.equals(HeaderDescriptor.HEADER_PUT_DATETIME))
 					continue;
 				
+				if(key.equals(HeaderDescriptor.HEADER_SEQUENCE_ID))
+					message.groupId = hdesc.getValue() != null ? hdesc.getValueAsString().getBytes() : MQConstants.MQGI_NONE;
+
 				if(key.equals(HeaderDescriptor.HEADER_SEQUENCE_NUMBER))
 					message.messageSequenceNumber = Integer.parseInt(hdesc.getValueAsString());
 				
@@ -75,7 +79,7 @@ public class MessageDescriptorHelper {
 //					message.
 				
 				if(key.equals(HeaderDescriptor.HEADER_CORRELATION_ID))
-					message.correlationId = hdesc.getValueAsString().getBytes();
+					message.correlationId = hdesc.getValue() == null || hdesc.getValueAsString().isEmpty() ? MQConstants.MQCI_NONE : hdesc.getValueAsString().getBytes();
 				else {
 					try {
 						message.setIntProperty(key, Integer.parseInt(hdesc.getValueAsString()));
