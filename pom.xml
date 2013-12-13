@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.sf.juffrou</groupId>
 	<artifactId>mq-console</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>WebsphereMQ Console</name>
 	<description>JavaFX 2 Application implementing a IBM WebsphereMQ broker console</description>
 	<url>https://mqconsole.sourceforge.net</url>
@@ -53,7 +52,8 @@
 		<connection>scm:git:https://cemartins@git.code.sf.net/p/mqconsole/code</connection>
 		<developerConnection>scm:git:https://cemartins@git.code.sf.net/p/mqconsole/code</developerConnection>
 		<url>http://sourceforge.net/p/mqconsole/code/ci/master/tree/</url>
-	</scm>
+	  <tag>mq-console-1.0.0</tag>
+  </scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -276,13 +276,10 @@
 						</goals>
 						<configuration>
 							<target xmlns:fx="javafx:com.sun.javafx.tools.ant">
-								<taskdef uri="javafx:com.sun.javafx.tools.ant" resource="com/sun/javafx/tools/ant/antlib.xml"
-									classpath="${basedir}/src/main/deploy:${javafx.tools.ant.jar}" />
+								<taskdef uri="javafx:com.sun.javafx.tools.ant" resource="com/sun/javafx/tools/ant/antlib.xml" classpath="${basedir}/src/main/deploy:${javafx.tools.ant.jar}" />
 
-								<!-- <fx:application id="fxApp" name="${project.name}" mainClass="${exec.mainClass}" 
-									preloaderClass="net.sf.juffrou.mq.ui.ConsolePreloader" /> -->
-								<fx:application id="fxApp" name="${project.build.finalName}"
-									mainClass="${exec.mainClass}" />
+								<!-- <fx:application id="fxApp" name="${project.name}" mainClass="${exec.mainClass}" preloaderClass="net.sf.juffrou.mq.ui.ConsolePreloader" /> -->
+								<fx:application id="fxApp" name="${project.build.finalName}" mainClass="${exec.mainClass}" />
 
 								<!-- Note: this will overwrite the JAR produced by maven-jar-plugin, 
 									change destfile if you don't want this -->
@@ -290,30 +287,22 @@
 									<fx:application refid="fxApp" />
 									<fx:fileset dir="${project.build.directory}/classes" />
 									<fx:resources>
-										<fx:fileset dir="${project.build.directory}"
-											includes="libs/*.jar" />
+										<fx:fileset dir="${project.build.directory}" includes="libs/*.jar" />
 									</fx:resources>
 									<manifest>
 										<attribute name="Implementation-Vendor" value="Juffrou Team" />
 										<attribute name="Implementation-Version" value="${project.version}" />
 									</manifest>
 								</fx:jar>
-								<!-- <fx:signjar destdir="${project.build.directory}/deploy" keyStore="sampleKeystore.jks" 
-									storePass="****" alias="javafx" keyPass="****"> <fileset dir="${project.build.directory}/deploy" 
-									file="${project.build.finalName}"/> </fx:signjar> -->
-								<fx:deploy outdir="${project.build.directory}"
-									outfile="${project.build.finalName}" nativeBundles="all"
-									verbose="true">
+								<!-- <fx:signjar destdir="${project.build.directory}/deploy" keyStore="sampleKeystore.jks" storePass="****" alias="javafx" keyPass="****"> <fileset dir="${project.build.directory}/deploy" file="${project.build.finalName}" /> </fx:signjar> -->
+								<fx:deploy outdir="${project.build.directory}" outfile="${project.build.finalName}" nativeBundles="all" verbose="true">
 									<fx:application refid="fxApp" />
 									<fx:resources>
 										<!-- If you changed <fx:jar> above, don't forget to modify the 
 											line below -->
-										<fx:fileset dir="${project.build.directory}"
-											includes="${project.build.finalName}.jar" />
-										<fx:fileset dir="${project.build.directory}"
-											includes="libs/*.jar" />
-										<fx:fileset dir="${basedir}/src/main/deploy/package"
-											includes="*.properties" />
+										<fx:fileset dir="${project.build.directory}" includes="${project.build.finalName}.jar" />
+										<fx:fileset dir="${project.build.directory}" includes="libs/*.jar" />
+										<fx:fileset dir="${basedir}/src/main/deploy/package" includes="*.properties" />
 									</fx:resources>
 									<fx:platform>
 										<fx:jvmarg value="-Xmx768m" />
@@ -451,7 +440,7 @@
 						</goals>
 						<configuration>
 							<target>
-								<move file="${project.build.directory}/bundles/${project.build.finalName}.dmg" tofile="${project.build.directory}/bundles/${project.artifactId}-${project.version}.dmg"/>
+								<move file="${project.build.directory}/bundles/${project.build.finalName}.dmg" tofile="${project.build.directory}/bundles/${project.artifactId}-${project.version}.dmg" />
 							</target>
 						</configuration>
 					</execution>
