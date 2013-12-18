@@ -3,23 +3,23 @@ package net.sf.juffrou.mq.controller;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
@@ -57,7 +57,10 @@ public class MessageSendControler {
 	private static final Logger log = LoggerFactory.getLogger(MessageSendControler.class);
 
 	@FXML
-	private Accordion messageAccordion;
+	private Accordion messageAccordionSend;
+
+	@FXML
+	private Accordion messageAccordionReceive;
 
 	@FXML
 	private TitledPane sendHeadersPane;
@@ -180,6 +183,31 @@ public class MessageSendControler {
 		replyQueueCB.setCellFactory(factory);
 		replyQueueCB.setButtonCell(new QueueDescriptorCell());
 		sendPayloadPane.setExpanded(true);
+		
+		// prevent all panes inside the accordion to collapse
+		messageAccordionSend.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+	        @Override public void changed(ObservableValue<? extends TitledPane> property, final TitledPane oldPane, final TitledPane newPane) {
+	          if (oldPane != null) oldPane.setCollapsible(true);
+	          if (newPane != null) Platform.runLater(new Runnable() { @Override public void run() { 
+	            newPane.setCollapsible(false); 
+	          }});
+	        }
+	      });
+
+		messageAccordionSend.setExpandedPane(sendPayloadPane);
+
+		// prevent all panes inside the accordion to collapse
+		messageAccordionReceive.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+	        @Override public void changed(ObservableValue<? extends TitledPane> property, final TitledPane oldPane, final TitledPane newPane) {
+	          if (oldPane != null) oldPane.setCollapsible(true);
+	          if (newPane != null) Platform.runLater(new Runnable() { @Override public void run() { 
+	            newPane.setCollapsible(false); 
+	          }});
+	        }
+	      });
+
+		messageAccordionReceive.setExpandedPane(receivePayloadPane);
+
 	}
 
 	private static class QueueDescriptorCell extends ListCell<QueueDescriptor> {
@@ -339,7 +367,7 @@ public class MessageSendControler {
 
 				@Override
 				public Stage getStage() {
-					return (Stage) messageAccordion.getScene().getWindow();
+					return (Stage) messageAccordionSend.getScene().getWindow();
 				}
 			};
 			MessageReceivingTask task = new MessageReceivingTask(handler, qm, queueNameReceive, brokerTimeout,
@@ -365,6 +393,6 @@ public class MessageSendControler {
 	}
 
 	private Stage getStage() {
-		return (Stage) messageAccordion.getScene().getWindow();
+		return (Stage) messageAccordionSend.getScene().getWindow();
 	}
 }
