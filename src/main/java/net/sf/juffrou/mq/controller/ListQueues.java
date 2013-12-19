@@ -15,7 +15,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
-import javafx.scene.input.ContextMenuEvent;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 

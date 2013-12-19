@@ -4,9 +4,12 @@ import java.io.File;
 import java.net.URL;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import net.sf.juffrou.mq.controller.ListQueues;
 
 import org.slf4j.Logger;
@@ -84,6 +87,16 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 		Scene scene = new Scene(parentNode, 768, 480);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Websphere-MQ Queues");
+
+		// Terminate application upon main window closing
+		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+
+			@Override
+			public void handle(WindowEvent arg0) {
+				Platform.exit();
+			}
+			
+		});
 		primaryStage.show();
 	}
 

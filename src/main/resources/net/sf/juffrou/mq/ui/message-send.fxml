@@ -74,7 +74,7 @@
                 </Accordion>
                 <HBox alignment="BOTTOM_RIGHT" prefHeight="22.0" prefWidth="435.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                   <children>
-                    <ComboBox fx:id="replyQueueCB" prefHeight="21.0" prefWidth="388.0" promptText="Reply queue" HBox.hgrow="ALWAYS">
+                    <ComboBox fx:id="replyQueueCB" prefHeight="21.0" prefWidth="-1.0" promptText="Reply queue" HBox.hgrow="ALWAYS">
                       <items>
                         <FXCollections fx:factory="observableArrayList">
                           <String fx:value="Item 1" />
@@ -82,6 +82,9 @@
                           <String fx:value="Item 3" />
                         </FXCollections>
                       </items>
+                      <HBox.margin>
+                        <Insets />
+                      </HBox.margin>
                     </ComboBox>
                     <Button mnemonicParsing="false" onAction="#sendButton" text="Send" textAlignment="LEFT" HBox.hgrow="ALWAYS">
                       <HBox.margin>

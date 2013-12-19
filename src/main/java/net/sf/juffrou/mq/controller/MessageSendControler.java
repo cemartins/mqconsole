@@ -25,6 +25,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import jfxtras.labs.dialogs.MonologFX;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
@@ -244,11 +245,16 @@ public class MessageSendControler {
 		sendHeadersTable.getItems().remove(row);
 	}
 
-	public void sendButton(ActionEvent actionEvent) {
+	@FXML
+	private void sendButton(ActionEvent actionEvent) {
 		QueueDescriptor queue = replyQueueCB.getValue();
 		if (queue == null) {
-			NotificationPopup popup = new NotificationPopup(getStage());
-			popup.display("Please select a response queue");
+//			NotificationPopup popup = new NotificationPopup(getStage());
+//			popup.display("Please select a response queue");
+			MonologFX dialog = new MonologFX(MonologFX.Type.ERROR);
+			dialog.setMessage("Please select a response queue");
+			dialog.setModal(true);
+			dialog.showDialog();
 			return;
 		}
 		MessageDescriptor messageDescriptor = getSendMessage();
