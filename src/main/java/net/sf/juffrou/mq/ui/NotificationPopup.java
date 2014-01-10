@@ -9,15 +9,14 @@ public class NotificationPopup {
 	private final MonologFX dialog;
 
 	public NotificationPopup(Stage parent) {
-
 		this.parent = parent;
 		this.dialog = new MonologFX(MonologFX.Type.ERROR);
 		this.dialog.setModal(true);
-		this.dialog.setScene(parent.getScene());
+//		this.dialog.setScene(parent.getScene());
 	}
 
 	public void display(String message) {
-		dialog.setMessage("Please select a response queue");
+		dialog.setMessage(message);
 		dialog.showDialog();
 	}
 }

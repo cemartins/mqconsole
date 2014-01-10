@@ -4,7 +4,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
-import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.ui.NotificationPopup;
 
@@ -42,9 +41,11 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 			public void changed(ObservableValue<? extends javafx.concurrent.Worker.State> observable, javafx.concurrent.Worker.State oldValue, javafx.concurrent.Worker.State newState) {
 				switch (newState) {
 				case SUCCEEDED:
+					MessageReceivingTask.super.succeeded();
 					handler.messageReceived(getValue());
 					break;
 				case FAILED:
+					MessageReceivingTask.super.failed();
 					MessageDescriptor messageDescriptor = new MessageDescriptor();
 					messageDescriptor.setText(getMessage());
 					handler.messageReceived(messageDescriptor);
@@ -52,6 +53,7 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 					popup.display(getMessage());
 					break;
 				case CANCELLED:
+					MessageReceivingTask.super.cancelled();
 					MessageDescriptor canceledDescriptor = new MessageDescriptor();
 					canceledDescriptor.setText(getMessage());
 					handler.messageReceived(canceledDescriptor);

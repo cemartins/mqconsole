@@ -379,7 +379,9 @@ public class MessageSendControler {
 			MessageReceivingTask task = new MessageReceivingTask(handler, qm, queueNameReceive, brokerTimeout,
 					storedMessage, queueNameSend);
 
-			new Thread(task).start();
+			Thread responseReceivingThread = new Thread(task);
+			responseReceivingThread.setDaemon(true);
+			responseReceivingThread.start();
 
 		} catch (MQException ex) {
 			if (log.isErrorEnabled())
