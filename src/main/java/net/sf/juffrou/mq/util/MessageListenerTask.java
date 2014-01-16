@@ -1,5 +1,6 @@
 package net.sf.juffrou.mq.util;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
@@ -35,13 +36,24 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 			public void changed(ObservableValue<? extends javafx.concurrent.Worker.State> observable, javafx.concurrent.Worker.State oldValue, javafx.concurrent.Worker.State newState) {
 				switch (newState) {
 				case SUCCEEDED:
-					handler.messageReceived(getValue());
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							handler.messageReceived(getValue());
+						}
+					});
 					break;
 				case FAILED:
 					NotificationPopup popup = new NotificationPopup(handler.getStage());
 					popup.display(getMessage());
 					break;
 				case CANCELLED:
+					break;
+				case SCHEDULED:
+					break;
+				case READY:
+					break;
+				case RUNNING:
 					break;
 				}
 			}

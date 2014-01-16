@@ -91,9 +91,9 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 
 			int openOptions;
 			if (queueNameSend.equals(queueNameReceive)) {
-				openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF | MQConstants.MQOO_OUTPUT;
+				openOptions = MQConstants.MQOO_INPUT_SHARED | MQConstants.MQOO_OUTPUT;
 			} else {
-				openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF; // in bound options only
+				openOptions = MQConstants.MQOO_INPUT_SHARED; // in bound options only
 			}
 //			openOptions = MQConstants.MQOO_INPUT_SHARED;
 			// openOptions |= MQConstants.MQOO_READ_AHEAD;

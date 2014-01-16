@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -214,16 +215,14 @@ public class ListQueues {
 		return queueList;
 	}
 
+	public MessageListenerController getMessageListenerController() {
+		return messageListenerController;
+	}
+	
 	public void setStage(Stage stage) {
 		this.stage = stage;
-		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(WindowEvent we) {
-				messageListenerController.stopMessageListener();
-			}
-		});
 	}
-
+	
 	private Stage getStage() {
 		return stage;
 	}

@@ -19,6 +19,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Main extends Application implements ConsolePreloader.SharedScene {
+	
+	private ListQueues mainController;
 
 	static {
 		if (System.getProperty("os.name").startsWith("Mac"))
@@ -82,8 +84,8 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 	public void start(Stage primaryStage) throws Exception {
 		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(applicationContext);
 		parentNode = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/list-queues.fxml");
-		ListQueues controller = springFxmlLoader.<ListQueues> getController();
-		controller.setStage(primaryStage);
+		mainController = springFxmlLoader.<ListQueues> getController();
+		mainController.setStage(primaryStage);
 		Scene scene = new Scene(parentNode, 768, 480);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Websphere-MQ Queues");
@@ -105,4 +107,9 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 		return parentNode;
 	}
 
+	@Override
+	public void stop() throws Exception {
+		mainController.getMessageListenerController().stopMessageListener();
+		super.stop();
+	}
 }

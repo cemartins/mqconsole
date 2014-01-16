@@ -37,7 +37,7 @@ public class MessageListenerController {
 		currentListeningTask = new MessageListenerTask(handler, qm, listeningQueue);
 
 		currentListeningQueue = listeningQueue;
-		currentListeningThread = new Thread(currentListeningTask);
+		currentListeningThread = new Thread(currentListeningTask, "Message listening task");
 		currentListeningThread.start();
 	}
 
