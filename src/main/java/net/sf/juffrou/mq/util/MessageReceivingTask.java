@@ -89,14 +89,13 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 				log.debug("Supported character set to use for receive: " + replyMessage.characterSet);
 			}
 
-			// If the name of the request queue is the same as the reply
-			// queue...(again...)
 			int openOptions;
-			if (queueNameReceive != null && queueNameReceive.equals(queueNameSend)) {
-				openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF | MQConstants.MQOO_OUTPUT; // Same options as out bound queue
+			if (queueNameSend.equals(queueNameReceive)) {
+				openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF | MQConstants.MQOO_OUTPUT;
 			} else {
 				openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF; // in bound options only
 			}
+//			openOptions = MQConstants.MQOO_INPUT_SHARED;
 			// openOptions |= MQConstants.MQOO_READ_AHEAD;
 			inboundQueue = qm.accessQueue(queueNameReceive, openOptions, null, // default q manager
 					null, // no dynamic q name

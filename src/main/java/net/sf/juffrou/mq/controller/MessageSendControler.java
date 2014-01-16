@@ -329,6 +329,7 @@ public class MessageSendControler {
 			// Put the message on the queue using default options
 			try {
 				requestQueue.put(sendMessage, pmo);
+				requestQueue.close();
 			} catch (NullPointerException e) {
 				if (log.isErrorEnabled())
 					log.error("Request Q is null - cannot put message");
