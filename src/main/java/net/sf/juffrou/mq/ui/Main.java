@@ -86,7 +86,7 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 		parentNode = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/list-queues.fxml");
 		mainController = springFxmlLoader.<ListQueues> getController();
 		mainController.setStage(primaryStage);
-		Scene scene = new Scene(parentNode, 768, 480);
+		Scene scene = new Scene(parentNode, 800, 480);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Websphere-MQ Queues");
 

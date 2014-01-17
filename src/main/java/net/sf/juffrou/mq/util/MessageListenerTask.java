@@ -63,6 +63,7 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 	@Override
 	protected MessageDescriptor call() throws Exception {
 		MQQueue inboundQueue = null;
+		MessageDescriptor replyMessageDescriptor = null;
 		try {
 			// Construct new MQGetMessageOptions object
 			MQGetMessageOptions gmo = new MQGetMessageOptions();
@@ -90,7 +91,13 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 					null); // no alternate user id
 
 			if (isCancelled())
-				return null;
+				try {
+					inboundQueue.close();
+					return null;
+				} catch (MQException e) {
+					if (log.isErrorEnabled())
+						log.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
+				}
 
 			// Following test lines will cause any message on the queue to
 			// be received regardless of
@@ -110,14 +117,18 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 			// Get the message off the queue..
 			inboundQueue.get(inboundMessage, gmo);
 			if (isCancelled())
-				return null;
+				try {
+					inboundQueue.close();
+					return null;
+				} catch (MQException e) {
+					if (log.isErrorEnabled())
+						log.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
+				}
 			// And prove we have the message by displaying the message text
 			if (log.isDebugEnabled())
 				log.debug("The receive message character set is: " + inboundMessage.characterSet);
 
-			MessageDescriptor replyMessageDescriptor = MessageDescriptorHelper.createMessageDescriptor(inboundMessage);
-
-			return replyMessageDescriptor;
+			replyMessageDescriptor = MessageDescriptorHelper.createMessageDescriptor(inboundMessage);
 
 		} catch (MQException mqe) {
 			if(!isCancelled()) {
@@ -145,6 +156,8 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 						log.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
 				}
 		}
+
+		return replyMessageDescriptor;
 	}
 
 }

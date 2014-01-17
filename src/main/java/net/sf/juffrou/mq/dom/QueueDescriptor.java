@@ -5,6 +5,7 @@ public class QueueDescriptor {
 	private String name;
 	private String description;
 	private Integer dept;
+	private Boolean isSherable;
 
 	public String getName() {
 		return name;
@@ -29,4 +30,13 @@ public class QueueDescriptor {
 	public void setDept(Integer dept) {
 		this.dept = dept;
 	}
+
+	public Boolean getIsSherable() {
+		return isSherable;
+	}
+
+	public void setIsSherable(Boolean isSherable) {
+		this.isSherable = isSherable;
+	}
+	
 }

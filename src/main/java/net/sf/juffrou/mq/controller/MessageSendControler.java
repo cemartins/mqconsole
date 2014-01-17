@@ -338,13 +338,10 @@ public class MessageSendControler {
 				log.debug("Message placed on queue");
 
 			//Put the sent message with updated headers from the broker to the request tab
-			messageDescriptor.addHeader(HeaderDescriptor.HEADER_MESSAGE_ID, sendMessage.messageId == null ? "null" : "'"
-					+ new String(sendMessage.messageId) + "'");
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_MESSAGE_ID, sendMessage.messageId == null ? "" : new String(sendMessage.messageId));
 			GregorianCalendar putDateTime = sendMessage.putDateTime;
-			messageDescriptor.addHeader(HeaderDescriptor.HEADER_PUT_DATETIME, putDateTime == null ? "null"
-					: putDateTime.getTime().toString());
-			messageDescriptor.addHeader(HeaderDescriptor.HEADER_CORRELATION_ID, sendMessage.correlationId == null ? "null" : "'"
-					+ new String(sendMessage.correlationId) + "'");
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_PUT_DATETIME, putDateTime == null ? "" : putDateTime.getTime().toString());
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_CORRELATION_ID, sendMessage.correlationId == null ? "" : new String(sendMessage.correlationId));
 
 			setSentMessage(messageDescriptor);
 
