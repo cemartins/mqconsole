@@ -54,7 +54,7 @@
 	<publishDate position="right" />
 	<version position="right" />
 	<poweredBy>
-		<logo name="Powered by sourceforge (click for project page)" href="https://sourceforge.net/p/mqconsole" img="https://a.fsdn.com/con/img/sftheme/logo.png?1345149519" />
+		<logo name="Powered by github (click for project page)" href="https://github.com/cemartins/mqconsole" img="images/GitHub.png" />
 	</poweredBy>
 	<custom>
 		<fluidoSkin>
@@ -69,7 +69,7 @@
 	</custom>
 	<body>
 		<head>
-			<link rel="shortcut icon" href="http://mqconsole.sourceforge.net/favicon.ico" />
+			<link rel="shortcut icon" href="http://cemartins.github.io/mqconsole/favicon.ico" />
 			<!-- Google Analytics -->
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -85,7 +85,7 @@
 </script>
 		</head>
 		<links>
-			<item name="Sourceforge" href="http://sourceforge.net/p/mqconsole/wiki/Home" />
+			<item name="Github" href="http://cemartins.github.io/mqconsole" />
 		</links>
 		<!-- 
 		<breadcrumbs>
@@ -99,6 +99,6 @@
 		<menu ref="reports" />
 
 
-		<footer>Powered by Powered by Sourceforge.net</footer>
+		<footer>Powered by Github</footer>
 	</body>
 </project>
