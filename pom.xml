@@ -25,17 +25,33 @@
 		</developer>
 	</developers>
 
+	<repositories>
+		<repository>
+			<id>central</id>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<name>bintray</name>
+			<url>http://jcenter.bintray.com</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+		    <id>central</id>
+		    <snapshots>
+		        <enabled>false</enabled>
+		    </snapshots>
+		    <name>bintray-plugins</name>
+		    <url>http://jcenter.bintray.com</url>
+		</pluginRepository>
+	</pluginRepositories>
+
 	<distributionManagement>
 		<repository>
-			<id>sonatype-nexus-staging</id>
-			<name>Nexus Staging Repository</name>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+			<id>bintray-repository</id>
+			<name>Bintray mqconsole repository</name>
+			<url>https://api.bintray.com/maven/${bintray.repo}/${bintray.package}</url>
 		</repository>
-		<snapshotRepository>
-			<id>sonatype-nexus-snapshots</id>
-			<name>Nexus Snaphots Repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
 		<site>
 			<id>github-pages-site</id>
 			<name>Deployment through GitHub's site deployment plugin</name>
@@ -64,6 +80,8 @@
 		<javafx.version>2.2</javafx.version>
 		<javafx.tools.ant.jar>${java.home}/../lib/ant-javafx.jar</javafx.tools.ant.jar>
 		<github.global.server>github</github.global.server>
+        <bintray.repo>cemartins/mqconsole</bintray.repo>
+        <bintray.package>MQConsole</bintray.package>
 	</properties>
 
 	<reporting>
@@ -110,7 +128,7 @@
 			</plugin>
 		</plugins>
 	</reporting>
-
+	
 	<build>
 		<finalName>MQConsole</finalName>
 		<pluginManagement>
