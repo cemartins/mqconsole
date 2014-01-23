@@ -23,7 +23,7 @@
 				<name>MQConsole</name>
 				<href>https://github.com/cemartins/mqconsole/</href>
 			</brand>
-			<slogan>JavaFX Console for IBM Websphere MQ</slogan>
+			<slogan>MQConsole</slogan>
 			<titleTemplate>%2$s | %1$s</titleTemplate>
 			<toc>top</toc>
 			<topNav>Download|reports</topNav>
@@ -32,18 +32,7 @@
 				<column>Documentation</column>
 				<column>reports|modules</column>
 			</bottomNav>
-			<bottomDescription>
-				MQConsole is a small JavaFX2 utility application which allows you to interact
-				with an IBM Websphere MQ messaging broker.
-				From a main window with the list of available queues you can:
-				* List the messages in a queue
-				* View a especific message details
-				* Send a new message to a queue and wait for a response
-				* Listen to new messages arriving at a queue and display them
-				automatically.
-				No need to have administrative credentials, just configure the
-				hostname where the broker is in, the channel and the name of the
-				queue manager.
+			<bottomDescription>JavaFX Console for IBM Websphere MQ
 			</bottomDescription>
 			<pages>
 				<index project="mqconsole">

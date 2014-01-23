@@ -146,12 +146,12 @@
 						<dependency>
 							<groupId>org.apache.maven.doxia</groupId>
 							<artifactId>doxia-module-xhtml</artifactId>
-							<version>1.4</version>
+							<version>1.5</version>
 						</dependency>
-						<dependency><!-- add support for ssh/scp -->
-							<groupId>org.apache.maven.wagon</groupId>
-							<artifactId>wagon-ssh</artifactId>
-							<version>2.4</version>
+						<dependency>
+							<groupId>org.apache.maven.doxia</groupId>
+							<artifactId>doxia-module-markdown</artifactId>
+							<version>1.5</version>
 						</dependency>
 						<!-- Needed By Reflow Skin -->
 				        <dependency>
