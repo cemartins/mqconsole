@@ -1,24 +1,64 @@
- 
-#banner {
-  color: #F3B455;
-  background-color: gray;
-  font-family: Courier;
+.color-highlight {
+        color: #225E9B;
 }
 
-#leftColumn {
-  width: 200px;
+body {
+        background-image:url(../images/bg.png);
 }
-#bodyColumn {
-	margin-right: 100px;
+
+body[class*="page-themes-bootswatch"] {
+        background-image: none;
 }
-#contentBox {
-	text-align: center;
+
+body[class*="page-themes-bootswatch"] .color-highlight {
+        color: inherit;
 }
-#outerTable {
+
+.thumbnail-row {
+        margin-top: 10px;
 }
-#outerTable td {
-	text-align: center;
+
+/*h1, */h2 {
+  margin-top: 30px;
 }
-#contentTable td {
-	text-align: center;
+
+h3, h4, h5, h6 {
+  margin-top: 20px;
+}
+
+.carousel-caption a {
+  color: white;
+}
+
+/* A bit of workaround for links being not clickable due to :before element in headings */
+.project-reflow-parent.page-index h2[id]:before {
+  height: 30px;
+  margin-top: -30px;
+}
+
+.project-reflow-parent.page-index .sidebar {
+  margin-top: 10px;
+}
+
+.project-reflow-parent.page-index .sidebar {
+  margin-top: 10px;
+}
+
+.project-reflow-parent.page-index .sidebar h3 {
+  margin-top: 10px;
+}
+
+
+@media (min-width: 980px) {
+  .page-themes-bootswatch-readable .navbar.affix {
+    top: 60px;
+  }
+
+  .page-themes-bootswatch-cerulean .navbar.affix {
+    top: 50px;
+  }
+
+  .page-themes-bootswatch-spruce .navbar.affix {
+    top: 55px;
+  }
 }

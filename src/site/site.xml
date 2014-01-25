@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/DECORATION/1.4.0"
+<project name="MQConsole"
+    xmlns="http://maven.apache.org/DECORATION/1.4.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.4.0 http://maven.apache.org/xsd/decoration-1.4.0.xsd"
-	name="MQConsole">
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.4.0 http://maven.apache.org/xsd/decoration-1.4.0.xsd">
+	
+	<publishDate position="bottom" format="yyyy-MM-dd" />
+	<version position="bottom" />
+	<googleAnalyticsAccountId>UA-36088259-1</googleAnalyticsAccountId>
+
+	<bannerLeft>
+	  <name><![CDATA[<span class="color-highlight">MQ</span> Console]]></name>
+	  <href>http://cemartins.github.com/mqconsole</href>
+	</bannerLeft>
+	
 	<skin>
 		<groupId>lt.velykis.maven.skins</groupId>
 		<artifactId>reflow-maven-skin</artifactId>
@@ -18,45 +28,49 @@
 	<custom>
 
 		<reflowSkin>
+			<smoothScroll>true</smoothScroll>
 			<theme>bootswatch-spacelab</theme>
+			<highlightJs>true</highlightJs>
+			<highlightJsTheme>github</highlightJsTheme>
 			<brand>
 				<name>MQConsole</name>
 				<href>https://github.com/cemartins/mqconsole/</href>
 			</brand>
-			<slogan>MQConsole</slogan>
-			<titleTemplate>%2$s | %1$s</titleTemplate>
+			<slogan>JavaFX Manager Console for IBM Websphere MQ</slogan>
+			<bottomDescription>MQConsole is a small JavaFX2 utility application which allows you to interact with an IBM Websphere MQ messaging broker</bottomDescription>
+			<!-- Use Table of Contents at the top of the page (max 6 elements) -->
 			<toc>top</toc>
-			<topNav>Download|reports</topNav>
+			<tocTopMax>6</tocTopMax>
+			<topNav>reports</topNav>
 			<bottomNav>
-				<column>Main|Download</column>
-				<column>Documentation</column>
-				<column>reports|modules</column>
+				<column>Main</column>
+				<column>reports</column>
 			</bottomNav>
-			<bottomDescription>JavaFX Console for IBM Websphere MQ
-			</bottomDescription>
+			
 			<pages>
-				<index project="mqconsole">
-					<shortTitle>Welcome</shortTitle>
+				<index>
+					<titleTemplate>MQ Console</titleTemplate>
+					<markPageHeader>false</markPageHeader>
 					<breadcrumbs>false</breadcrumbs>
-					<toc>true</toc>
+					<toc>false</toc>
 					<sections>
 						<carousel />
 						<body />
+						<!-- 
 						<sidebar />
 						<thumbs>2</thumbs>
 						<columns>3</columns>
+						 -->
 					</sections>
 				</index>
-				<developer-info>
-					<toc>sidebar</toc>
-				</developer-info>
 			</pages>
 		</reflowSkin>
 	</custom>
 	<body>
 		<head>
+			<link rel="author" href="http://plus.google.com/111660341923910322609"/>
 			<link rel="shortcut icon" href="http://cemartins.github.io/mqconsole/favicon.ico" />
-			<!-- Google Analytics -->
+			<!-- 
 			<script type="text/javascript">
 				var _gaq = _gaq || [];
 				_gaq.push(['_setAccount', 'UA-36088259-1']);
@@ -72,6 +86,7 @@
 				s.parentNode.insertBefore(ga, s);
 				})();
 			</script>
+			 -->
 		</head>
 		<!-- <links> <item name="Github" href="http://cemartins.github.io/mqconsole" 
 			/> </links> <breadcrumbs> <item name="Juffrou" href="http://juffrou.sourceforge.net/index.html"/> 
@@ -80,11 +95,6 @@
 			<item name="Introduction" href="index.html" />
 		</menu>
 
-		<menu ref="reports" />
-
-
-		<footer>
-			Powered by Github
-		</footer>
+		<menu name="Maven Documentation" ref="reports" />
 	</body>
 </project>

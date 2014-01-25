@@ -7,6 +7,10 @@
 	<description>JavaFX 2 Application implementing a IBM WebsphereMQ broker console</description>
 	<url>http://cemartins.github.io/mqconsole</url>
 
+	<organization>
+		<name>Carlos Martins</name>
+		<url>http://martins.dtdns.net/~cemartins</url>
+	</organization>
 	<inceptionYear>2013</inceptionYear>
 	<licenses>
 		<license>

@@ -1,11 +1,33 @@
-JavaFX Manager Console for IBM Websphere MQ
--------------------------------------------
+#### Main Window
+
+![Main Window](images/main_window.png)
+
+From the available queues window you can perform a number of actions. Right-click on a queue to see the menu.
+
+
+#### List Messages
+
+![Message List](images/list_messages.png)
+
+This window displays the messages still in a queue. You can view the details of each message by right-clicking on one.
+
+
+#### Message Detail
+
+![Message List](images/view_message.png)
+
+In the message detail window you can see the message headers as well as the message body in text form.
+
+
+#### Send Message
+
+![Message List](images/send_message.png)
+
+The send message window allows you to send a message to a queue and collect the response message.
+
 
 ---
 
-![MQConsole](images/mqconsole-body-banner.jpg "MQConsole")
-
----
 
 MQConsole is a small JavaFX2 utility application which allows you to interact
 with an IBM Websphere MQ messaging broker.
