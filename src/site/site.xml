@@ -18,13 +18,7 @@
 		<artifactId>reflow-maven-skin</artifactId>
 		<version>1.0.0</version>
 	</skin>
-	<!-- <bannerLeft> <name>Juffrou</name> <src>images/juffrou_extense.jpg</src> 
-		<href>http://juffrou.sourceforge.net/</href> <width>334</width> <height>73</height> 
-		</bannerLeft> <bannerRight> <src>images/juffrou_text_new.jpg</src> <width>140</width> 
-		<height>73</height> </bannerRight> -->
-	<!-- <publishDate position="right" /> <version position="right" /> <poweredBy> 
-		<logo name="Powered by github (click for project page)" href="https://github.com/cemartins/mqconsole" 
-		img="images/GitHub.png" /> </poweredBy> -->
+
 	<custom>
 
 		<reflowSkin>
@@ -88,12 +82,20 @@
 			</script>
 			 -->
 		</head>
-		<!-- <links> <item name="Github" href="http://cemartins.github.io/mqconsole" 
-			/> </links> <breadcrumbs> <item name="Juffrou" href="http://juffrou.sourceforge.net/index.html"/> 
-			</breadcrumbs> -->
+		<links>
+			<item name="Download" href="https://bintray.com/cemartins/mqconsole/MQConsole"/>
+		</links> 
+		<!--	
+			<breadcrumbs> <item name="Juffrou" href="http://juffrou.sourceforge.net/index.html"/> 
+			</breadcrumbs> 
+		-->
+		<!--
 		<menu name="MQConsole">
 			<item name="Introduction" href="index.html" />
 		</menu>
+		-->
+		
+		<menu name="Download" />
 
 		<menu name="Maven Documentation" ref="reports" />
 	</body>

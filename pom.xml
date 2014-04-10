@@ -81,7 +81,7 @@
 		<junit.version>4.10</junit.version>
 		<websphere-MQ.version>7.0.1.9</websphere-MQ.version>
 		<exec.mainClass>net.sf.juffrou.mq.ui.Main</exec.mainClass>
-		<javafx.version>2.2</javafx.version>
+		<javafx.version>8</javafx.version>
 		<javafx.tools.ant.jar>${java.home}/../lib/ant-javafx.jar</javafx.tools.ant.jar>
 		<github.global.server>github</github.global.server>
         <bintray.repo>cemartins/mqconsole</bintray.repo>
@@ -202,7 +202,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>2.5.1</version>
+					<version>3.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -278,8 +278,8 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<compilerArgument>-Xlint:all</compilerArgument>
 					<showWarnings>true</showWarnings>
 					<showDeprecation>true</showDeprecation>
@@ -337,7 +337,7 @@
 										<fx:fileset dir="${project.build.directory}" includes="libs/*.jar" />
 									</fx:resources>
 									<manifest>
-										<attribute name="Implementation-Vendor" value="Juffrou Team" />
+										<attribute name="Implementation-Vendor" value="Juffrou" />
 										<attribute name="Implementation-Version" value="${project.version}" />
 									</manifest>
 								</fx:jar>
@@ -351,7 +351,7 @@
 										<fx:fileset dir="${project.build.directory}" includes="libs/*.jar" />
 										<fx:fileset dir="${basedir}/src/main/deploy/package" includes="*.properties" />
 									</fx:resources>
-									<fx:platform>
+									<fx:platform basedir=""> <!-- Leave out the JRE -->
 										<fx:jvmarg value="-Xmx768m" />
 									</fx:platform>
 								</fx:deploy>
@@ -381,15 +381,6 @@
 
 	<dependencies>
 
-		<!-- JAVA FX -->
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>javafx</artifactId>
-			<version>${javafx.version}</version>
-			<systemPath>${java.home}/lib/jfxrt.jar</systemPath>
-			<scope>system</scope>
-		</dependency>
-		
 		<dependency>
 			<groupId>org.jfxtras</groupId>
 			<artifactId>jfxtras-labs</artifactId>

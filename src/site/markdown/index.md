@@ -32,17 +32,16 @@ The send message window allows you to send a message to a queue and collect the 
 MQConsole is a small JavaFX2 utility application which allows you to interact
 with an IBM Websphere MQ messaging broker.
 
-From a main window with the list of available queues you can:
+From the main window with the list of available queues you can:
 
-- List the messages in a queue
-- View a especific message details
-- Send a new message to a queue and wait for a response
-- Listen to new messages arriving at a queue and display themautomatically.
+- See the list the messages in a queue
+- View the details of specific message
+- Send a new message to a queue and wait for its response
+- Listen to new messages arriving at a queue and display them automatically.
 
 
-No need to have administrative credentials, just configure the
-hostname where the broker is in, the channel and the name of the
-queue manager.
+No need to have administrative credentials, just configure the hostname where the broker is, 
+the channel and the name of the queue manager.
 
 Please see the [project page](https://github.com/cemartins/mqconsole) at Github for source code and 
 support and the [binary packages page](https://bintray.com/cemartins/mqconsole/MQConsole) for downloads.
