@@ -29,7 +29,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Unknown</string>
 	<key>JVMRuntime</key>
-	<string>jdk1.7.0_40.jdk</string>
+	<string>jdk1.8.0.jdk</string>
 	<key>JVMMainClassName</key>
 	<string>com.javafx.main.Main</string>
 	<key>JVMAppClasspath</key>
