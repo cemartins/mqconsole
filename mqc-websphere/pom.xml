@@ -1,0 +1,68 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+	<groupId>net.sf.juffrou</groupId>
+	<artifactId>mq-console</artifactId>
+	<version>1.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>mqc-websphere</artifactId>
+	<name>MQConsole for IBM WebsphereMQ</name>
+
+	<properties>
+		<websphere-MQ.version>7.0.1.9</websphere-MQ.version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>net.sf.juffrou</groupId>
+			<artifactId>mqc-core</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<!-- IBM WEBSPHERE-MQ -->
+		<dependency>
+			<groupId>com.ibm.mq.pcf</groupId>
+			<artifactId>ms0b</artifactId>
+			<version>6.1</version>
+		</dependency>
+		<!-- using MQ classes -->
+		<dependency>
+			<groupId>com.ibm</groupId>
+			<artifactId>com.ibm.mq</artifactId>
+			<version>${websphere-MQ.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>connector</artifactId>
+			<version>${websphere-MQ.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>commonservices</artifactId>
+			<version>${websphere-MQ.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm</groupId>
+			<artifactId>com.ibm.mq.jmqi</artifactId>
+			<version>${websphere-MQ.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>mq</artifactId>
+			<version>${websphere-MQ.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>com.ibm.mq.headers</artifactId>
+			<version>${websphere-MQ.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>com.ibm.mq.pcf</artifactId>
+			<version>${websphere-MQ.version}</version>
+		</dependency>
+	</dependencies>
+
+</project>

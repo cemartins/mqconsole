@@ -3,6 +3,7 @@
 	<groupId>net.sf.juffrou</groupId>
 	<artifactId>mq-console</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
+	<packaging>POM</packaging>
 	<name>WebsphereMQ Console</name>
 	<description>JavaFX 2 Application implementing a IBM WebsphereMQ broker console</description>
 	<url>http://cemartins.github.io/mqconsole</url>
@@ -79,14 +80,19 @@
 		<spring.version>3.1.4.RELEASE</spring.version>
 		<log4j.version>1.2.17</log4j.version>
 		<junit.version>4.10</junit.version>
-		<websphere-MQ.version>7.0.1.9</websphere-MQ.version>
 		<exec.mainClass>net.sf.juffrou.mq.ui.Main</exec.mainClass>
 		<javafx.version>8</javafx.version>
 		<javafx.tools.ant.jar>${java.home}/../lib/ant-javafx.jar</javafx.tools.ant.jar>
 		<github.global.server>github</github.global.server>
-        <bintray.repo>cemartins/mqconsole</bintray.repo>
-        <bintray.package>MQConsole</bintray.package>
+		<bintray.repo>cemartins/mqconsole</bintray.repo>
+		<bintray.package>MQConsole</bintray.package>
 	</properties>
+	
+	<modules>
+		<module>mqc-core</module>
+		<module>mqc-websphere</module>
+		<module>mqc-activemq</module>
+	</modules>
 
 	<reporting>
 		<plugins>
@@ -378,103 +384,6 @@
 		</plugins>
 		
 	</build>
-
-	<dependencies>
-
-		<dependency>
-			<groupId>org.jfxtras</groupId>
-			<artifactId>jfxtras-labs</artifactId>
-			<version>2.2-r5</version>
-		</dependency>
-
-		<!-- Testing -->
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- SPRING -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-
-		<!-- LOGGING -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.6.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.6.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-
-		<!-- IBM WEBSPHERE-MQ -->
-		<dependency>
-			<groupId>com.ibm.mq.pcf</groupId>
-			<artifactId>ms0b</artifactId>
-			<version>6.1</version>
-		</dependency>
-		<!-- using MQ classes -->
-		<dependency>
-			<groupId>com.ibm</groupId>
-			<artifactId>com.ibm.mq</artifactId>
-			<version>${websphere-MQ.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>connector</artifactId>
-			<version>${websphere-MQ.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>commonservices</artifactId>
-			<version>${websphere-MQ.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm</groupId>
-			<artifactId>com.ibm.mq.jmqi</artifactId>
-			<version>${websphere-MQ.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>mq</artifactId>
-			<version>${websphere-MQ.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>com.ibm.mq.headers</artifactId>
-			<version>${websphere-MQ.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>com.ibm.mq.pcf</artifactId>
-			<version>${websphere-MQ.version}</version>
-		</dependency>
-	</dependencies>
 
 	<profiles>
 		<profile>
