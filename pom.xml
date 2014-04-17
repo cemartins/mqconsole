@@ -3,7 +3,7 @@
 	<groupId>net.sf.juffrou</groupId>
 	<artifactId>mq-console</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
-	<packaging>POM</packaging>
+	<packaging>pom</packaging>
 	<name>WebsphereMQ Console</name>
 	<description>JavaFX 2 Application implementing a IBM WebsphereMQ broker console</description>
 	<url>http://cemartins.github.io/mqconsole</url>
