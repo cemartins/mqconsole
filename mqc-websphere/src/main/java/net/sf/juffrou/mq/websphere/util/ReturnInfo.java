@@ -1,4 +1,4 @@
-package net.sf.juffrou.mq.dom;
+package net.sf.juffrou.mq.websphere.util;
 
 import java.io.IOException;
 import java.util.GregorianCalendar;

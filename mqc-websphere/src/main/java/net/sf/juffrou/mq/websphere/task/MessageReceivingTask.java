@@ -1,11 +1,13 @@
-package net.sf.juffrou.mq.util;
+package net.sf.juffrou.mq.websphere.task;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.messages.task.AbstractMessageReceivingTask;
 import net.sf.juffrou.mq.ui.NotificationPopup;
+import net.sf.juffrou.mq.util.MessageReceivedHandler;
+import net.sf.juffrou.mq.websphere.util.MessageDescriptorHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,49 +20,15 @@ import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFConstants;
 
-public class MessageReceivingTask extends Task<MessageDescriptor> {
-
-	private static final Logger log = LoggerFactory.getLogger(MessageReceivingTask.class);
+public class MessageReceivingTask extends AbstractMessageReceivingTask {
 
 	private final MQQueueManager qm;
 	private final MQMessage replyMessage;
-	private final String queueNameReceive;
-	private final String queueNameSend;
-	private final Integer brokerTimeout;
 
 	public MessageReceivingTask(final MessageReceivedHandler handler, MQQueueManager qm, String queueNameReceive, Integer brokerTimeout, MQMessage replyMessage, String queueNameSent) {
-		super();
+		super(handler, queueNameReceive, brokerTimeout, queueNameSent);
 		this.qm = qm;
-		this.queueNameReceive = queueNameReceive;
-		this.brokerTimeout = brokerTimeout;
 		this.replyMessage = replyMessage;
-		this.queueNameSend = queueNameSent;
-
-		stateProperty().addListener(new ChangeListener<Worker.State>() {
-			@Override
-			public void changed(ObservableValue<? extends javafx.concurrent.Worker.State> observable, javafx.concurrent.Worker.State oldValue, javafx.concurrent.Worker.State newState) {
-				switch (newState) {
-				case SUCCEEDED:
-					MessageReceivingTask.super.succeeded();
-					handler.messageReceived(getValue());
-					break;
-				case FAILED:
-					MessageReceivingTask.super.failed();
-					MessageDescriptor messageDescriptor = new MessageDescriptor();
-					messageDescriptor.setText(getMessage());
-					handler.messageReceived(messageDescriptor);
-					NotificationPopup popup = new NotificationPopup(handler.getStage());
-					popup.display(getMessage());
-					break;
-				case CANCELLED:
-					MessageReceivingTask.super.cancelled();
-					MessageDescriptor canceledDescriptor = new MessageDescriptor();
-					canceledDescriptor.setText(getMessage());
-					handler.messageReceived(canceledDescriptor);
-					break;
-				}
-			}
-		});
 	}
 
 	@Override
@@ -81,23 +49,23 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 			gmo.matchOptions = MQConstants.MQMO_MATCH_CORREL_ID;
 
 			// Specify the wait interval for the message in milliseconds
-			gmo.waitInterval = brokerTimeout.intValue();
+			gmo.waitInterval = getBrokerTimeout().intValue();
 
-			if (log.isDebugEnabled()) {
-				log.debug("Current Msg ID used for receive: '" + new String(replyMessage.messageId) + "'");
-				log.debug("Correlation ID to use for receive: '" + new String(replyMessage.correlationId) + "'");
-				log.debug("Supported character set to use for receive: " + replyMessage.characterSet);
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Current Msg ID used for receive: '" + new String(replyMessage.messageId) + "'");
+				LOG.debug("Correlation ID to use for receive: '" + new String(replyMessage.correlationId) + "'");
+				LOG.debug("Supported character set to use for receive: " + replyMessage.characterSet);
 			}
 
 			int openOptions;
-			if (queueNameSend.equals(queueNameReceive)) {
+			if (getQueueNameSend().equals(getQueueNameReceive())) {
 				openOptions = MQConstants.MQOO_INPUT_SHARED | MQConstants.MQOO_OUTPUT;
 			} else {
 				openOptions = MQConstants.MQOO_INPUT_SHARED; // in bound options only
 			}
 //			openOptions = MQConstants.MQOO_INPUT_SHARED;
 			// openOptions |= MQConstants.MQOO_READ_AHEAD;
-			inboundQueue = qm.accessQueue(queueNameReceive, openOptions, null, // default q manager
+			inboundQueue = qm.accessQueue(getQueueNameReceive(), openOptions, null, // default q manager
 					null, // no dynamic q name
 					null); // no alternate user id
 
@@ -123,26 +91,26 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 			if (isCancelled())
 				return null;
 			// And prove we have the message by displaying the message text
-			if (log.isDebugEnabled())
-				log.debug("The receive message character set is: " + replyMessage.characterSet);
+			if (LOG.isDebugEnabled())
+				LOG.debug("The receive message character set is: " + replyMessage.characterSet);
 
 			MessageDescriptor replyMessageDescriptor = MessageDescriptorHelper.createMessageDescriptor(replyMessage);
 
 			return replyMessageDescriptor;
 
 		} catch (MQException mqe) {
-			if (log.isErrorEnabled())
-				log.error("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+			if (LOG.isErrorEnabled())
+				LOG.error("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
 			updateMessage("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
 			throw mqe;
 		} catch (java.io.IOException ex) {
-			if (log.isErrorEnabled())
-				log.error("Error receiving message " + ex.getMessage());
+			if (LOG.isErrorEnabled())
+				LOG.error("Error receiving message " + ex.getMessage());
 			updateMessage(ex.getMessage());
 			throw ex;
 		} catch (Exception ex) {
-			if (log.isErrorEnabled())
-				log.error("Error receiving message " + ex.getMessage());
+			if (LOG.isErrorEnabled())
+				LOG.error("Error receiving message " + ex.getMessage());
 			updateMessage(ex.getMessage());
 			throw ex;
 		} finally {
@@ -150,8 +118,8 @@ public class MessageReceivingTask extends Task<MessageDescriptor> {
 				try {
 					inboundQueue.close();
 				} catch (MQException e) {
-					if (log.isErrorEnabled())
-						log.error("Error closing queue " + e.getMessage());
+					if (LOG.isErrorEnabled())
+						LOG.error("Error closing queue " + e.getMessage());
 				}
 		}
 	}

@@ -1,28 +1,26 @@
-package net.sf.juffrou.mq.controller;
+package net.sf.juffrou.mq.messages;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
-import net.sf.juffrou.mq.ui.Main;
-import net.sf.juffrou.mq.ui.SpringFxmlLoader;
-import net.sf.juffrou.mq.util.MessageListenerTask;
+import net.sf.juffrou.mq.messages.task.AbstractMessageListenerTask;
+import net.sf.juffrou.mq.messages.task.MessageListenerTaskFactory;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.ibm.mq.MQQueueManager;
-
 @Component
-public class MessageListenerController {
+public class MessageListenerImpl implements MessageListener {
 
 	@Autowired
-	@Qualifier("mqListeningQueueManager")
-	private MQQueueManager qm;
-
-	private MessageListenerTask currentListeningTask;
+	private MessageListenerTaskFactory messageListenerTaskFactory;
+	
+	@Autowired
+	private MessageViewView messageViewView;
+	
+	private AbstractMessageListenerTask currentListeningTask;
 	private Thread currentListeningThread = null;
 	private String currentListeningQueue;
 
@@ -34,7 +32,7 @@ public class MessageListenerController {
 		}
 
 		IncomingMessageHandler handler = new IncomingMessageHandler(parentStage, listeningQueue);
-		currentListeningTask = new MessageListenerTask(handler, qm, listeningQueue);
+		currentListeningTask = messageListenerTaskFactory.createMessageListenerTask(handler, listeningQueue);
 
 		currentListeningQueue = listeningQueue;
 		currentListeningThread = new Thread(currentListeningTask, "Message listening task");
@@ -67,12 +65,11 @@ public class MessageListenerController {
 		@Override
 		public void messageReceived(MessageDescriptor messageDescriptor) {
 
-			SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(Main.applicationContext);
-			Parent root = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/message-read.fxml");
+			Parent root = messageViewView.getView();
 
-			MessageViewControler controller = springFxmlLoader.<MessageViewControler> getController();
-			controller.setMessageDescriptor(messageDescriptor);
-			controller.initialize();
+			MessageViewPresenter presenter = (MessageViewPresenter) messageViewView.getPresenter();
+			presenter.setMessageDescriptor(messageDescriptor);
+			presenter.initialize();
 
 			Scene scene = new Scene(root, 768, 480);
 			Stage stage = new Stage();
@@ -90,5 +87,4 @@ public class MessageListenerController {
 		}
 
 	}
-
 }

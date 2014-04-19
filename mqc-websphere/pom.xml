@@ -11,6 +11,7 @@
 
 	<properties>
 		<websphere-MQ.version>7.0.1.9</websphere-MQ.version>
+		<com.ibm.version>5.3.07</com.ibm.version>
 	</properties>
 
 	<dependencies>
@@ -20,6 +21,7 @@
 			<artifactId>mqc-core</artifactId>
 			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
+		
 
 		<!-- IBM WEBSPHERE-MQ -->
 		<dependency>

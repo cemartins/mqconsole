@@ -1,15 +1,9 @@
-package net.sf.juffrou.mq.util;
+package net.sf.juffrou.mq.websphere.task;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
-import javafx.concurrent.Worker;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
-import net.sf.juffrou.mq.ui.NotificationPopup;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.sf.juffrou.mq.messages.task.AbstractMessageListenerTask;
+import net.sf.juffrou.mq.util.MessageReceivedHandler;
+import net.sf.juffrou.mq.websphere.util.MessageDescriptorHelper;
 
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
@@ -19,46 +13,15 @@ import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFConstants;
 
-public class MessageListenerTask extends Task<MessageDescriptor> {
-
-	private static final Logger log = LoggerFactory.getLogger(MessageListenerTask.class);
+public class MessageListenerTask extends AbstractMessageListenerTask {
 
 	private final MQQueueManager qm;
-	private final String queueNameReceive;
 
 	public MessageListenerTask(final MessageReceivedHandler handler, MQQueueManager qm, String queueNameReceive) {
-		super();
+		super(handler, queueNameReceive);
 		this.qm = qm;
-		this.queueNameReceive = queueNameReceive;
-
-		stateProperty().addListener(new ChangeListener<Worker.State>() {
-			@Override
-			public void changed(ObservableValue<? extends javafx.concurrent.Worker.State> observable, javafx.concurrent.Worker.State oldValue, javafx.concurrent.Worker.State newState) {
-				switch (newState) {
-				case SUCCEEDED:
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							handler.messageReceived(getValue());
-						}
-					});
-					break;
-				case FAILED:
-					NotificationPopup popup = new NotificationPopup(handler.getStage());
-					popup.display(getMessage());
-					break;
-				case CANCELLED:
-					break;
-				case SCHEDULED:
-					break;
-				case READY:
-					break;
-				case RUNNING:
-					break;
-				}
-			}
-		});
 	}
+
 
 	@Override
 	protected MessageDescriptor call() throws Exception {
@@ -86,7 +49,7 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 			//			openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF; // in bound options only
 			openOptions = MQConstants.MQOO_INPUT_SHARED;
 			// openOptions |= MQConstants.MQOO_READ_AHEAD;
-			inboundQueue = qm.accessQueue(queueNameReceive, openOptions, null, // default q manager
+			inboundQueue = qm.accessQueue(getQueueNameReceive(), openOptions, null, // default q manager
 					null, // no dynamic q name
 					null); // no alternate user id
 
@@ -95,8 +58,8 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 					inboundQueue.close();
 					return null;
 				} catch (MQException e) {
-					if (log.isErrorEnabled())
-						log.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
+					if (LOG.isErrorEnabled())
+						LOG.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
 				}
 
 			// Following test lines will cause any message on the queue to
@@ -121,30 +84,30 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 					inboundQueue.close();
 					return null;
 				} catch (MQException e) {
-					if (log.isErrorEnabled())
-						log.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
+					if (LOG.isErrorEnabled())
+						LOG.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
 				}
 			// And prove we have the message by displaying the message text
-			if (log.isDebugEnabled())
-				log.debug("The receive message character set is: " + inboundMessage.characterSet);
+			if (LOG.isDebugEnabled())
+				LOG.debug("The receive message character set is: " + inboundMessage.characterSet);
 
 			replyMessageDescriptor = MessageDescriptorHelper.createMessageDescriptor(inboundMessage);
 
 		} catch (MQException mqe) {
 			if(!isCancelled()) {
-				if (log.isErrorEnabled())
-					log.error("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+				if (LOG.isErrorEnabled())
+					LOG.error("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
 				updateMessage("Error receiving message " + mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
 			}
 			throw mqe;
 		} catch (java.io.IOException ex) {
-			if (log.isErrorEnabled())
-				log.error("Error receiving message " + ex.getMessage());
+			if (LOG.isErrorEnabled())
+				LOG.error("Error receiving message " + ex.getMessage());
 			updateMessage(ex.getMessage());
 			throw ex;
 		} catch (Exception ex) {
-			if (log.isErrorEnabled())
-				log.error("Error receiving message " + ex.getMessage());
+			if (LOG.isErrorEnabled())
+				LOG.error("Error receiving message " + ex.getMessage());
 			updateMessage(ex.getMessage());
 			throw ex;
 		} finally {
@@ -152,8 +115,8 @@ public class MessageListenerTask extends Task<MessageDescriptor> {
 				try {
 					inboundQueue.close();
 				} catch (MQException e) {
-					if (log.isErrorEnabled())
-						log.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
+					if (LOG.isErrorEnabled())
+						LOG.error("Error closing queue " + e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
 				}
 		}
 

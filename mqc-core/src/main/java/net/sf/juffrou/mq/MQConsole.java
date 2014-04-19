@@ -1,4 +1,4 @@
-package net.sf.juffrou.mq.ui;
+package net.sf.juffrou.mq;
 
 import java.io.File;
 import java.net.URL;
@@ -10,7 +10,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import net.sf.juffrou.mq.controller.ListQueues;
+import net.sf.juffrou.mq.queues.presenter.AbstractQueuesListPresenterImpl;
+import net.sf.juffrou.mq.ui.ConsolePreloader;
+import net.sf.juffrou.mq.ui.SpringFxmlLoader;
+import net.sf.juffrou.mq.ui.ConsolePreloader.SharedScene;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +21,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class Main extends Application implements ConsolePreloader.SharedScene {
+public class MQConsole extends Application implements ConsolePreloader.SharedScene {
 	
-	private ListQueues mainController;
+	private AbstractQueuesListPresenterImpl mainController;
 
 	static {
 		if (System.getProperty("os.name").startsWith("Mac"))
@@ -29,7 +32,7 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 		else
 			System.setProperty("mq.console.log.dir", System.getenv("APPDATA") + "/MQConsole");
 	}
-	private static final Logger log = LoggerFactory.getLogger(Main.class);
+	private static final Logger log = LoggerFactory.getLogger(MQConsole.class);
 	public static ApplicationContext applicationContext;
 
 	private Parent parentNode;
@@ -43,7 +46,7 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 	private static void setMQConsoleDir() {
 		String mqConsoleDir = System.getProperty("user.dir") + File.separator;
 		if (System.getProperty("os.name").startsWith("Mac")) {
-			URL mySource = Main.class.getProtectionDomain().getCodeSource().getLocation();
+			URL mySource = MQConsole.class.getProtectionDomain().getCodeSource().getLocation();
 			mqConsoleDir = mySource.getPath().substring(0, mySource.getPath().lastIndexOf('/'));
 		}
 		System.setProperty("mq.console.dir", mqConsoleDir);
@@ -84,7 +87,7 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 	public void start(Stage primaryStage) throws Exception {
 		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(applicationContext);
 		parentNode = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/list-queues.fxml");
-		mainController = springFxmlLoader.<ListQueues> getController();
+		mainController = springFxmlLoader.<AbstractQueuesListPresenterImpl> getController();
 		mainController.setStage(primaryStage);
 		Scene scene = new Scene(parentNode, 800, 480);
 		primaryStage.setScene(scene);
@@ -109,7 +112,7 @@ public class Main extends Application implements ConsolePreloader.SharedScene {
 
 	@Override
 	public void stop() throws Exception {
-		mainController.getMessageListenerController().stopMessageListener();
+		mainController.getMessageListener().stopMessageListener();
 		super.stop();
 	}
 }
