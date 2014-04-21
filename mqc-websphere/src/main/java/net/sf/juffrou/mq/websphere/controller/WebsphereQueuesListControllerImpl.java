@@ -8,9 +8,12 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import net.sf.juffrou.mq.dom.QueueDescriptor;
-import net.sf.juffrou.mq.queues.presenter.AbstractQueuesListPresenterImpl;
+import net.sf.juffrou.mq.queues.QueuesListController;
+import net.sf.juffrou.mq.queues.presenter.QueuesListPresenter;
 import net.sf.juffrou.mq.ui.NotificationPopup;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +30,9 @@ import com.ibm.mq.pcf.PCFMessage;
 import com.ibm.mq.pcf.PCFMessageAgent;
 
 @Component
-public class WebsphereQueuesListPresenterImpl extends AbstractQueuesListPresenterImpl {
+public class WebsphereQueuesListControllerImpl implements QueuesListController {
+	
+	protected static final Logger LOG = LoggerFactory.getLogger(QueuesListController.class);
 
 	@Resource(name = "mqQueueManagerOptions")
 	private Map<String, Object> mqQueueManagerOptions;
@@ -46,7 +51,7 @@ public class WebsphereQueuesListPresenterImpl extends AbstractQueuesListPresente
 	private MQQueueManager qm;
 
 	
-	private boolean doMQSet(QueueDescriptor queueDescriptor) {
+	private boolean doMQSet(QueuesListPresenter presenter, QueueDescriptor queueDescriptor) {
 		
 		try {
 			int shareability = queueDescriptor.getIsSherable().booleanValue() ? MQConstants.MQQA_SHAREABLE : MQConstants.MQQA_NOT_SHAREABLE;
@@ -58,13 +63,13 @@ public class WebsphereQueuesListPresenterImpl extends AbstractQueuesListPresente
 		} catch (MQException mqe) {
 			if (LOG.isErrorEnabled())
 				LOG.error(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
-			NotificationPopup popup = new NotificationPopup(getStage());
+			NotificationPopup popup = new NotificationPopup(presenter.getStage());
 			popup.display(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
 			return false;
 		}
 	}
 	
-	protected List<QueueDescriptor> getQueues() {
+	public List<QueueDescriptor> getQueues(QueuesListPresenter presenter) {
 
 		List<QueueDescriptor> queueList = new ArrayList<QueueDescriptor>();
 		try {
@@ -114,14 +119,14 @@ public class WebsphereQueuesListPresenterImpl extends AbstractQueuesListPresente
 		catch (MQException mqe) {
 			if (LOG.isErrorEnabled())
 				LOG.error(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
-			NotificationPopup popup = new NotificationPopup(getStage());
+			NotificationPopup popup = new NotificationPopup(presenter.getStage());
 			popup.display(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
 		}
 
 		catch (IOException ioe) {
 			if (LOG.isErrorEnabled())
 				LOG.error(ioe.getMessage());
-			NotificationPopup popup = new NotificationPopup(getStage());
+			NotificationPopup popup = new NotificationPopup(presenter.getStage());
 			popup.display(ioe.getMessage());
 		}
 

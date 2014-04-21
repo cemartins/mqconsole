@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.juffrou.mq.dom.MessageDescriptor;
-import net.sf.juffrou.mq.messages.presenter.AbstractMessagesListPresenterImpl;
+import net.sf.juffrou.mq.messages.MessagesListController;
+import net.sf.juffrou.mq.messages.presenter.MessagesListPresenter;
 import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.websphere.util.MessageDescriptorHelper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -27,8 +30,10 @@ import com.ibm.mq.pcf.PCFConstants;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class WebsphereMessagesListPresenterImpl extends AbstractMessagesListPresenterImpl {
+public class WebsphereMessagesListControllerImpl implements MessagesListController {
 
+	protected static final Logger LOG = LoggerFactory.getLogger(WebsphereMessagesListControllerImpl.class);
+	
 	@Autowired
 	@Qualifier("mqQueueManager")
 	private MQQueueManager qm;
@@ -43,12 +48,12 @@ public class WebsphereMessagesListPresenterImpl extends AbstractMessagesListPres
 	}
 
 
-	protected List<MessageDescriptor> listMessages() {
+	public List<MessageDescriptor> listMessages(MessagesListPresenter presenter, String queueName) {
 		List<MessageDescriptor> messageList = new ArrayList<MessageDescriptor>();
 
 		try {
 			MQException.log = null;
-			MQQueue queue = qm.accessQueue(getQueueName(), MQConstants.MQOO_BROWSE | MQConstants.MQOO_FAIL_IF_QUIESCING);
+			MQQueue queue = qm.accessQueue(queueName, MQConstants.MQOO_BROWSE | MQConstants.MQOO_FAIL_IF_QUIESCING);
 			MQMessage message = new MQMessage();
 			MQGetMessageOptions gmo = new MQGetMessageOptions();
 			
@@ -78,18 +83,18 @@ public class WebsphereMessagesListPresenterImpl extends AbstractMessagesListPres
 			} else {
 				if (LOG.isErrorEnabled())
 					LOG.error(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
-				NotificationPopup popup = new NotificationPopup(getStage());
+				NotificationPopup popup = new NotificationPopup(presenter.getStage());
 				popup.display(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
 			}
 		} catch (IOException e) {
 			if (LOG.isErrorEnabled())
 				LOG.error(e.getMessage());
-			NotificationPopup popup = new NotificationPopup(getStage());
+			NotificationPopup popup = new NotificationPopup(presenter.getStage());
 			popup.display(e.getMessage());
 		} catch (MQDataException e) {
 			if (LOG.isErrorEnabled())
 				LOG.error(e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
-			NotificationPopup popup = new NotificationPopup(getStage());
+			NotificationPopup popup = new NotificationPopup(presenter.getStage());
 			popup.display(e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
 		}
 

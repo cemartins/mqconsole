@@ -11,7 +11,7 @@
 <?import net.sf.juffrou.mq.ui.*?>
 <?scenebuilder-classpath-element ../../../../../../../../target/classes?>
 
-<AnchorPane id="MessageRead" fx:id="messageRead" prefHeight="342.0" prefWidth="435.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.sf.juffrou.mq.controller.MessageSendControler">
+<AnchorPane id="MessageRead" fx:id="messageRead" prefHeight="342.0" prefWidth="435.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.sf.juffrou.mq.messages.presenter.MessageSendPresenter">
   <!-- TODO Add Nodes -->
   <children>
     <TabPane fx:id="messageTabs" prefHeight="288.9998779296875" prefWidth="435.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

@@ -21,9 +21,6 @@
 		<entry key="channel" value="${broker_channel}" />
 		<entry key="transport" value="MQSeries Client" />
 	</util:map>
-	
-	<!-- Scans the framework for annotated classes(beans!) -->
-	<context:component-scan base-package="net.sf.juffrou.mq" />
 
 	<!-- // Create a connection to the QueueManager -->
 	<bean id="mqQueueManager" class="com.ibm.mq.MQQueueManager">

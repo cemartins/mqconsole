@@ -1,4 +1,4 @@
-package net.sf.juffrou.mq.queues;
+package net.sf.juffrou.mq.queues.presenter;
 
 import org.springframework.stereotype.Component;
 

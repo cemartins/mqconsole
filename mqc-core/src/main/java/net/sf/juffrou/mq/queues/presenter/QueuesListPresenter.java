@@ -15,9 +15,9 @@ import javafx.stage.Stage;
 import net.sf.juffrou.mq.MQConsole;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.messages.MessageListener;
-import net.sf.juffrou.mq.messages.presenter.AbstractMessageSendPresenterImpl;
-import net.sf.juffrou.mq.messages.presenter.AbstractMessagesListPresenterImpl;
-import net.sf.juffrou.mq.queues.QueuesListPresenter;
+import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
+import net.sf.juffrou.mq.messages.presenter.MessagesListPresenter;
+import net.sf.juffrou.mq.queues.QueuesListController;
 import net.sf.juffrou.mq.ui.SpringFxmlLoader;
 
 import org.slf4j.Logger;
@@ -26,9 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public abstract class AbstractQueuesListPresenterImpl implements QueuesListPresenter {
+public class QueuesListPresenter {
 
-	protected static final Logger LOG = LoggerFactory.getLogger(AbstractQueuesListPresenterImpl.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(QueuesListPresenter.class);
 
 	private Stage stage;
 
@@ -37,6 +37,9 @@ public abstract class AbstractQueuesListPresenterImpl implements QueuesListPrese
 	
 	@FXML
 	private MenuItem miListenToNewMessages;
+	
+	@Autowired
+	private QueuesListController queuesListController;
 
 	@Autowired
 	private MessageListener messageListener;
@@ -74,18 +77,6 @@ public abstract class AbstractQueuesListPresenterImpl implements QueuesListPrese
 		miListenToNewMessages.setText(listenerText);
 	}
 	
-	@FXML
-	private void toggleShare(ActionEvent event) {
-
-		ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
-		for (TablePosition<?, ?> cell : cells) {
-			QueueDescriptor queue = table.getItems().get(cell.getRow());
-			queue.setIsSherable(new Boolean( ! queue.getIsSherable().booleanValue() ));
-//			if( ! doMQSet(queue))
-//				queue.setIsSherable(new Boolean( ! queue.getIsSherable().booleanValue() ));
-		}
-
-	}
 
 	@FXML
 	private void openMessageList(ActionEvent event) {
@@ -96,7 +87,7 @@ public abstract class AbstractQueuesListPresenterImpl implements QueuesListPrese
 			SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(MQConsole.applicationContext);
 			Parent root = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/list-messages.fxml");
 
-			AbstractMessagesListPresenterImpl controller = springFxmlLoader.<AbstractMessagesListPresenterImpl> getController();
+			MessagesListPresenter controller = springFxmlLoader.<MessagesListPresenter> getController();
 			controller.setQueueName(queue.getName());
 			controller.initialize();
 
@@ -120,7 +111,7 @@ public abstract class AbstractQueuesListPresenterImpl implements QueuesListPrese
 			SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(MQConsole.applicationContext);
 			Parent root = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/message-send.fxml");
 
-			AbstractMessageSendPresenterImpl controller = springFxmlLoader.<AbstractMessageSendPresenterImpl> getController();
+			MessageSendPresenter controller = springFxmlLoader.<MessageSendPresenter> getController();
 			controller.setQueueNameSend(queue.getName());
 			controller.setQueueDescriptors(table.getItems());
 
@@ -142,7 +133,9 @@ public abstract class AbstractQueuesListPresenterImpl implements QueuesListPrese
 		table.setItems(rows);
 	}
 	
-	protected abstract List<QueueDescriptor> getQueues();
+	protected List<QueueDescriptor> getQueues() {
+		return queuesListController.getQueues(this);
+	}
 	
 	public MessageListener getMessageListener() {
 		return messageListener;
@@ -152,7 +145,7 @@ public abstract class AbstractQueuesListPresenterImpl implements QueuesListPrese
 		this.stage = stage;
 	}
 	
-	protected Stage getStage() {
+	public Stage getStage() {
 		return stage;
 	}
 }

@@ -28,10 +28,11 @@ import jfxtras.labs.dialogs.MonologFX;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
-import net.sf.juffrou.mq.messages.MessageSendPresenter;
+import net.sf.juffrou.mq.messages.MessageSendController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -39,9 +40,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public abstract class AbstractMessageSendPresenterImpl implements MessageSendPresenter {
+public class MessageSendPresenter {
 
-	protected static final Logger LOG = LoggerFactory.getLogger(AbstractMessageSendPresenterImpl.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(MessageSendPresenter.class);
 
 	@FXML
 	private Accordion messageAccordionSend;
@@ -89,6 +90,9 @@ public abstract class AbstractMessageSendPresenterImpl implements MessageSendPre
 	private Integer brokerTimeout;
 
 	private String queueNameSend;
+	
+	@Autowired
+	private MessageSendController messageSendController;
 
 	public String getQueueNameSend() {
 		return queueNameSend;
@@ -240,21 +244,18 @@ public abstract class AbstractMessageSendPresenterImpl implements MessageSendPre
 			return;
 		}
 		MessageDescriptor messageDescriptor = getSendMessage();
-		sendMessage(messageDescriptor, queue.getName());
+		
+		messageSendController.sendMessage(this, messageDescriptor, queueNameSend, queue.getName());
 	}
 
-	// This method called to send MQ message to the norma messaging server
-	// RECEIVES a message STRING and returns a message object (used as a
-	// reference for the reply)
-	protected abstract void sendMessage(MessageDescriptor messageDescriptor, String queueNameReceive);
 
-	protected void displayMessageReceived(MessageDescriptor messageDescriptor) {
+	public void displayMessageReceived(MessageDescriptor messageDescriptor) {
 		setReceiveMessage(messageDescriptor);
 		receivePayloadPane.setExpanded(true);
 		messageTabs.getSelectionModel().clearAndSelect(1);
 	}
 	
-	protected Stage getStage() {
+	public Stage getStage() {
 		return (Stage) messageAccordionSend.getScene().getWindow();
 	}
 }

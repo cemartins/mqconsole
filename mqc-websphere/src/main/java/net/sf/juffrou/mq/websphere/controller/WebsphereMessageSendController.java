@@ -5,12 +5,15 @@ import java.util.GregorianCalendar;
 import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
-import net.sf.juffrou.mq.messages.presenter.AbstractMessageSendPresenterImpl;
+import net.sf.juffrou.mq.messages.MessageSendController;
+import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
 import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 import net.sf.juffrou.mq.websphere.task.MessageReceivingTask;
 import net.sf.juffrou.mq.websphere.util.MessageDescriptorHelper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +31,9 @@ import com.ibm.mq.pcf.PCFConstants;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class WebsphereMessageSendPresenterImpl extends AbstractMessageSendPresenterImpl {
+public class WebsphereMessageSendController implements MessageSendController {
 
+	protected static final Logger LOG = LoggerFactory.getLogger(WebsphereMessageSendController.class);
 
 	@Autowired
 	@Qualifier("mqQueueManager")
@@ -41,7 +45,7 @@ public class WebsphereMessageSendPresenterImpl extends AbstractMessageSendPresen
 	// This method called to send MQ message to the norma messaging server
 	// RECEIVES a message STRING and returns a message object (used as a
 	// reference for the reply)
-	public void sendMessage(MessageDescriptor messageDescriptor, String queueNameReceive) {
+	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, String queueNameSend, String queueNameReceive) {
 
 		MQQueue requestQueue = null;
 		try {
@@ -52,7 +56,7 @@ public class WebsphereMessageSendPresenterImpl extends AbstractMessageSendPresen
 
 				// If the name of the request queue is the same as the reply
 				// queue...
-				if (getQueueNameSend().equals(queueNameReceive)) {
+				if (queueNameSend.equals(queueNameReceive)) {
 					openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF | MQConstants.MQOO_OUTPUT;
 				} else {
 					openOptions = MQConstants.MQOO_OUTPUT; // Open queue to perform MQPUTs
@@ -60,7 +64,7 @@ public class WebsphereMessageSendPresenterImpl extends AbstractMessageSendPresen
 
 				// Now specify the queue that we wish to open, and the open
 				// options...
-				requestQueue = qm.accessQueue(getQueueNameSend(), openOptions, null, // default q manager
+				requestQueue = qm.accessQueue(queueNameSend, openOptions, null, // default q manager
 						null, // no dynamic q name
 						null); // no alternate user id
 
@@ -120,7 +124,7 @@ public class WebsphereMessageSendPresenterImpl extends AbstractMessageSendPresen
 			messageDescriptor.addHeader(HeaderDescriptor.HEADER_PUT_DATETIME, putDateTime == null ? "" : putDateTime.getTime().toString());
 			messageDescriptor.addHeader(HeaderDescriptor.HEADER_CORRELATION_ID, sendMessage.correlationId == null ? "" : new String(sendMessage.correlationId));
 
-			setSentMessage(messageDescriptor);
+			presenter.setSentMessage(messageDescriptor);
 
 			// Store the messageId for future use...
 			// Define a MQMessage object to store the message ID as a
@@ -141,16 +145,16 @@ public class WebsphereMessageSendPresenterImpl extends AbstractMessageSendPresen
 			MessageReceivedHandler handler = new MessageReceivedHandler() {
 				@Override
 				public void messageReceived(MessageDescriptor messageDescriptor) {
-					displayMessageReceived(messageDescriptor);
+					presenter.displayMessageReceived(messageDescriptor);
 				}
 
 				@Override
 				public Stage getStage() {
-					return WebsphereMessageSendPresenterImpl.this.getStage();
+					return presenter.getStage();
 				}
 			};
 			MessageReceivingTask task = new MessageReceivingTask(handler, qm, queueNameReceive, brokerTimeout,
-					storedMessage, getQueueNameSend());
+					storedMessage, queueNameSend);
 
 			Thread responseReceivingThread = new Thread(task);
 			responseReceivingThread.setDaemon(true);
@@ -159,17 +163,17 @@ public class WebsphereMessageSendPresenterImpl extends AbstractMessageSendPresen
 		} catch (MQException ex) {
 			if (LOG.isErrorEnabled())
 				LOG.error(ex + ": " + PCFConstants.lookupReasonCode(ex.reasonCode));
-			NotificationPopup popup = new NotificationPopup(getStage());
+			NotificationPopup popup = new NotificationPopup(presenter.getStage());
 			popup.display(ex + ": " + PCFConstants.lookupReasonCode(ex.reasonCode));
 		} catch (java.io.IOException ex) {
 			if (LOG.isErrorEnabled())
 				LOG.error(ex.getMessage());
-			NotificationPopup popup = new NotificationPopup(getStage());
+			NotificationPopup popup = new NotificationPopup(presenter.getStage());
 			popup.display(ex.getMessage());
 		} catch (Exception ex) {
 			if (LOG.isErrorEnabled())
 				LOG.error(ex.getMessage());
-			NotificationPopup popup = new NotificationPopup(getStage());
+			NotificationPopup popup = new NotificationPopup(presenter.getStage());
 		}
 	}
 

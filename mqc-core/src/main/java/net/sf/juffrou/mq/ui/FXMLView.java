@@ -19,14 +19,13 @@ import org.springframework.context.ApplicationContextAware;
 public abstract class FXMLView implements ApplicationContextAware {
 
     public static final String DEFAULT_ENDING = "view";
-    protected FXMLLoader loader;
+    protected FXMLLoader loader = null;
     
     private ApplicationContext applicationContext;
 
     
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     	this.applicationContext = applicationContext;
-        this.init(getClass(), getFXMLName());
    }
 
     private void init(Class clazz, String conventionalName) {
@@ -58,6 +57,9 @@ public abstract class FXMLView implements ApplicationContextAware {
     }
 
     public Parent getView() {
+    	if(loader == null)
+    		init(getClass(), getFXMLName());
+
         Parent parent = this.loader.getRoot();
         addCSSIfAvailable(parent);
         return parent;
@@ -77,7 +79,10 @@ public abstract class FXMLView implements ApplicationContextAware {
     }
 
     public Object getPresenter() {
-        Object controller = this.loader.getController();
+    	if(loader == null)
+    		init(getClass(), getFXMLName());
+
+    	Object controller = this.loader.getController();
         return controller;
     }
 

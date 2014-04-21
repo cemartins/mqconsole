@@ -1,7 +1,6 @@
 package net.sf.juffrou.mq.messages.presenter;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -17,9 +16,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
-import net.sf.juffrou.mq.messages.MessageViewPresenter;
-import net.sf.juffrou.mq.messages.MessageViewView;
-import net.sf.juffrou.mq.messages.MessagesListPresenter;
+import net.sf.juffrou.mq.messages.MessageViewController;
+import net.sf.juffrou.mq.messages.MessagesListController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +28,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public abstract class AbstractMessagesListPresenterImpl implements Initializable, MessagesListPresenter {
+public class MessagesListPresenter implements Initializable {
 
-	protected static final Logger LOG = LoggerFactory.getLogger(AbstractMessagesListPresenterImpl.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(MessagesListPresenter.class);
 
 	protected static final int MAX_TEXT_LEN_DISPLAY = 160;
 
@@ -40,8 +38,11 @@ public abstract class AbstractMessagesListPresenterImpl implements Initializable
 	private TableView<MessageDescriptor> table;
 	
 	@Autowired
-	private MessageViewView messageViewView;
+	MessagesListController messagesListController;
 
+	@Autowired
+	private MessageViewView messageViewView;
+	
 	private String queueName;
 
 	public String getQueueName() {
@@ -63,7 +64,7 @@ public abstract class AbstractMessagesListPresenterImpl implements Initializable
 			
 			Parent root = messageViewView.getView();
 
-			MessageViewPresenter presenter = (MessageViewPresenter) messageViewView.getPresenter();
+			MessageViewController presenter = (MessageViewController) messageViewView.getPresenter();
 			presenter.setMessageDescriptor(message);
 			presenter.initialize();
 
@@ -76,7 +77,9 @@ public abstract class AbstractMessagesListPresenterImpl implements Initializable
 		System.out.println("Context menu clicked");
 	}
 
-	protected abstract List<MessageDescriptor> listMessages();
+	private List<MessageDescriptor> listMessages() {
+		return messagesListController.listMessages(this, queueName);
+	}
 	
 	
 	@Override
@@ -91,7 +94,7 @@ public abstract class AbstractMessagesListPresenterImpl implements Initializable
 		table.setItems(rows);
 	}
 
-	protected Stage getStage() {
+	public Stage getStage() {
 		return (Stage) table.getScene().getWindow();
 	}
 }

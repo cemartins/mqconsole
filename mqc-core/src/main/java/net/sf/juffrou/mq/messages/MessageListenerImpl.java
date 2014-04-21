@@ -4,6 +4,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.messages.presenter.MessageViewView;
 import net.sf.juffrou.mq.messages.task.AbstractMessageListenerTask;
 import net.sf.juffrou.mq.messages.task.MessageListenerTaskFactory;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
@@ -67,7 +68,7 @@ public class MessageListenerImpl implements MessageListener {
 
 			Parent root = messageViewView.getView();
 
-			MessageViewPresenter presenter = (MessageViewPresenter) messageViewView.getPresenter();
+			MessageViewController presenter = (MessageViewController) messageViewView.getPresenter();
 			presenter.setMessageDescriptor(messageDescriptor);
 			presenter.initialize();
 

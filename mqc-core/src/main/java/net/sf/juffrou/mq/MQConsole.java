@@ -10,10 +10,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import net.sf.juffrou.mq.queues.presenter.AbstractQueuesListPresenterImpl;
+import net.sf.juffrou.mq.queues.presenter.QueuesListPresenter;
+import net.sf.juffrou.mq.queues.presenter.QueuesListView;
 import net.sf.juffrou.mq.ui.ConsolePreloader;
-import net.sf.juffrou.mq.ui.SpringFxmlLoader;
-import net.sf.juffrou.mq.ui.ConsolePreloader.SharedScene;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class MQConsole extends Application implements ConsolePreloader.SharedScene {
 	
-	private AbstractQueuesListPresenterImpl mainController;
+	private QueuesListPresenter mainController;
 
 	static {
 		if (System.getProperty("os.name").startsWith("Mac"))
@@ -38,7 +37,7 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 	private Parent parentNode;
 
 	public static void main(String[] args) {
-		System.setProperty("mq.console.dir", System.getProperty("user.dir") + File.separator + "src" + File.separator
+		System.setProperty("mq.console.dir", System.getProperty("user.dir") + File.separator + "../mqc-assembler/src" + File.separator
 				+ "main" + File.separator + "deploy" + File.separator + "package");
 		launch(args);
 	}
@@ -63,8 +62,7 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 			log.debug("mq.console.log.dir=" + System.getProperty("mq.console.log.dir"));
 		}
 		try {
-			applicationContext = new ClassPathXmlApplicationContext(
-					new String[] { "META-INF/context/mq-console-application-context.xml" });
+			applicationContext = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
 		} catch (BeansException be) {
 			if (log.isErrorEnabled()) {
 				log.error("Cannot start application.");
@@ -85,9 +83,9 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(applicationContext);
-		parentNode = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/list-queues.fxml");
-		mainController = springFxmlLoader.<AbstractQueuesListPresenterImpl> getController();
+		QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
+		parentNode = queuesListView.getView();
+		mainController = (QueuesListPresenter) queuesListView.getPresenter();
 		mainController.setStage(primaryStage);
 		Scene scene = new Scene(parentNode, 800, 480);
 		primaryStage.setScene(scene);

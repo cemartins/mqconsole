@@ -1,4 +1,4 @@
-package net.sf.juffrou.mq.messages;
+package net.sf.juffrou.mq.messages.presenter;
 
 import org.springframework.stereotype.Component;
 

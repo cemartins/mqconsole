@@ -12,12 +12,12 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
-import net.sf.juffrou.mq.messages.MessageViewPresenter;
+import net.sf.juffrou.mq.messages.MessageViewController;
 
 import org.springframework.stereotype.Component;
 
 @Component
-public class MessageViewPresenterImpl implements MessageViewPresenter {
+public class MessageViewPresenter implements MessageViewController {
 
 	@FXML
 	private Accordion messageAccordion;

@@ -12,6 +12,14 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<configuration>
+					<mainClass>net.sf.juffrou.mq.MQConsole</mainClass>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
@@ -89,7 +97,35 @@
 		</plugins>
 	</build>
 
+	<dependencies>
+		<dependency>
+			<groupId>net.sf.juffrou</groupId>
+			<artifactId>mqc-core</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
 	<profiles>
+		<profile>
+			<id>activemq</id>
+			<dependencies>
+				<dependency>
+					<groupId>net.sf.juffrou</groupId>
+					<artifactId>mqc-activemq</artifactId>
+					<version>1.0.1-SNAPSHOT</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>websphere</id>
+			<dependencies>
+				<dependency>
+					<groupId>net.sf.juffrou</groupId>
+					<artifactId>mqc-websphere</artifactId>
+					<version>1.0.1-SNAPSHOT</version>
+				</dependency>
+			</dependencies>
+		</profile>
 		<profile>
 			<id>MacOSX_specific_package</id>
 			<activation>
