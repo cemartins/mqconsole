@@ -12,13 +12,13 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
-import net.sf.juffrou.mq.MQConsole;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.messages.MessageListener;
 import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
+import net.sf.juffrou.mq.messages.presenter.MessageSendView;
 import net.sf.juffrou.mq.messages.presenter.MessagesListPresenter;
+import net.sf.juffrou.mq.messages.presenter.MessagesListView;
 import net.sf.juffrou.mq.queues.QueuesListController;
-import net.sf.juffrou.mq.ui.SpringFxmlLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +43,12 @@ public class QueuesListPresenter {
 
 	@Autowired
 	private MessageListener messageListener;
+	
+	@Autowired
+	private MessagesListView messagesListView;
+	
+	@Autowired
+	private MessageSendView messageSendView;
 
 	public void initialize() {
 		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -84,10 +90,9 @@ public class QueuesListPresenter {
 		for (TablePosition<?, ?> cell : cells) {
 			QueueDescriptor queue = table.getItems().get(cell.getRow());
 
-			SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(MQConsole.applicationContext);
-			Parent root = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/list-messages.fxml");
+			Parent root = messagesListView.getView();
 
-			MessagesListPresenter controller = springFxmlLoader.<MessagesListPresenter> getController();
+			MessagesListPresenter controller = (MessagesListPresenter) messagesListView.getPresenter();
 			controller.setQueueName(queue.getName());
 			controller.initialize();
 
@@ -108,10 +113,8 @@ public class QueuesListPresenter {
 		for (TablePosition<?, ?> cell : cells) {
 			QueueDescriptor queue = table.getItems().get(cell.getRow());
 
-			SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(MQConsole.applicationContext);
-			Parent root = (Parent) springFxmlLoader.load("/net/sf/juffrou/mq/ui/message-send.fxml");
-
-			MessageSendPresenter controller = springFxmlLoader.<MessageSendPresenter> getController();
+			Parent root = messageSendView.getView();
+			MessageSendPresenter controller = (MessageSendPresenter) messageSendView.getPresenter();
 			controller.setQueueNameSend(queue.getName());
 			controller.setQueueDescriptors(table.getItems());
 

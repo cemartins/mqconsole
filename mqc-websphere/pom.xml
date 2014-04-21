@@ -21,7 +21,7 @@
 			<artifactId>mqc-core</artifactId>
 			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
-		
+
 
 		<!-- IBM WEBSPHERE-MQ -->
 		<dependency>
