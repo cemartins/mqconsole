@@ -13,11 +13,11 @@ import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFConstants;
 
-public class MessageListenerTask extends AbstractMessageListenerTask {
+public class WebsphereMessageListenerTask extends AbstractMessageListenerTask {
 
 	private final MQQueueManager qm;
 
-	public MessageListenerTask(final MessageReceivedHandler handler, MQQueueManager qm, String queueNameReceive) {
+	public WebsphereMessageListenerTask(final MessageReceivedHandler handler, MQQueueManager qm, String queueNameReceive) {
 		super(handler, queueNameReceive);
 		this.qm = qm;
 	}

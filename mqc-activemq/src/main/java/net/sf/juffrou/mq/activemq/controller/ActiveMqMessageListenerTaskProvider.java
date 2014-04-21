@@ -1,26 +1,23 @@
-package net.sf.juffrou.mq.websphere.controller;
+package net.sf.juffrou.mq.activemq.controller;
 
+import net.sf.juffrou.mq.activemq.task.ActiveMqMessageListenerTask;
 import net.sf.juffrou.mq.messages.task.AbstractMessageListenerTask;
 import net.sf.juffrou.mq.messages.task.MessageListenerTaskProvider;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
-import net.sf.juffrou.mq.websphere.task.WebsphereMessageListenerTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
-import com.ibm.mq.MQQueueManager;
-
 @Component
-public class WebsphereMessageListenerTaskProvider implements MessageListenerTaskProvider {
+public class ActiveMqMessageListenerTaskProvider implements MessageListenerTaskProvider {
 
 	@Autowired
-	@Qualifier("mqListeningQueueManager")
-	private MQQueueManager qm;
+	private JmsTemplate jmsTemplate;
 
 	@Override
 	public AbstractMessageListenerTask provide(MessageReceivedHandler handler, String listeningQueueName) {
-		return new WebsphereMessageListenerTask(handler, qm, listeningQueueName);
+		return new ActiveMqMessageListenerTask(handler, jmsTemplate, listeningQueueName);
 	}
 
 }

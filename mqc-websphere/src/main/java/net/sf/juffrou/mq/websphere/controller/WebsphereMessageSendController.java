@@ -9,7 +9,7 @@ import net.sf.juffrou.mq.messages.MessageSendController;
 import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
 import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
-import net.sf.juffrou.mq.websphere.task.MessageReceivingTask;
+import net.sf.juffrou.mq.websphere.task.WebsphereMessageReceivingTask;
 import net.sf.juffrou.mq.websphere.util.MessageDescriptorHelper;
 
 import org.slf4j.Logger;
@@ -153,7 +153,7 @@ public class WebsphereMessageSendController implements MessageSendController {
 					return presenter.getStage();
 				}
 			};
-			MessageReceivingTask task = new MessageReceivingTask(handler, qm, queueNameReceive, brokerTimeout,
+			WebsphereMessageReceivingTask task = new WebsphereMessageReceivingTask(handler, qm, queueNameReceive, brokerTimeout,
 					storedMessage, queueNameSend);
 
 			Thread responseReceivingThread = new Thread(task);

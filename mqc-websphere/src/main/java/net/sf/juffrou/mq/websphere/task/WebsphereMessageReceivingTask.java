@@ -1,16 +1,9 @@
 package net.sf.juffrou.mq.websphere.task;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Worker;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.messages.task.AbstractMessageReceivingTask;
-import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 import net.sf.juffrou.mq.websphere.util.MessageDescriptorHelper;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
@@ -20,12 +13,12 @@ import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFConstants;
 
-public class MessageReceivingTask extends AbstractMessageReceivingTask {
+public class WebsphereMessageReceivingTask extends AbstractMessageReceivingTask {
 
 	private final MQQueueManager qm;
 	private final MQMessage replyMessage;
 
-	public MessageReceivingTask(final MessageReceivedHandler handler, MQQueueManager qm, String queueNameReceive, Integer brokerTimeout, MQMessage replyMessage, String queueNameSent) {
+	public WebsphereMessageReceivingTask(final MessageReceivedHandler handler, MQQueueManager qm, String queueNameReceive, Integer brokerTimeout, MQMessage replyMessage, String queueNameSent) {
 		super(handler, queueNameReceive, brokerTimeout, queueNameSent);
 		this.qm = qm;
 		this.replyMessage = replyMessage;
