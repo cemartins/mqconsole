@@ -29,9 +29,9 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Unknown</string>
 	<key>JVMRuntime</key>
-	<string>jdk1.8.0.jdk</string>
+	<string>1.8.0</string>
 	<key>JVMMainClassName</key>
-	<string>com.javafx.main.Main</string>
+	<string>net.sf.juffrou.mq.MQConsole</string>
 	<key>JVMAppClasspath</key>
 	<string></string>
 	<key>JVMMainJarName</key>

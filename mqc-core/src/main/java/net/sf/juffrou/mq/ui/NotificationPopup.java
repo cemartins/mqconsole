@@ -1,22 +1,19 @@
 package net.sf.juffrou.mq.ui;
 
 import javafx.stage.Stage;
-import jfxtras.labs.dialogs.MonologFX;
+
+import org.controlsfx.dialog.Dialogs;
 
 public class NotificationPopup {
 
-	private final Stage parent;
-	private final MonologFX dialog;
+	private final Dialogs dialogs;
 
 	public NotificationPopup(Stage parent) {
-		this.parent = parent;
-		this.dialog = new MonologFX(MonologFX.Type.ERROR);
-		this.dialog.setModal(true);
-//		this.dialog.setScene(parent.getScene());
+		dialogs = Dialogs.create().owner( parent ).title("MQConsole Message");
+		
 	}
 
 	public void display(String message) {
-		dialog.setMessage(message);
-		dialog.showDialog();
+		dialogs.message( message ).showError();
 	}
 }

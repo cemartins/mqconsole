@@ -24,12 +24,12 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import jfxtras.labs.dialogs.MonologFX;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.messages.MessageSendController;
 
+import org.controlsfx.dialog.Dialogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -235,12 +235,7 @@ public class MessageSendPresenter {
 	private void sendButton(ActionEvent actionEvent) {
 		QueueDescriptor queue = replyQueueCB.getValue();
 		if (queue == null) {
-//			NotificationPopup popup = new NotificationPopup(getStage());
-//			popup.display("Please select a response queue");
-			MonologFX dialog = new MonologFX(MonologFX.Type.ERROR);
-			dialog.setMessage("Please select a response queue");
-			dialog.setModal(true);
-			dialog.showDialog();
+			Dialogs.create().owner( getStage() ).title("MQConsole Message").message("Please select a response queue").showError();
 			return;
 		}
 		MessageDescriptor messageDescriptor = getSendMessage();

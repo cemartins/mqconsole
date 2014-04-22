@@ -10,7 +10,17 @@
 
 	<dependencySets>
 		<dependencySet>
+			<excludes>
+				<exclude>net.sf.juffrou:mqc-core:*</exclude>
+			</excludes>
 			<outputDirectory>/</outputDirectory>
+		</dependencySet>
+		<dependencySet>
+			<includes>
+				<include>net.sf.juffrou:mqc-core:*</include>
+			</includes>
+			<outputDirectory>/classes</outputDirectory>
+			<unpack>true</unpack>
 		</dependencySet>
 	</dependencySets>
 

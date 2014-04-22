@@ -14,6 +14,8 @@ import net.sf.juffrou.mq.queues.presenter.QueuesListPresenter;
 import net.sf.juffrou.mq.queues.presenter.QueuesListView;
 import net.sf.juffrou.mq.ui.ConsolePreloader;
 
+import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.Dialogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -84,23 +86,32 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
-		parentNode = queuesListView.getView();
-		mainController = (QueuesListPresenter) queuesListView.getPresenter();
-		mainController.setStage(primaryStage);
-		Scene scene = new Scene(parentNode, 800, 480);
-		primaryStage.setScene(scene);
-		primaryStage.setTitle("Websphere-MQ Queues");
+		try {
+			parentNode = queuesListView.getView();
+			mainController = (QueuesListPresenter) queuesListView.getPresenter();
+			mainController.setStage(primaryStage);
+			Scene scene = new Scene(parentNode, 800, 480);
+			primaryStage.setScene(scene);
+			primaryStage.setTitle("Websphere-MQ Queues");
 
-		// Terminate application upon main window closing
-		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			// Terminate application upon main window closing
+			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 
-			@Override
-			public void handle(WindowEvent arg0) {
-				Platform.exit();
-			}
-			
-		});
-		primaryStage.show();
+				@Override
+				public void handle(WindowEvent arg0) {
+					Platform.exit();
+				}
+				
+			});
+			primaryStage.show();
+		}
+		catch (Exception e) {
+			Dialogs.create()
+				      .owner( null)
+				      .title("MQConsole Cannot Start")
+				      .message( e.getMessage() )
+				      .showException(e);
+		}
 	}
 
 	@Override
