@@ -80,7 +80,7 @@
 		<spring.version>3.1.4.RELEASE</spring.version>
 		<log4j.version>1.2.17</log4j.version>
 		<junit.version>4.10</junit.version>
-		<exec.mainClass>net.sf.juffrou.mq.ui.Main</exec.mainClass>
+		<exec.mainClass>net.sf.juffrou.mq.MQConsole</exec.mainClass>
 		<javafx.version>8</javafx.version>
 		<javafx.tools.ant.jar>${java.home}/../lib/ant-javafx.jar</javafx.tools.ant.jar>
 		<github.global.server>github</github.global.server>
@@ -141,7 +141,6 @@
 	</reporting>
 	
 	<build>
-		<finalName>MQConsole</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -204,7 +203,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
-					<version>2.1</version>
+					<version>2.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
