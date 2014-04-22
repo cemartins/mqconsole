@@ -33,7 +33,7 @@ public class ActiveMqMessagesListControllerImpl implements MessagesListControlle
 
 	public List<MessageDescriptor> listMessages(MessagesListPresenter presenter, String queueName) {
 				
-		List<MessageDescriptor> messageList = jmsTemplate.browse(new MyCallback());
+		List<MessageDescriptor> messageList = jmsTemplate.browse(queueName, new MyCallback());
 
 		return messageList;
 	}

@@ -4,7 +4,7 @@ public class QueueDescriptor {
 
 	private String name;
 	private String description;
-	private Integer dept;
+	private Long dept;
 	private Boolean isSherable;
 
 	public String getName() {
@@ -23,11 +23,11 @@ public class QueueDescriptor {
 		this.description = description;
 	}
 
-	public Integer getDept() {
+	public Long getDept() {
 		return dept;
 	}
 
-	public void setDept(Integer dept) {
+	public void setDept(Long dept) {
 		this.dept = dept;
 	}
 

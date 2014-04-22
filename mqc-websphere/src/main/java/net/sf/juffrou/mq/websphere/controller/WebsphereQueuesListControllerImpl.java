@@ -98,7 +98,7 @@ public class WebsphereQueuesListControllerImpl implements QueuesListController {
 
 					queue.setName(qName.trim());
 					queue.setDescription(qDesc.trim());
-					queue.setDept((Integer) response.getParameterValue(CMQC.MQIA_CURRENT_Q_DEPTH));
+					queue.setDept((Long) response.getParameterValue(CMQC.MQIA_CURRENT_Q_DEPTH));
 					Integer sharability = (Integer) response.getParameterValue(CMQC.MQIA_SHAREABILITY); // CMQC.MQQA_NOT_SHAREABLE = 0 / CMQC.MQQA_SHAREABLE = 1;
 					if(sharability.intValue() == CMQC.MQQA_SHAREABLE)
 						queue.setIsSherable(Boolean.TRUE);

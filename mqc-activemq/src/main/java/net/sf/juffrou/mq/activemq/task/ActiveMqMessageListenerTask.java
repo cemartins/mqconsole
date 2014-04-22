@@ -23,6 +23,7 @@ public class ActiveMqMessageListenerTask extends AbstractMessageListenerTask {
 	protected MessageDescriptor call() throws Exception {
 		
 		
+		jmsTemplate.setReceiveTimeout(jmsTemplate.RECEIVE_TIMEOUT_INDEFINITE_WAIT);
 		Message receive = jmsTemplate.receive(getQueueNameReceive());
 
 		MessageDescriptor replyMessageDescriptor = ActiveMqMessageDescriptorHelper.createMessageDescriptor(receive);

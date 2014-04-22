@@ -4,6 +4,7 @@ import javax.jms.Message;
 
 import net.sf.juffrou.mq.activemq.util.ActiveMqMessageDescriptorHelper;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.error.MissingReplyMessageException;
 import net.sf.juffrou.mq.messages.task.AbstractMessageReceivingTask;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 
@@ -24,7 +25,15 @@ public class ActiveMqMessageReceivingTask extends AbstractMessageReceivingTask {
 	protected MessageDescriptor call() throws Exception {
 		
 		jmsTemplate.setReceiveTimeout(getBrokerTimeout());
-		Message receive = jmsTemplate.receiveSelected(getQueueNameReceive(), "Correlation ID=" + sentMessageId);
+		Message receive = jmsTemplate.receiveSelected(getQueueNameReceive(), "JMSCorrelationID ='" + sentMessageId + "'");
+		
+		if(receive == null) {
+			updateMessage("Response message not received. Timeout expired.");
+			if (LOG.isDebugEnabled())
+				LOG.debug("Response message not received. Timeout expired.");
+			
+			throw new MissingReplyMessageException("Response message not received. Timeout expired.");
+		}
 
 		MessageDescriptor replyMessageDescriptor = ActiveMqMessageDescriptorHelper.createMessageDescriptor(receive);
 

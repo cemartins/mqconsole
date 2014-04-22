@@ -57,8 +57,8 @@ public abstract class FXMLView implements ApplicationContextAware {
     }
 
     public Parent getView() {
-    	if(loader == null)
-    		init(getClass(), getFXMLName());
+
+    	init(getClass(), getFXMLName());
 
         Parent parent = this.loader.getRoot();
         addCSSIfAvailable(parent);
