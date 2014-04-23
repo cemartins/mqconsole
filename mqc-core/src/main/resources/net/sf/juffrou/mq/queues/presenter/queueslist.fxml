@@ -12,17 +12,19 @@
   <children>
     <TableView fx:id="table" prefHeight="329.0" prefWidth="560.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="23.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="26.0">
       <columns>
-        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="175.0" text="Queue">
+        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="165.0" text="Queue">
           <cellValueFactory>
             <PropertyValueFactory property="name" />
           </cellValueFactory>
         </TableColumn>
+        <!-- 
         <TableColumn editable="false" maxWidth="90.0" minWidth="50.0" prefWidth="80.0" resizable="false" text="Shared">
           <cellValueFactory>
             <PropertyValueFactory property="isSherable" />
           </cellValueFactory>
         </TableColumn>
-        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="296.0" text="Description">
+         -->
+        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="276.0" text="Description">
           <cellValueFactory>
             <PropertyValueFactory property="description" />
           </cellValueFactory>

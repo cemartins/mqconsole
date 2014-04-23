@@ -11,11 +11,13 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author cemartins
  */
+@Component
 public abstract class FXMLView implements ApplicationContextAware {
 
     public static final String DEFAULT_ENDING = "view";

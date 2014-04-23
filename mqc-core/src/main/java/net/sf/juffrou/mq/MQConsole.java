@@ -14,11 +14,9 @@ import net.sf.juffrou.mq.queues.presenter.QueuesListPresenter;
 import net.sf.juffrou.mq.queues.presenter.QueuesListView;
 import net.sf.juffrou.mq.ui.ConsolePreloader;
 
-import org.controlsfx.control.action.Action;
 import org.controlsfx.dialog.Dialogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -39,8 +37,10 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 	private Parent parentNode;
 
 	public static void main(String[] args) {
-		System.setProperty("mq.console.dir", System.getProperty("user.dir") + File.separator + "../mqc-assembler/src" + File.separator
-				+ "main" + File.separator + "deploy" + File.separator + "package");
+		if(args != null && args.length > 0 && "set_maven_path_to_broker_properties".equals(args[0])) {
+			System.setProperty("mq.console.dir", System.getProperty("user.dir") + File.separator + "../mqc-assembler/src" + File.separator
+					+ "main" + File.separator + "deploy" + File.separator + "package");
+		}
 		launch(args);
 	}
 
@@ -55,6 +55,7 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 
 	@Override
 	public void init() {
+		Parameters parameters = getParameters();
 		if (System.getProperty("mq.console.dir") == null)
 			setMQConsoleDir();
 		if (log.isDebugEnabled()) {
@@ -65,22 +66,23 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 		}
 		try {
 			applicationContext = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
-		} catch (BeansException be) {
+		} catch (Exception be) {
 			if (log.isErrorEnabled()) {
 				log.error("Cannot start application.");
 				log.error(be.getMessage());
 			}
+			/* Does not work because there is no javafx thread
+			Dialogs.create()
+		      .owner( null)
+		      .title("MQConsole Cannot Start")
+		      .message( "Spring Context could not be loaded. Is your \"broker.properties\" file in place?" )
+		      .showException(be);
+		      */
+			
 			throw be;
 		}
 		if (log.isDebugEnabled())
 			log.debug("Console context loaded");
-		//prepare application scene
-		//		Rectangle rect = new Rectangle(0, 0, 40, 40);
-		//		rect.setArcHeight(10);
-		//		rect.setArcWidth(10);
-		//		rect.setFill(Color.ORANGE);
-		//		parentNode = new Group(rect);
-		//		System.out.println("Parent loaded");
 	}
 
 	@Override
@@ -92,7 +94,7 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 			mainController.setStage(primaryStage);
 			Scene scene = new Scene(parentNode, 800, 480);
 			primaryStage.setScene(scene);
-			primaryStage.setTitle("Websphere-MQ Queues");
+			primaryStage.setTitle("MQ Queues");
 
 			// Terminate application upon main window closing
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -106,6 +108,11 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 			primaryStage.show();
 		}
 		catch (Exception e) {
+
+			if (log.isErrorEnabled()) {
+				log.error("MQConsole Cannot Start", e);
+			}
+
 			Dialogs.create()
 				      .owner( null)
 				      .title("MQConsole Cannot Start")
@@ -121,7 +128,8 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 
 	@Override
 	public void stop() throws Exception {
-		mainController.getMessageListener().stopMessageListener();
+		if(mainController != null)
+			mainController.getMessageListener().stopMessageListener();
 		super.stop();
 	}
 }

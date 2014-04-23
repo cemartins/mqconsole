@@ -18,6 +18,9 @@
 				<version>1.2.1</version>
 				<configuration>
 					<mainClass>${exec.mainClass}</mainClass>
+					<arguments>
+						<argument>set_maven_path_to_broker_properties</argument>
+					</arguments>
 				</configuration>
 			</plugin>
 
@@ -103,7 +106,7 @@
 									<fx:application refid="fxApp" /> 
 									<fx:fileset dir="${project.build.directory}/bin-jars/classes"/> 
 									<fx:resources> 
-										<fx:fileset dir="${project.build.directory}" includes="libs/*.jar"/>
+										<fx:fileset dir="${project.build.directory}" includes="bin-jars/*.jar"/>
 									</fx:resources>
 										<manifest> 
 											<attribute name="Implementation-Vendor" value="Juffrou" /> 
@@ -127,6 +130,7 @@
 										<fx:fileset dir="${project.build.directory}" includes="bin-jars/*.jar" />
 										<fx:fileset dir="${basedir}/src/main/deploy/package" includes="*.properties" />
 									</fx:resources>
+									<!-- <fx:platform> -->
 									<fx:platform basedir=""> <!-- Leave out the JRE -->
 										<fx:jvmarg value="-Xmx768m" />
 									</fx:platform>
@@ -207,6 +211,7 @@
 			</activation>
 			<build>
 				<plugins>
+					<!-- 
 					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
 						<executions>
@@ -225,6 +230,7 @@
 							</descriptors>
 						</configuration>
 					</plugin>
+					 -->
 				</plugins>
 			</build>
 		</profile>
