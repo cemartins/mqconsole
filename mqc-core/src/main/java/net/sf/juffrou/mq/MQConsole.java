@@ -85,6 +85,7 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 			log.debug("Console context loaded");
 	}
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
@@ -105,7 +106,6 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 				}
 				
 			});
-			primaryStage.show();
 		}
 		catch (Exception e) {
 
@@ -113,12 +113,21 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 				log.error("MQConsole Cannot Start", e);
 			}
 
-			Dialogs.create()
-				      .owner( null)
+			Platform.runLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.create()
+				      .owner( null )
 				      .title("MQConsole Cannot Start")
 				      .message( e.getMessage() )
 				      .showException(e);
+				}
+				
+			});
 		}
+
+		primaryStage.show();
 	}
 
 	@Override

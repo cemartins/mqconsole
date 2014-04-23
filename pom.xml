@@ -5,7 +5,7 @@
 	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>WebsphereMQ Console</name>
-	<description>JavaFX 2 Application implementing a IBM WebsphereMQ broker console</description>
+	<description>JavaFX 2 Application implementing a messaging broker console</description>
 	<url>http://cemartins.github.io/mqconsole</url>
 
 	<organization>
@@ -93,6 +93,7 @@
 		<module>mqc-websphere</module>
 		<module>mqc-activemq</module>
 		<module>mqc-assembler</module>
+		<module>mqc-hornetq</module>
 	</modules>
 
 	<reporting>
