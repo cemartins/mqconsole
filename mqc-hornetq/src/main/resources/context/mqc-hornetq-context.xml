@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+		http://www.springframework.org/schema/beans/spring-beans.xsd  
+		http://www.springframework.org/schema/context  
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+	<!-- configuration properties -->
+	<context:property-placeholder
+		location="file:${mq.console.dir}/broker.properties" />
+
+	<util:map id="mqQueueManagerOptions" map-class="java.util.HashMap">
+		<entry key="hostname" value="${broker_hostname}" />
+		<entry key="port">
+			<value type="java.lang.Integer">${broker_port}</value>
+		</entry>
+		<entry key="channel" value="${broker_channel}" />
+		<entry key="transport" value="ActiveMQ Client" />
+	</util:map>
+
+
+	<!-- HornetQ connection factory -->
+	<bean id="hornetConnectionFactory" class="org.hornetq.jms.client.HornetQConnectionFactory">
+		<constructor-arg name="ha" value="false" />
+		<constructor-arg>
+			<bean name="transportConfiguration" class="org.hornetq.api.core.TransportConfiguration">
+				<constructor-arg value="org.hornetq.core.remoting.impl.netty.NettyConnectorFactory" />
+				<constructor-arg>
+					<util:map key-type="java.lang.String" value-type="java.lang.Object">
+						<entry key="host" value="${broker_hostname}" />
+						<entry key="port" value="${broker_port}" />
+					</util:map>
+				</constructor-arg>
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<bean id="userCredsConnectionFactory" class="org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter">
+		<property name="targetConnectionFactory">
+			<ref bean="hornetConnectionFactory" />
+		</property>
+		<property name="username">
+			<value>${broker_username}</value>
+		</property>
+		<property name="password">
+			<value>${broker_userpwd}</value>
+		</property>
+		<!-- use credentials of some user you have added in 'jmsrole' group as 
+			application user in jboss in the above config -->
+	</bean>
+
+	<!-- ConnectionFactory Definition -->
+	<bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+		<constructor-arg ref="userCredsConnectionFactory" />
+	</bean>
+
+	<!-- JmsTemplate Definition -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="connectionFactory" />
+	</bean>
+
+</beans>

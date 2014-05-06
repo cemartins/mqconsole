@@ -1,6 +1,6 @@
-MQConsole - JavaFX Console for Apache ActiveMQ or IBM Websphere MQ
+MQConsole - JavaFX Console for HornetQ, Apache ActiveMQ or IBM Websphere MQ
 
-Before running, edit the broker.properties file and fill in the details of your Websphere message broker:
+Before running, edit the broker.properties file and fill in the details of your message broker:
 	broker_hostname = <ip address or hostname where the broker is running>
 	broker_port = <port where the broker listens to (default=1414)>
 	broker_channel = <channel name>
@@ -14,13 +14,16 @@ On Windows the broker.properties file is located in the app folder.
 
 The project is configured as a maven project
 
+Use profile hornetq for HornetQ broker client
 Use profile activemq for ActiveMQ broker client
 Use profile websphere for Websphere broker client
 
 Common maven goals:
+run the application as a HornetQ client: mvn -Phornetq -f mqc-assembler/pom.xml exec:java
 run the application as a ActiveMQ client: mvn -Pactivemq -f mqc-assembler/pom.xml exec:java
 run the application as a WebsphereMQ client: mvn -Pwebsphere -f mqc-assembler/pom.xml exec:java
 
+make an application package as a HornetQ client: mvn -Phornetq package
 make an application package as a ActiveMQ client: mvn -Pactivemq package
 make an application package as a WebsphereMQ client: mvn -Pwebsphere package
 

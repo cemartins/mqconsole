@@ -113,18 +113,13 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 				log.error("MQConsole Cannot Start", e);
 			}
 
-			Platform.runLater(new Runnable() {
+			Dialogs.create()
+		      .owner( null )
+		      .title("MQConsole Cannot Start")
+		      .message( e.getMessage() )
+		      .showException(e);
 
-				@Override
-				public void run() {
-					Dialogs.create()
-				      .owner( null )
-				      .title("MQConsole Cannot Start")
-				      .message( e.getMessage() )
-				      .showException(e);
-				}
-				
-			});
+			throw e;
 		}
 
 		primaryStage.show();

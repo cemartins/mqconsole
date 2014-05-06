@@ -11,8 +11,30 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>net.sf.juffrou</groupId>
+			<artifactId>mqc-core</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jms</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.hornetq</groupId>
 			<artifactId>hornetq-core-client</artifactId>
+			<version>2.4.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hornetq</groupId>
+			<artifactId>hornetq-jms-client</artifactId>
+			<version>2.4.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hornetq</groupId>
+			<artifactId>hornetq-tools</artifactId>
 			<version>2.4.1.Final</version>
 		</dependency>
 	</dependencies>

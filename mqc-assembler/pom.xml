@@ -164,6 +164,16 @@
 			</dependencies>
 		</profile>
 		<profile>
+			<id>hornetq</id>
+			<dependencies>
+				<dependency>
+					<groupId>net.sf.juffrou</groupId>
+					<artifactId>mqc-hornetq</artifactId>
+					<version>1.0.1-SNAPSHOT</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
 			<id>websphere</id>
 			<dependencies>
 				<dependency>
