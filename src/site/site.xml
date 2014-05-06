@@ -16,7 +16,7 @@
 	<skin>
 		<groupId>lt.velykis.maven.skins</groupId>
 		<artifactId>reflow-maven-skin</artifactId>
-		<version>1.0.0</version>
+		<version>1.1.0</version>
 	</skin>
 
 	<custom>
@@ -30,8 +30,8 @@
 				<name>MQConsole</name>
 				<href>https://github.com/cemartins/mqconsole/</href>
 			</brand>
-			<slogan>JavaFX Manager Console for IBM Websphere MQ</slogan>
-			<bottomDescription>MQConsole is a small JavaFX2 utility application which allows you to interact with an IBM Websphere MQ messaging broker</bottomDescription>
+			<slogan>JavaFX Manager Console for Messaging Brokers</slogan>
+			<bottomDescription>MQConsole is a small JavaFX2 utility application which allows you to interact with a JMS messaging broker sending and receiving XML messages.</bottomDescription>
 			<!-- Use Table of Contents at the top of the page (max 6 elements) -->
 			<toc>top</toc>
 			<tocTopMax>6</tocTopMax>

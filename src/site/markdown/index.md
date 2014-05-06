@@ -30,7 +30,7 @@ The send message window allows you to send a message to a queue and collect the 
 
 
 MQConsole is a small JavaFX2 utility application which allows you to interact
-with an IBM Websphere MQ messaging broker.
+with a messaging broker (currently supports WebsphereMQ, ActiveMQ and HornetQ).
 
 From the main window with the list of available queues you can:
 
