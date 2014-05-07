@@ -5,6 +5,7 @@ import java.util.GregorianCalendar;
 import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.error.MissingReplyQueueException;
 import net.sf.juffrou.mq.messages.MessageSendController;
 import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
 import net.sf.juffrou.mq.ui.NotificationPopup;
@@ -45,7 +46,10 @@ public class WebsphereMessageSendController implements MessageSendController {
 	// This method called to send MQ message to the norma messaging server
 	// RECEIVES a message STRING and returns a message object (used as a
 	// reference for the reply)
-	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, String queueNameSend, String queueNameReceive) {
+	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, String queueNameSend, String queueNameReceive) throws MissingReplyQueueException {
+
+		if (queueNameReceive == null)
+			throw new MissingReplyQueueException();
 
 		MQQueue requestQueue = null;
 		try {

@@ -27,6 +27,7 @@ import javafx.util.Callback;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
+import net.sf.juffrou.mq.error.MissingReplyQueueException;
 import net.sf.juffrou.mq.messages.MessageSendController;
 
 import org.controlsfx.dialog.Dialogs;
@@ -234,13 +235,14 @@ public class MessageSendPresenter {
 	@FXML
 	private void sendButton(ActionEvent actionEvent) {
 		QueueDescriptor queue = replyQueueCB.getValue();
-		if (queue == null) {
-			Dialogs.create().owner( getStage() ).title("MQConsole Message").message("Please select a response queue").showError();
-			return;
-		}
 		MessageDescriptor messageDescriptor = getSendMessage();
-		
-		messageSendController.sendMessage(this, messageDescriptor, queueNameSend, queue.getName());
+
+		try {
+			messageSendController.sendMessage(this, messageDescriptor, queueNameSend, queue != null ? queue.getName()
+					: null);
+		} catch (MissingReplyQueueException e) {
+			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showError();
+		}
 	}
 
 
