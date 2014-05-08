@@ -27,6 +27,7 @@ import javafx.util.Callback;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
+import net.sf.juffrou.mq.error.CannotSendMessageException;
 import net.sf.juffrou.mq.error.MissingReplyQueueException;
 import net.sf.juffrou.mq.messages.MessageSendController;
 
@@ -241,7 +242,9 @@ public class MessageSendPresenter {
 			messageSendController.sendMessage(this, messageDescriptor, queueNameSend, queue != null ? queue.getName()
 					: null);
 		} catch (MissingReplyQueueException e) {
-			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showError();
+			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showInformation();
+		} catch(CannotSendMessageException e) {
+			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showException(e);
 		}
 	}
 

@@ -1,6 +1,8 @@
 package net.sf.juffrou.mq.activemq.task;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageConsumer;
 
 import net.sf.juffrou.mq.activemq.util.ActiveMqMessageDescriptorHelper;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
@@ -8,30 +10,47 @@ import net.sf.juffrou.mq.error.MissingReplyMessageException;
 import net.sf.juffrou.mq.messages.task.AbstractMessageReceivingTask;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 
-import org.springframework.jms.core.JmsTemplate;
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQSession;
 
 public class ActiveMqMessageReceivingTask extends AbstractMessageReceivingTask {
 
-	private final JmsTemplate jmsTemplate;
-	private final String sentMessageId;
+	private final ActiveMQConnection connection;
+	private final ActiveMQSession session;
+	private final MessageConsumer consumer;
 
-	public ActiveMqMessageReceivingTask(final MessageReceivedHandler handler, JmsTemplate jmsTemplate, String queueNameReceive, Integer brokerTimeout, String sentMessageId, String queueNameSent) {
+	public ActiveMqMessageReceivingTask(final MessageReceivedHandler handler, ActiveMQConnection connection, ActiveMQSession session, MessageConsumer consumer, String queueNameReceive, Integer brokerTimeout, String queueNameSent) {
 		super(handler, queueNameReceive, brokerTimeout, queueNameSent);
-		this.jmsTemplate = jmsTemplate;
-		this.sentMessageId = sentMessageId;
+		this.connection = connection;
+		this.session = session;
+		this.consumer = consumer;
 	}
 
 	@Override
 	protected MessageDescriptor call() throws Exception {
-		
-		jmsTemplate.setReceiveTimeout(getBrokerTimeout());
-		Message receive = jmsTemplate.receiveSelected(getQueueNameReceive(), "JMSCorrelationID ='" + sentMessageId + "'");
-		
-		if(receive == null) {
+
+		Message receive = null;
+
+		try {
+
+			receive = consumer.receive(getBrokerTimeout());
+
+		} catch (JMSException e) {
+			throw new MissingReplyMessageException("Message reception task failed.", e);
+		} finally {
+			if (consumer != null)
+				consumer.close();
+			if (session != null)
+				session.close();
+			if (connection != null)
+				connection.close();
+		}
+
+		if (receive == null) {
 			updateMessage("Response message not received. Timeout expired.");
 			if (LOG.isDebugEnabled())
 				LOG.debug("Response message not received. Timeout expired.");
-			
+
 			throw new MissingReplyMessageException("Response message not received. Timeout expired.");
 		}
 

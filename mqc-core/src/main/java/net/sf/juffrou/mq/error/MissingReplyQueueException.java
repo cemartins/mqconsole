@@ -1,6 +1,6 @@
 package net.sf.juffrou.mq.error;
 
-public class MissingReplyQueueException extends Exception {
+public class MissingReplyQueueException extends CannotSendMessageException {
 
 	/**
 	 * 

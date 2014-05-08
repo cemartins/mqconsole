@@ -4,27 +4,31 @@ import java.sql.Time;
 
 import javafx.stage.Stage;
 
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import net.sf.juffrou.mq.activemq.task.ActiveMqMessageReceivingTask;
 import net.sf.juffrou.mq.activemq.util.ActiveMqMessageDescriptorHelper;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.error.CannotSendMessageException;
 import net.sf.juffrou.mq.messages.MessageSendController;
 import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.ProducerCallback;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,108 +39,113 @@ public class ActiveMqMessageSendController implements MessageSendController {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
+	@Autowired
+	private ActiveMQConnectionFactory connectionFactory;
+
 	@Value("${broker_timeout}")
 	private Integer brokerTimeout;
 
 	// This method called to send MQ message to the norma messaging server
 	// RECEIVES a message STRING and returns a message object (used as a
 	// reference for the reply)
-	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, String queueNameSend, String queueNameReceive) {
+	@Override
+	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, String queueNameSend, String queueNameReceive) throws CannotSendMessageException {
 
-		MyMessageProducer creator = new MyMessageProducer(presenter, jmsTemplate, messageDescriptor, queueNameReceive, brokerTimeout);
-		String sendMessageId = jmsTemplate.execute(queueNameSend, creator);
-		
-		if(sendMessageId == null) {
-			
-			// user did not choose a reply queue, so the sending mechanism created a temporary one and waited for the reception
-			Message replyMessage = creator.getReplyMessage();
-			try {
-				MessageDescriptor replyMessageDescriptor = ActiveMqMessageDescriptorHelper.createMessageDescriptor(replyMessage);
-				presenter.displayMessageReceived(replyMessageDescriptor);
-			} catch (JMSException e) {
-				LOG.error("Cannot create MessageDescriptor from received message", e);
+		ActiveMQConnection connection = null;
+		ActiveMQSession session = null;
+		MessageProducer producer = null;
+		MessageConsumer consumer = null;
+
+		// handler for the receiving thread
+		MessageReceivedHandler handler = new MyMessageReceivedHandler(presenter);
+
+		try {
+
+			connection = (ActiveMQConnection) connectionFactory.createConnection();
+			connection.start();
+
+			session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+			Destination sendDestination = jmsTemplate.getDestinationResolver().resolveDestinationName(session, queueNameSend, false);
+
+			TextMessage message = session.createTextMessage(messageDescriptor.getText());
+			ActiveMqMessageDescriptorHelper.setMessageHeaders(message, messageDescriptor);
+
+			Destination replyDestination = null;
+
+			if (queueNameReceive != null)
+				replyDestination = jmsTemplate.getDestinationResolver().resolveDestinationName(session, queueNameReceive, false);
+			if (replyDestination == null) {
+				replyDestination = session.createTemporaryQueue();
 			}
-		}
-		else {
 
-			// activate the receiving thread
-			MessageReceivedHandler handler = new MessageReceivedHandler() {
-				@Override
-				public void messageReceived(MessageDescriptor messageDescriptor) {
-					presenter.displayMessageReceived(messageDescriptor);
-				}
+			producer = session.createProducer(sendDestination);
 
-				@Override
-				public Stage getStage() {
-					return presenter.getStage();
-				}
-			};
-			
-			ActiveMqMessageReceivingTask task = new ActiveMqMessageReceivingTask(handler, jmsTemplate, queueNameReceive, brokerTimeout,	sendMessageId, queueNameSend);
+			// create the consumer task
+			consumer = session.createConsumer(replyDestination);
+			ActiveMqMessageReceivingTask task = new ActiveMqMessageReceivingTask(handler, connection, session,
+					consumer, queueNameReceive, brokerTimeout, queueNameSend);
 
+			// activate the consumer task thread
 			Thread responseReceivingThread = new Thread(task);
 			responseReceivingThread.setDaemon(true);
+
+			// send the message
+			message.setJMSReplyTo(replyDestination);
+
+			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			producer.setDisableMessageID(false);
+			producer.send(sendDestination, message);
+
+			// get the response in a different thread
 			responseReceivingThread.start();
+
+			// display the updated Sent Message Descriptor on the presenter window
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_MESSAGE_ID, message.getJMSMessageID() == null ? ""
+					: message.getJMSMessageID());
+			Long putDateTime = message.getJMSTimestamp();
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_PUT_DATETIME, putDateTime == null ? "" : new Time(
+					putDateTime).toString());
+
+			presenter.setSentMessage(messageDescriptor);
+
+		} catch (Exception e) {
+			try {
+				if (consumer != null)
+					consumer.close();
+				if (session != null)
+					session.close();
+				if (connection != null)
+					connection.close();
+			} catch (JMSException ee) {
+			}
+			throw new CannotSendMessageException("Message sending failed.", e);
+		} finally {
+			try {
+				if (producer != null)
+					producer.close();
+			} catch (Exception e) {
+			}
 		}
-		
 	}
-	
-	private static class MyMessageProducer implements ProducerCallback<String> {
+
+	private static class MyMessageReceivedHandler implements MessageReceivedHandler {
+
 		private final MessageSendPresenter presenter;
-		private final JmsTemplate jmsTemplate;
-		private final MessageDescriptor messageDescriptor;
-		private final String replyToQueueName;
-		private final Integer brokerTimeout;
-		private Message replyMessage;
-		
-		public MyMessageProducer(MessageSendPresenter presenter, JmsTemplate jmsTemplate, MessageDescriptor messageDescriptor, String replyToQueueName, Integer brokerTimeout) {
+
+		public MyMessageReceivedHandler(MessageSendPresenter presenter) {
 			this.presenter = presenter;
-			this.jmsTemplate = jmsTemplate;
-			this.messageDescriptor = messageDescriptor;
-			this.replyToQueueName = replyToQueueName;
-			this.brokerTimeout = brokerTimeout;
 		}
 
 		@Override
-		public String doInJms(Session session, MessageProducer producer) throws JMSException {
-
-			Message message = session.createTextMessage(messageDescriptor.getText());
-			boolean responseOnTempQueue = false;
-			
-			Destination replyToQueue;
-			if(replyToQueueName != null && !replyToQueueName.isEmpty())
-				replyToQueue = jmsTemplate.getDestinationResolver().resolveDestinationName(session, replyToQueueName, false);
-			else {
-				replyToQueue = session.createTemporaryQueue();
-				responseOnTempQueue = true;
-			}
-			
-			message.setJMSReplyTo(replyToQueue);
-
-			ActiveMqMessageDescriptorHelper.setMessageHeaders(message, messageDescriptor);
-
-			producer.setDisableMessageID(false);
-			producer.send(message);
-
-			messageDescriptor.addHeader(HeaderDescriptor.HEADER_MESSAGE_ID, message.getJMSMessageID() == null ? "" : message.getJMSMessageID());
-			Long putDateTime = message.getJMSTimestamp();
-			messageDescriptor.addHeader(HeaderDescriptor.HEADER_PUT_DATETIME, putDateTime == null ? "" : new Time(putDateTime).toString());
-
-			presenter.setSentMessage(messageDescriptor);
-			
-			if(responseOnTempQueue) {
-				MessageConsumer consumer = session.createConsumer(replyToQueue);
-				replyMessage = consumer.receive(brokerTimeout);
-				return null;
-			}
-
-			return message.getJMSMessageID();
+		public void messageReceived(MessageDescriptor messageDescriptor) {
+			presenter.displayMessageReceived(messageDescriptor);
 		}
-		
-		public Message getReplyMessage() {
-			return replyMessage;
+
+		@Override
+		public Stage getStage() {
+			return presenter.getStage();
 		}
-	
+
 	}
-	
 }
