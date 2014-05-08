@@ -83,7 +83,7 @@
 		<exec.mainClass>net.sf.juffrou.mq.MQConsole</exec.mainClass>
 		<javafx.version>8</javafx.version>
 		<javafx.tools.ant.jar>${java.home}/../lib/ant-javafx.jar</javafx.tools.ant.jar>
-		<github.global.server>github</github.global.server>
+		<github.global.server>github.com</github.global.server>
 		<bintray.repo>cemartins/mqconsole</bintray.repo>
 		<bintray.package>MQConsole</bintray.package>
 	</properties>
@@ -153,30 +153,31 @@
 						<inputEncoding>UTF-8</inputEncoding>
 						<outputEncoding>UTF-8</outputEncoding>
 					</configuration>
-					<dependencies>
-						<dependency>
-							<groupId>org.apache.maven.doxia</groupId>
-							<artifactId>doxia-module-xhtml</artifactId>
-							<version>1.5</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.maven.doxia</groupId>
-							<artifactId>doxia-module-markdown</artifactId>
-							<version>1.5</version>
-						</dependency>
-						<!-- Needed By Reflow Skin -->
-				        <dependency>
-				          <groupId>lt.velykis.maven.skins</groupId>
-				          <artifactId>reflow-velocity-tools</artifactId>
-				          <version>1.1.0</version>
-				        </dependency>
-				        <!-- Reflow skin requires Velocity >= 1.7  -->
-				        <dependency>
-				          <groupId>org.apache.velocity</groupId>
-				          <artifactId>velocity</artifactId>
-				          <version>1.7</version>
-				        </dependency>
-					</dependencies>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-xhtml</artifactId>
+						<version>1.5</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-markdown</artifactId>
+						<version>1.5</version>
+					</dependency>
+					<!-- Needed By Reflow Skin -->
+			        <dependency>
+			          <groupId>lt.velykis.maven.skins</groupId>
+			          <artifactId>reflow-velocity-tools</artifactId>
+			          <version>1.1.0</version>
+			        </dependency>
+			        <!-- Reflow skin requires Velocity >= 1.7  -->
+			        <dependency>
+			          <groupId>org.apache.velocity</groupId>
+			          <artifactId>velocity</artifactId>
+			          <version>1.7</version>
+			        </dependency>
+				</dependencies>
+
 				</plugin>
 				<plugin>
 					<groupId>com.github.github</groupId>
@@ -292,7 +293,24 @@
 					<showDeprecation>true</showDeprecation>
 				</configuration>
 			</plugin>
-
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>create_gh_pages_dir</id>
+						<phase>pre-site</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<mkdir dir="${project.build.directory}/gh-pages"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
 			<plugin>
 				<groupId>com.github.github</groupId>
 				<artifactId>site-maven-plugin</artifactId>
