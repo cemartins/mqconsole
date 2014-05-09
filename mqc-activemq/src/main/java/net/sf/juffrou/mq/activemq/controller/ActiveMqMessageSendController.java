@@ -81,21 +81,23 @@ public class ActiveMqMessageSendController implements MessageSendController {
 
 			producer = session.createProducer(sendDestination);
 
-			// create the consumer task
-			consumer = session.createConsumer(replyDestination);
-			ActiveMqMessageReceivingTask task = new ActiveMqMessageReceivingTask(handler, connection, session,
-					consumer, queueNameReceive, brokerTimeout, queueNameSend);
-
-			// activate the consumer task thread
-			Thread responseReceivingThread = new Thread(task);
-			responseReceivingThread.setDaemon(true);
-
 			// send the message
 			message.setJMSReplyTo(replyDestination);
 
 			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 			producer.setDisableMessageID(false);
 			producer.send(sendDestination, message);
+
+			String jmsMessageID = message.getJMSMessageID();
+
+			// create the consumer task
+			consumer = session.createConsumer(replyDestination, "JMSCorrelationID = '" + jmsMessageID + "'");
+			ActiveMqMessageReceivingTask task = new ActiveMqMessageReceivingTask(handler, connection, session,
+					consumer, queueNameReceive, brokerTimeout, queueNameSend);
+
+			// activate the consumer task thread
+			Thread responseReceivingThread = new Thread(task);
+			responseReceivingThread.setDaemon(true);
 
 			// get the response in a different thread
 			responseReceivingThread.start();
