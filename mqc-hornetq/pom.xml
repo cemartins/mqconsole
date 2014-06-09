@@ -41,7 +41,7 @@
 	</dependencies>
 	
 	<build>
-		<finalName>MQConsole_activemq</finalName>
+		<finalName>MQConsole_hornetq</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -128,7 +128,7 @@
 	
 	<profiles>
 		<profile>
-			<id>MacOSX_specific_hornetq</id>
+			<id>MacOSX_specific_package</id>
 			<activation>
 				<os>
 					<family>mac</family>

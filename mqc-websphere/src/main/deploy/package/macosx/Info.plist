@@ -7,15 +7,15 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>MQConsole</string>
+	<string>MQConsole_websphere</string>
 	<key>CFBundleIconFile</key>
-	<string>MQConsole.icns</string>
+	<string>MQConsole_websphere.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>fxapp</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>MQConsole</string>
+	<string>MQConsole_websphere</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -35,7 +35,7 @@
 	<key>JVMAppClasspath</key>
 	<string></string>
 	<key>JVMMainJarName</key>
-	<string>MQConsole.jar</string>
+	<string>MQConsole_websphere.jar</string>
 	<key>JVMPreferencesID</key>
 	<string>fxapp</string>
 	<key>JVMOptions</key>

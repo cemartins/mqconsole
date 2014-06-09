@@ -80,6 +80,13 @@
 					</descriptors>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
 
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
