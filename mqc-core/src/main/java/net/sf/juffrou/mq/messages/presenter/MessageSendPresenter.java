@@ -1,5 +1,6 @@
 package net.sf.juffrou.mq.messages.presenter;
 
+import java.net.URL;
 import java.util.Iterator;
 
 import javafx.application.Platform;
@@ -7,6 +8,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker.State;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -20,8 +22,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
@@ -45,6 +48,10 @@ import org.springframework.stereotype.Component;
 public class MessageSendPresenter {
 
 	protected static final Logger LOG = LoggerFactory.getLogger(MessageSendPresenter.class);
+	
+	private static final String SCRIPT_SET_TEXT_PREFIX = "editor.setValue(\"";
+	private static final String SCRIPT_SET_TEXT_SUFFIX = "\");";
+	private static final String SCRIPT_GET_TEXT = "editor.getValue();";
 
 	@FXML
 	private Accordion messageAccordionSend;
@@ -74,10 +81,10 @@ public class MessageSendPresenter {
 	private TableView<HeaderDescriptor> receiveHeadersTable;
 
 	@FXML
-	private TextArea sendPayload;
+	private WebView sendPayload;
 
 	@FXML
-	private TextArea receivePayload;
+	private WebView receivePayload;
 
 	@FXML
 	private ComboBox<QueueDescriptor> replyQueueCB;
@@ -106,7 +113,10 @@ public class MessageSendPresenter {
 
 	public MessageDescriptor getSendMessage() {
 		MessageDescriptor messageDescriptor = new MessageDescriptor();
-		messageDescriptor.setText(sendPayload.getText());
+
+		WebEngine engine = sendPayload.getEngine();
+		String text = (String) engine.executeScript(SCRIPT_GET_TEXT);
+		messageDescriptor.setText(text);
 
 		ObservableList<HeaderDescriptor> rows = sendHeadersTable.getItems();
 		if (rows != null) {
@@ -118,8 +128,8 @@ public class MessageSendPresenter {
 	}
 
 	public void setSentMessage(MessageDescriptor messageDescriptor) {
-		sendPayload.setText(messageDescriptor.getText());
-
+//		sendPayload.setText(messageDescriptor.getText());
+		
 		ObservableList<HeaderDescriptor> rows = FXCollections.observableArrayList();
 		rows.addAll(messageDescriptor.getHeaders());
 		sendHeadersTable.getItems().clear();
@@ -128,7 +138,17 @@ public class MessageSendPresenter {
 	}
 
 	public void setReceiveMessage(MessageDescriptor messageDescriptor) {
-		receivePayload.setText(messageDescriptor.getText());
+		if(messageDescriptor.getText() != null && !messageDescriptor.getText().isEmpty()) {
+			
+			WebEngine engine = receivePayload.getEngine();
+        	String text = messageDescriptor.getText();
+//        	text = text.replaceAll(">\\s+<", "><");
+        	text = text.replaceAll("\\\n", "\\\\n");
+        	text = text.replaceAll("\"", "\\\\\"");
+        	String script = SCRIPT_SET_TEXT_PREFIX + text + SCRIPT_SET_TEXT_SUFFIX;
+        	engine.executeScript(script);
+			engine.executeScript("editor.setReadOnly(true);");
+		}
 
 		ObservableList<HeaderDescriptor> rows = FXCollections.observableArrayList();
 		rows.addAll(messageDescriptor.getHeaders());
@@ -189,13 +209,36 @@ public class MessageSendPresenter {
 		messageAccordionReceive.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
 	        @Override public void changed(ObservableValue<? extends TitledPane> property, final TitledPane oldPane, final TitledPane newPane) {
 	          if (oldPane != null) oldPane.setCollapsible(true);
-	          if (newPane != null) Platform.runLater(new Runnable() { @Override public void run() { 
-	            newPane.setCollapsible(false); 
-	          }});
+	          if (newPane != null) Platform.runLater(() -> newPane.setCollapsible(false));
 	        }
 	      });
 
 		messageAccordionReceive.setExpandedPane(receivePayloadPane);
+		
+		// load the webview panel
+		final WebEngine engine = sendPayload.getEngine();
+		engine.setJavaScriptEnabled(true);
+		engine.getLoadWorker().stateProperty().addListener(
+		        new ChangeListener<State>() {
+		            public void changed(ObservableValue ov, State oldState, State newState) {
+		                if (newState == State.SUCCEEDED) {
+		                	
+		                	Platform.runLater( () -> {
+				                	String script = SCRIPT_SET_TEXT_PREFIX + "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>" + SCRIPT_SET_TEXT_SUFFIX;
+				                	engine.executeScript(script);
+				                	script = "editor.setReadOnly(false);";
+				                	engine.executeScript(script);
+		                	});
+		                }
+		            }
+		        });
+
+		URL resource = getClass().getResource("AceEditor.html");
+		engine.load(resource.toString());
+		
+		// Load the javascript editor into the receving payload pane
+		WebEngine receveEngine = receivePayload.getEngine();
+		receveEngine.load(resource.toString());
 
 	}
 

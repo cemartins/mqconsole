@@ -9,6 +9,7 @@
 	</parent>
 	<artifactId>mqc-core</artifactId>
 	<name>MQConsole Core</name>
+	<description>Core classes common to all clients</description>
 
 	<dependencies>
 

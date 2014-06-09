@@ -1,15 +1,19 @@
 package net.sf.juffrou.mq.messages.presenter;
 
+import java.net.URL;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.messages.MessageViewController;
@@ -22,6 +26,9 @@ import org.springframework.stereotype.Component;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MessageViewPresenter implements MessageViewController {
 
+	private static final String SCRIPT_SET_TEXT_PREFIX = "editor.setValue(\"";
+	private static final String SCRIPT_SET_TEXT_SUFFIX = "\");";
+
 	@FXML
 	private Accordion messageAccordion;
 
@@ -32,7 +39,7 @@ public class MessageViewPresenter implements MessageViewController {
 	private TableView<HeaderDescriptor> headersTable;
 
 	@FXML
-	private TextArea payload;
+	private WebView payload;
 
 	private MessageDescriptor messageDescriptor;
 
@@ -58,8 +65,32 @@ public class MessageViewPresenter implements MessageViewController {
 
 		messageAccordion.setExpandedPane(payloadPane);
 
+		final WebEngine engine = payload.getEngine();
+		engine.setJavaScriptEnabled(true);
+
 		if (messageDescriptor != null) {
-			payload.setText(messageDescriptor.getText());
+			
+			// set the text in the text editor (after the page loads completely)
+			engine.getLoadWorker().stateProperty().addListener(
+			        new ChangeListener<State>() {
+			            public void changed(ObservableValue ov, State oldState, State newState) {
+			                if (newState == State.SUCCEEDED) {
+			                	String text = messageDescriptor.getText();
+//			                	text = text.replaceAll(">\\s+<", "><");
+			                	text = text.replaceAll("\\\n", "\\\\n");
+			                	text = text.replaceAll("\"", "\\\\\"");
+			                	String script = SCRIPT_SET_TEXT_PREFIX + text + SCRIPT_SET_TEXT_SUFFIX;
+			                	engine.executeScript(script);
+//			                	script = "editor.getSession().setMode(\"ace/mode/xml\");";
+//			                	engine.executeScript(script);
+//			                	script = "editor.getSession().updateText()";
+//			                	engine.executeScript(script);
+			                	script = "editor.setReadOnly(true);";
+			                	engine.executeScript(script);
+			                }
+			            }
+			        });
+
 
 			headersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -68,6 +99,10 @@ public class MessageViewPresenter implements MessageViewController {
 			headersTable.setItems(rows);
 			payloadPane.setExpanded(true);
 		}
+		
+		URL resource = getClass().getResource("AceEditor.html");
+		engine.load(resource.toString());
+
 	}
 
 }

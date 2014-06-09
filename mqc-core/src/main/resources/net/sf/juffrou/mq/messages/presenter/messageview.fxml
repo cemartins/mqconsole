@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.web.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.*?>
@@ -7,23 +8,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="MessageRead" fx:id="messageRead" prefHeight="342.0" prefWidth="435.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.sf.juffrou.mq.messages.presenter.MessageViewPresenter">
+<AnchorPane id="MessageRead" fx:id="messageRead" prefHeight="342.0" prefWidth="435.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.sf.juffrou.mq.messages.presenter.MessageViewPresenter">
   <!-- TODO Add Nodes -->
   <children>
     <Accordion fx:id="messageAccordion" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <expandedPane>
-        <TitledPane id="x1" fx:id="payloadPane" animated="false" prefHeight="245.0" prefWidth="355.0" text="Payload">
-          <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="207.0" prefWidth="398.0">
-              <children>
-                <TextArea fx:id="payload" prefWidth="200.0" text="" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-              </children>
-            </AnchorPane>
-          </content>
-        </TitledPane>
-      </expandedPane>
       <panes>
-        <TitledPane fx:id="x2" animated="false" text="Headers">
+        <TitledPane animated="false" text="Headers" fx:id="x2">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
               <children>
@@ -45,7 +35,15 @@
             </AnchorPane>
           </content>
         </TitledPane>
-        <fx:reference source="payloadPane" />
+        <TitledPane id="x1" fx:id="payloadPane" animated="false" prefHeight="245.0" prefWidth="355.0" text="Payload">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="207.0" prefWidth="398.0">
+                     <children>
+                        <WebView fx:id="payload" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
       </panes>
     </Accordion>
   </children>

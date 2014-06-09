@@ -1,10 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.sf.juffrou</groupId>
 	<artifactId>mq-console</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>WebsphereMQ Console</name>
+	<name>MQConsole</name>
 	<description>JavaFX 2 Application implementing a messaging broker console</description>
 	<url>http://cemartins.github.io/mqconsole</url>
 
@@ -42,12 +43,12 @@
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
-		    <id>central</id>
-		    <snapshots>
-		        <enabled>false</enabled>
-		    </snapshots>
-		    <name>bintray-plugins</name>
-		    <url>http://jcenter.bintray.com</url>
+			<id>central</id>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<name>bintray-plugins</name>
+			<url>http://jcenter.bintray.com</url>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -55,7 +56,7 @@
 		<repository>
 			<id>bintray-repository</id>
 			<name>Bintray mqconsole repository</name>
-			<url>https://api.bintray.com/maven/${bintray.repo}/${bintray.package}</url>
+			<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}</url>
 		</repository>
 		<site>
 			<id>github-pages-site</id>
@@ -77,17 +78,18 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>3.1.4.RELEASE</spring.version>
+		<spring.version>4.0.5.RELEASE</spring.version>
 		<log4j.version>1.2.17</log4j.version>
 		<junit.version>4.10</junit.version>
 		<exec.mainClass>net.sf.juffrou.mq.MQConsole</exec.mainClass>
 		<javafx.version>8</javafx.version>
 		<javafx.tools.ant.jar>${java.home}/../lib/ant-javafx.jar</javafx.tools.ant.jar>
 		<github.global.server>github.com</github.global.server>
-		<bintray.repo>cemartins/mqconsole</bintray.repo>
+		<bintray.user>cemartins</bintray.user>
+		<bintray.repo>mqconsole</bintray.repo>
 		<bintray.package>MQConsole</bintray.package>
 	</properties>
-	
+
 	<modules>
 		<module>mqc-core</module>
 		<module>mqc-websphere</module>
@@ -117,11 +119,9 @@
 								Dependency Convergence report for reactor builds. -->
 							<!-- <report>dependency-info</report> to generate code snippets to 
 								be added to build tools. -->
-							<!-- <report>dependency-management</report> generate the Project 
-								DependencyManagement report. -->
-							<!-- generate the Project Distribution Management report.
-							<report>distribution-management</report>
-							 -->
+							<!-- <report>dependency-management</report> generate the Project DependencyManagement 
+								report. -->
+							<!-- generate the Project Distribution Management report. <report>distribution-management</report> -->
 							<report>index</report> <!-- generate the Project index page. -->
 							<report>issue-tracking</report> <!-- generate the Project Issue Tracking report. -->
 							<report>license</report> <!-- generate the Project License report. -->
@@ -140,7 +140,7 @@
 			</plugin>
 		</plugins>
 	</reporting>
-	
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -153,30 +153,30 @@
 						<inputEncoding>UTF-8</inputEncoding>
 						<outputEncoding>UTF-8</outputEncoding>
 					</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.doxia</groupId>
-						<artifactId>doxia-module-xhtml</artifactId>
-						<version>1.5</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.maven.doxia</groupId>
-						<artifactId>doxia-module-markdown</artifactId>
-						<version>1.5</version>
-					</dependency>
-					<!-- Needed By Reflow Skin -->
-			        <dependency>
-			          <groupId>lt.velykis.maven.skins</groupId>
-			          <artifactId>reflow-velocity-tools</artifactId>
-			          <version>1.1.0</version>
-			        </dependency>
-			        <!-- Reflow skin requires Velocity >= 1.7  -->
-			        <dependency>
-			          <groupId>org.apache.velocity</groupId>
-			          <artifactId>velocity</artifactId>
-			          <version>1.7</version>
-			        </dependency>
-				</dependencies>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.maven.doxia</groupId>
+							<artifactId>doxia-module-xhtml</artifactId>
+							<version>1.5</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.maven.doxia</groupId>
+							<artifactId>doxia-module-markdown</artifactId>
+							<version>1.5</version>
+						</dependency>
+						<!-- Needed By Reflow Skin -->
+						<dependency>
+							<groupId>lt.velykis.maven.skins</groupId>
+							<artifactId>reflow-velocity-tools</artifactId>
+							<version>1.1.0</version>
+						</dependency>
+						<!-- Reflow skin requires Velocity >= 1.7 -->
+						<dependency>
+							<groupId>org.apache.velocity</groupId>
+							<artifactId>velocity</artifactId>
+							<version>1.7</version>
+						</dependency>
+					</dependencies>
 
 				</plugin>
 				<plugin>
@@ -184,7 +184,8 @@
 					<artifactId>site-maven-plugin</artifactId>
 					<version>0.9</version>
 					<configuration>
-						<message>Creating site for ${project.artifactId}, ${project.version}</message>
+						<message>Creating site for ${project.artifactId},
+							${project.version}</message>
 						<merge>true</merge>
 						<outputDirectory>${project.build.directory}/gh-pages</outputDirectory>
 						<noJekyll>true</noJekyll>
@@ -206,6 +207,11 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
 					<version>2.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -294,6 +300,15 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<useReleaseProfile>false</useReleaseProfile>
+					<releaseProfiles>release</releaseProfiles>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
 					<execution>
@@ -304,13 +319,13 @@
 						</goals>
 						<configuration>
 							<target>
-								<mkdir dir="${project.build.directory}/gh-pages"/>
+								<mkdir dir="${project.build.directory}/gh-pages" />
 							</target>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>com.github.github</groupId>
 				<artifactId>site-maven-plugin</artifactId>
@@ -326,7 +341,39 @@
 			</plugin>
 
 		</plugins>
-		
+
 	</build>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
