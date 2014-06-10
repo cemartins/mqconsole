@@ -143,8 +143,24 @@
 								</goals>
 								<configuration>
 									<target>
-										<move file="${project.build.directory}/bundles/${project.build.finalName}.dmg" tofile="${project.build.directory}/bundles/${project.artifactId}-${project.version}.dmg" />
+										<move file="${project.build.directory}/bundles/${project.build.finalName}.dmg" tofile="${project.build.directory}/bundles/${project.build.finalName}-${project.version}.dmg" />
 									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>deploy_dmg_bundle</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<file>${project.build.directory}/bundles/${project.build.finalName}-${project.version}.dmg</file>
+									<generatePom>false</generatePom>
 								</configuration>
 							</execution>
 						</executions>
