@@ -9,7 +9,6 @@
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
-			<!-- zenjava generated structure  -->
 			<directory>${project.build.directory}/bundles/${project.build.finalName}</directory>
 			<outputDirectory>${project.build.finalName}</outputDirectory>
 			<filtered>false</filtered>
