@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="search-queues" prefHeight="395.0" prefWidth="662.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.sf.juffrou.mq.queues.presenter.QueuesListPresenter">
+<AnchorPane id="search-queues" prefHeight="395.0" prefWidth="662.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.sf.juffrou.mq.queues.presenter.QueuesListPresenter">
   <!-- TODO Add Nodes -->
   <children>
     <TableView fx:id="table" prefHeight="329.0" prefWidth="560.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="23.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="26.0">
@@ -29,18 +29,18 @@
             <PropertyValueFactory property="description" />
           </cellValueFactory>
         </TableColumn>
-        <TableColumn editable="false" maxWidth="90.0" minWidth="10.0" prefWidth="82.0" resizable="false" text="Messages">
+        <TableColumn editable="false" maxWidth="1000.0" minWidth="10.0" prefWidth="100.0" resizable="false" text="Messages">
           <cellValueFactory>
             <PropertyValueFactory property="dept" />
           </cellValueFactory>
         </TableColumn>
       </columns>
       <contextMenu>
-        <ContextMenu onShowing="#contextMenuOnShowingAction" fx:id="messageListCM">
+        <ContextMenu fx:id="messageListCM" onShowing="#contextMenuOnShowingAction">
           <items>
-            <MenuItem mnemonicParsing="false" onAction="#openMessageList" text="Message List" fx:id="mItemList" />
-            <MenuItem mnemonicParsing="false" onAction="#sendMessage" text="Send New Message" fx:id="mItemSend" />
-            <MenuItem id="mItemListen" mnemonicParsing="false" onAction="#listenToNewMessagesAction" text="Listen to New Messages" fx:id="miListenToNewMessages" />
+            <MenuItem fx:id="mItemList" mnemonicParsing="false" onAction="#openMessageList" text="Message List" />
+            <MenuItem fx:id="mItemSend" mnemonicParsing="false" onAction="#sendMessage" text="Send New Message" />
+            <MenuItem id="mItemListen" fx:id="miListenToNewMessages" mnemonicParsing="false" onAction="#listenToNewMessagesAction" text="Listen to New Messages" />
           </items>
         </ContextMenu>
       </contextMenu>

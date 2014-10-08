@@ -6,6 +6,7 @@ import javax.jms.MessageConsumer;
 
 import net.sf.juffrou.mq.activemq.util.ActiveMqMessageDescriptorHelper;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.error.MissingReplyMessageException;
 import net.sf.juffrou.mq.messages.task.AbstractMessageReceivingTask;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
@@ -19,7 +20,7 @@ public class ActiveMqMessageReceivingTask extends AbstractMessageReceivingTask {
 	private final ActiveMQSession session;
 	private final MessageConsumer consumer;
 
-	public ActiveMqMessageReceivingTask(final MessageReceivedHandler handler, ActiveMQConnection connection, ActiveMQSession session, MessageConsumer consumer, String queueNameReceive, Integer brokerTimeout, String queueNameSent) {
+	public ActiveMqMessageReceivingTask(final MessageReceivedHandler handler, ActiveMQConnection connection, ActiveMQSession session, MessageConsumer consumer, QueueDescriptor queueNameReceive, Integer brokerTimeout, QueueDescriptor queueNameSent) {
 		super(handler, queueNameReceive, brokerTimeout, queueNameSent);
 		this.connection = connection;
 		this.session = session;

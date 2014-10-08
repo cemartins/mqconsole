@@ -1,11 +1,29 @@
 package net.sf.juffrou.mq.dom;
 
+/**
+ * @author cemartins
+ *
+ */
 public class QueueDescriptor {
 
+	private String id;
 	private String name;
 	private String description;
 	private Long dept;
 	private Boolean isSherable;
+	
+	public QueueDescriptor() {
+		isSherable = Boolean.FALSE;
+	}
+	
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public String getName() {
 		return name;
@@ -31,9 +49,11 @@ public class QueueDescriptor {
 		this.dept = dept;
 	}
 
+
 	public Boolean getIsSherable() {
 		return isSherable;
 	}
+
 
 	public void setIsSherable(Boolean isSherable) {
 		this.isSherable = isSherable;

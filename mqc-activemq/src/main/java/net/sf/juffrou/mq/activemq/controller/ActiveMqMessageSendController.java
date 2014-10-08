@@ -16,6 +16,7 @@ import net.sf.juffrou.mq.activemq.task.ActiveMqMessageReceivingTask;
 import net.sf.juffrou.mq.activemq.util.ActiveMqMessageDescriptorHelper;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.error.CannotSendMessageException;
 import net.sf.juffrou.mq.messages.MessageSendController;
 import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
@@ -49,7 +50,7 @@ public class ActiveMqMessageSendController implements MessageSendController {
 	// RECEIVES a message STRING and returns a message object (used as a
 	// reference for the reply)
 	@Override
-	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, String queueNameSend, String queueNameReceive) throws CannotSendMessageException {
+	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, QueueDescriptor queueNameSend, Boolean hasReply, QueueDescriptor queueNameReceive) throws CannotSendMessageException {
 
 		ActiveMQConnection connection = null;
 		ActiveMQSession session = null;
@@ -66,42 +67,47 @@ public class ActiveMqMessageSendController implements MessageSendController {
 
 			session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-			Destination sendDestination = jmsTemplate.getDestinationResolver().resolveDestinationName(session, queueNameSend, false);
+			Destination sendDestination = jmsTemplate.getDestinationResolver().resolveDestinationName(session, queueNameSend.getId(), false);
 
 			TextMessage message = session.createTextMessage(messageDescriptor.getText());
 			ActiveMqMessageDescriptorHelper.setMessageHeaders(message, messageDescriptor);
 
 			Destination replyDestination = null;
 
-			if (queueNameReceive != null)
-				replyDestination = jmsTemplate.getDestinationResolver().resolveDestinationName(session, queueNameReceive, false);
-			if (replyDestination == null) {
-				replyDestination = session.createTemporaryQueue();
+			if(hasReply) {
+				if (queueNameReceive != null)
+					replyDestination = jmsTemplate.getDestinationResolver().resolveDestinationName(session, queueNameReceive.getId(), false);
+				if (replyDestination == null) {
+					replyDestination = session.createTemporaryQueue();
+				}
+
+				message.setJMSReplyTo(replyDestination);
 			}
 
 			producer = session.createProducer(sendDestination);
 
 			// send the message
-			message.setJMSReplyTo(replyDestination);
-
 			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 			producer.setDisableMessageID(false);
 			producer.send(sendDestination, message);
 
 			String jmsMessageID = message.getJMSMessageID();
 
-			// create the consumer task
-			consumer = session.createConsumer(replyDestination, "JMSCorrelationID = '" + jmsMessageID + "'");
-			ActiveMqMessageReceivingTask task = new ActiveMqMessageReceivingTask(handler, connection, session,
-					consumer, queueNameReceive, brokerTimeout, queueNameSend);
-
-			// activate the consumer task thread
-			Thread responseReceivingThread = new Thread(task);
-			responseReceivingThread.setDaemon(true);
-
-			// get the response in a different thread
-			responseReceivingThread.start();
-
+			if(hasReply) {
+				
+				// create the consumer task
+				consumer = session.createConsumer(replyDestination, "JMSCorrelationID = '" + jmsMessageID + "'");
+				ActiveMqMessageReceivingTask task = new ActiveMqMessageReceivingTask(handler, connection, session,
+						consumer, queueNameReceive, brokerTimeout, queueNameSend);
+				
+				// activate the consumer task thread
+				Thread responseReceivingThread = new Thread(task);
+				responseReceivingThread.setDaemon(true);
+				
+				// get the response in a different thread
+				responseReceivingThread.start();
+			}
+			
 			// display the updated Sent Message Descriptor on the presenter window
 			messageDescriptor.addHeader(HeaderDescriptor.HEADER_MESSAGE_ID, message.getJMSMessageID() == null ? ""
 					: message.getJMSMessageID());

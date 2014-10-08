@@ -1,6 +1,7 @@
 package net.sf.juffrou.mq.websphere.task;
 
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.messages.task.AbstractMessageReceivingTask;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 import net.sf.juffrou.mq.websphere.util.MessageDescriptorHelper;
@@ -18,7 +19,7 @@ public class WebsphereMessageReceivingTask extends AbstractMessageReceivingTask 
 	private final MQQueueManager qm;
 	private final MQMessage replyMessage;
 
-	public WebsphereMessageReceivingTask(final MessageReceivedHandler handler, MQQueueManager qm, String queueNameReceive, Integer brokerTimeout, MQMessage replyMessage, String queueNameSent) {
+	public WebsphereMessageReceivingTask(final MessageReceivedHandler handler, MQQueueManager qm, QueueDescriptor queueNameReceive, Integer brokerTimeout, MQMessage replyMessage, QueueDescriptor queueNameSent) {
 		super(handler, queueNameReceive, brokerTimeout, queueNameSent);
 		this.qm = qm;
 		this.replyMessage = replyMessage;
@@ -58,7 +59,7 @@ public class WebsphereMessageReceivingTask extends AbstractMessageReceivingTask 
 			}
 //			openOptions = MQConstants.MQOO_INPUT_SHARED;
 			// openOptions |= MQConstants.MQOO_READ_AHEAD;
-			inboundQueue = qm.accessQueue(getQueueNameReceive(), openOptions, null, // default q manager
+			inboundQueue = qm.accessQueue(getQueueNameReceive().getId(), openOptions, null, // default q manager
 					null, // no dynamic q name
 					null); // no alternate user id
 

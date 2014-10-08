@@ -96,6 +96,7 @@ public class WebsphereQueuesListControllerImpl implements QueuesListController {
 
 					String qDesc = (String) response.getParameterValue(CMQC.MQCA_Q_DESC);
 
+					queue.setId(qName.trim());
 					queue.setName(qName.trim());
 					queue.setDescription(qDesc.trim());
 					queue.setDept((Long) response.getParameterValue(CMQC.MQIA_CURRENT_Q_DEPTH));

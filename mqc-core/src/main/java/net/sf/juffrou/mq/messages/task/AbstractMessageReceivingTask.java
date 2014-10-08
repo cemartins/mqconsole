@@ -5,6 +5,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 
@@ -15,11 +16,11 @@ public abstract class AbstractMessageReceivingTask extends Task<MessageDescripto
 
 	protected static final Logger LOG = LoggerFactory.getLogger(AbstractMessageReceivingTask.class);
 
-	private final String queueNameReceive;
-	private final String queueNameSend;
+	private final QueueDescriptor queueNameReceive;
+	private final QueueDescriptor queueNameSend;
 	private final Integer brokerTimeout;
 
-	public AbstractMessageReceivingTask(final MessageReceivedHandler handler, String queueNameReceive, Integer brokerTimeout, String queueNameSent) {
+	public AbstractMessageReceivingTask(final MessageReceivedHandler handler, QueueDescriptor queueNameReceive, Integer brokerTimeout, QueueDescriptor queueNameSent) {
 		super();
 		this.queueNameReceive = queueNameReceive;
 		this.brokerTimeout = brokerTimeout;
@@ -55,11 +56,11 @@ public abstract class AbstractMessageReceivingTask extends Task<MessageDescripto
 	@Override
 	protected abstract MessageDescriptor call() throws Exception;
 
-	public String getQueueNameReceive() {
+	public QueueDescriptor getQueueNameReceive() {
 		return queueNameReceive;
 	}
 
-	public String getQueueNameSend() {
+	public QueueDescriptor getQueueNameSend() {
 		return queueNameSend;
 	}
 

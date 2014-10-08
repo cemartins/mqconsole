@@ -76,12 +76,12 @@ public class QueuesListPresenter {
 	
 	@FXML
 	private void contextMenuOnShowingAction() {
-		String listenerText = "Listen to New Messages";
+		String listenerText = "Subscribe";
 		ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
 		for (TablePosition<?, ?> cell : cells) {
 			QueueDescriptor queue = table.getItems().get(cell.getRow());
 			if(messageListener.isCurrentListeningQueue(queue.getName()))
-				listenerText = "Stop Listening to New Messages";
+				listenerText = "Unsubscribe";
 		}
 		miListenToNewMessages.setText(listenerText);
 	}
@@ -118,7 +118,7 @@ public class QueuesListPresenter {
 
 			Parent root = messageSendView.getView();
 			MessageSendPresenter controller = (MessageSendPresenter) messageSendView.getPresenter();
-			controller.setQueueNameSend(queue.getName());
+			controller.setQueueSend(queue);
 			controller.setQueueDescriptors(table.getItems());
 
 			Scene scene = new Scene(root, 768, 480);

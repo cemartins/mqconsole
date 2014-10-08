@@ -76,6 +76,7 @@ public class ActiveMqQueuesListControllerImpl implements QueuesListController {
 				MapMessage statistics = getStatistics("Destination." + mqQueue.getQueueName());
 				
 				QueueDescriptor queue = new QueueDescriptor();
+				queue.setId(mqQueue.getQualifiedName());
 				queue.setName(mqQueue.getQueueName());
 				queue.setDescription(mqQueue.getQualifiedName());
 				queue.setDept(statistics.getLong("size"));

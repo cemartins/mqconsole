@@ -13,6 +13,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -85,6 +86,9 @@ public class MessageSendPresenter {
 
 	@FXML
 	private WebView receivePayload;
+	
+	@FXML
+	private CheckBox hasReply;
 
 	@FXML
 	private ComboBox<QueueDescriptor> replyQueueCB;
@@ -98,17 +102,17 @@ public class MessageSendPresenter {
 	@Value("${broker_timeout}")
 	private Integer brokerTimeout;
 
-	private String queueNameSend;
+	private QueueDescriptor queueNameSend;
 	
 	@Autowired
 	private MessageSendController messageSendController;
 
-	public String getQueueNameSend() {
+	public QueueDescriptor getQueueSend() {
 		return queueNameSend;
 	}
 
-	public void setQueueNameSend(String queueNameSend) {
-		this.queueNameSend = queueNameSend;
+	public void setQueueSend(QueueDescriptor queueSend) {
+		this.queueNameSend = queueSend;
 	}
 
 	public MessageDescriptor getSendMessage() {
@@ -277,16 +281,31 @@ public class MessageSendPresenter {
 	}
 
 	@FXML
+	private void hasReplyChanged(ActionEvent actionEvent) {
+		
+		if(hasReply.isSelected()) {
+			replyQueueCB.setDisable(false);
+			responseTab.setDisable(false);
+		}
+		else {
+			replyQueueCB.setDisable(true);
+			responseTab.setDisable(true);
+		}
+	}
+
+	
+	@FXML
 	private void sendButton(ActionEvent actionEvent) {
 		QueueDescriptor queue = replyQueueCB.getValue();
 		MessageDescriptor messageDescriptor = getSendMessage();
 
 		try {
-			messageSendController.sendMessage(this, messageDescriptor, queueNameSend, queue != null ? queue.getName()
-					: null);
+			messageSendController.sendMessage(this, messageDescriptor, queueNameSend, hasReply.isSelected(), queue);
 		} catch (MissingReplyQueueException e) {
 			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showInformation();
 		} catch(CannotSendMessageException e) {
+			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showException(e);
+		}  catch(Exception e) {
 			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showException(e);
 		}
 	}

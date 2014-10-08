@@ -101,6 +101,7 @@ public class HornetQQueuesListControllerImpl implements QueuesListController {
 					int messageCount = (Integer)JMSManagementHelper.getResult(reply);
 					
 					QueueDescriptor queue = new QueueDescriptor();
+					queue.setId(queueName);
 					queue.setName(name);
 					queue.setDescription(queueName);
 					queue.setDept(new Long(messageCount));

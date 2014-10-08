@@ -5,6 +5,7 @@ import java.util.GregorianCalendar;
 import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.error.MissingReplyQueueException;
 import net.sf.juffrou.mq.messages.MessageSendController;
 import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
@@ -46,9 +47,9 @@ public class WebsphereMessageSendController implements MessageSendController {
 	// This method called to send MQ message to the norma messaging server
 	// RECEIVES a message STRING and returns a message object (used as a
 	// reference for the reply)
-	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, String queueNameSend, String queueNameReceive) throws MissingReplyQueueException {
+	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, QueueDescriptor queueNameSend, Boolean hasReply, QueueDescriptor queueNameReceive) throws MissingReplyQueueException {
 
-		if (queueNameReceive == null)
+		if (hasReply && queueNameReceive == null)
 			throw new MissingReplyQueueException();
 
 		MQQueue requestQueue = null;
@@ -60,7 +61,7 @@ public class WebsphereMessageSendController implements MessageSendController {
 
 				// If the name of the request queue is the same as the reply
 				// queue...
-				if (queueNameSend.equals(queueNameReceive)) {
+				if (hasReply && queueNameSend.equals(queueNameReceive)) {
 					openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF | MQConstants.MQOO_OUTPUT;
 				} else {
 					openOptions = MQConstants.MQOO_OUTPUT; // Open queue to perform MQPUTs
@@ -68,7 +69,7 @@ public class WebsphereMessageSendController implements MessageSendController {
 
 				// Now specify the queue that we wish to open, and the open
 				// options...
-				requestQueue = qm.accessQueue(queueNameSend, openOptions, null, // default q manager
+				requestQueue = qm.accessQueue(queueNameSend.getId(), openOptions, null, // default q manager
 						null, // no dynamic q name
 						null); // no alternate user id
 
@@ -96,7 +97,8 @@ public class WebsphereMessageSendController implements MessageSendController {
 			//			sendMessage.messageType = MQConstants.MQMT_DATAGRAM;
 
 			// Set reply queue
-			sendMessage.replyToQueueName = queueNameReceive;
+			if(hasReply)
+				sendMessage.replyToQueueName = queueNameReceive.getId();
 
 			// Set message text
 			// String buffer = new String(bufferFront + messageText +
@@ -145,24 +147,28 @@ public class WebsphereMessageSendController implements MessageSendController {
 				LOG.debug("Correlation ID stored = '" + new String(storedMessage.correlationId) + "'");
 			}
 
-			// activate the receiving thread
-			MessageReceivedHandler handler = new MessageReceivedHandler() {
-				@Override
-				public void messageReceived(MessageDescriptor messageDescriptor) {
-					presenter.displayMessageReceived(messageDescriptor);
-				}
-
-				@Override
-				public Stage getStage() {
-					return presenter.getStage();
-				}
-			};
-			WebsphereMessageReceivingTask task = new WebsphereMessageReceivingTask(handler, qm, queueNameReceive, brokerTimeout,
-					storedMessage, queueNameSend);
-
-			Thread responseReceivingThread = new Thread(task);
-			responseReceivingThread.setDaemon(true);
-			responseReceivingThread.start();
+			if(hasReply) {
+				
+				// activate the receiving thread
+				MessageReceivedHandler handler = new MessageReceivedHandler() {
+					@Override
+					public void messageReceived(MessageDescriptor messageDescriptor) {
+						presenter.displayMessageReceived(messageDescriptor);
+					}
+					
+					@Override
+					public Stage getStage() {
+						return presenter.getStage();
+					}
+				};
+				WebsphereMessageReceivingTask task = new WebsphereMessageReceivingTask(handler, qm, queueNameReceive, brokerTimeout,
+						storedMessage, queueNameSend);
+				
+				Thread responseReceivingThread = new Thread(task);
+				responseReceivingThread.setDaemon(true);
+				responseReceivingThread.start();
+			}
+			
 
 		} catch (MQException ex) {
 			if (LOG.isErrorEnabled())
