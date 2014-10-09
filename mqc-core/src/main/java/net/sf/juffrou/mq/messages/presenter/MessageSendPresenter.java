@@ -24,7 +24,13 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -51,6 +57,7 @@ public class MessageSendPresenter {
 	protected static final Logger LOG = LoggerFactory.getLogger(MessageSendPresenter.class);
 	
 	private static final String SCRIPT_SET_TEXT_PREFIX = "editor.setValue(\"";
+	private static final String SCRIPT_PASTE_TEXT_PREFIX = "editor.onPaste(\"";
 	private static final String SCRIPT_SET_TEXT_SUFFIX = "\");";
 	private static final String SCRIPT_GET_TEXT = "editor.getValue();";
 
@@ -243,6 +250,13 @@ public class MessageSendPresenter {
 		// Load the javascript editor into the receving payload pane
 		WebEngine receveEngine = receivePayload.getEngine();
 		receveEngine.load(resource.toString());
+		
+		// set the copy and paste handlers
+		engine.setOnAlert(new ClipboardCopyHandler());
+		sendPayload.addEventFilter(KeyEvent.KEY_PRESSED, new ClipboardPasteHandler(engine));
+
+		receveEngine.setOnAlert(new ClipboardCopyHandler());
+		receivePayload.addEventFilter(KeyEvent.KEY_PRESSED, new ClipboardPasteHandler(receveEngine));
 
 	}
 
@@ -319,5 +333,42 @@ public class MessageSendPresenter {
 	
 	public Stage getStage() {
 		return (Stage) messageAccordionSend.getScene().getWindow();
+	}
+	
+	private class ClipboardPasteHandler implements EventHandler<KeyEvent> {
+		
+		private final WebEngine webEngine;
+		
+		public ClipboardPasteHandler(WebEngine webEngine) {
+			this.webEngine = webEngine;
+		}
+
+		@Override
+		public void handle(KeyEvent keyEvent) {
+	        if ((keyEvent.isControlDown() || keyEvent.isMetaDown()) && keyEvent.getCode() == KeyCode.V){
+	            // PASTE
+	            final Clipboard clipboard = Clipboard.getSystemClipboard();
+	            String content = (String) clipboard.getContent(DataFormat.PLAIN_TEXT);
+	            content = content.replaceAll("\\\n", "\\\\n");
+	            content = content.replaceAll("\"", "\\\\\"");
+	            String script = SCRIPT_PASTE_TEXT_PREFIX + content + SCRIPT_SET_TEXT_SUFFIX;
+	            webEngine.executeScript(script);
+	        }
+		}
+	}
+	
+	private class ClipboardCopyHandler implements EventHandler<WebEvent<String>> {
+
+		@Override
+		public void handle(WebEvent<String> we) {
+	        if(we.getData()!=null && we.getData().startsWith("copy: ")){
+	               // COPY
+	               final Clipboard clipboard = Clipboard.getSystemClipboard();
+	               final ClipboardContent content = new ClipboardContent();
+	               content.putString(we.getData().substring(6));
+	               clipboard.setContent(content);    
+	        }
+		}
+		
 	}
 }

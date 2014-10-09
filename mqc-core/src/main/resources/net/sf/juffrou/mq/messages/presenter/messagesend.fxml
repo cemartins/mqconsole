@@ -72,7 +72,7 @@
                 </Accordion>
                         <ToolBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                           <items>
-                              <CheckBox fx:id="hasReply" mnemonicParsing="false" onAction="#hasReplyChanged" selected="true" text="Has Reply" />
+                              <CheckBox fx:id="hasReply" mnemonicParsing="false" onAction="#hasReplyChanged" selected="true" text="Has Response" />
                     <ComboBox fx:id="replyQueueCB" minWidth="-Infinity" prefHeight="26.0" prefWidth="290.0" promptText="Reply queue">
                       <items>
                         <FXCollections fx:factory="observableArrayList">

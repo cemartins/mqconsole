@@ -13,6 +13,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import net.sf.juffrou.mq.activemq.task.ActiveMqMessageReceivingTask;
+import net.sf.juffrou.mq.activemq.util.ActiveMqDestinationResolver;
 import net.sf.juffrou.mq.activemq.util.ActiveMqMessageDescriptorHelper;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
@@ -66,8 +67,7 @@ public class ActiveMqMessageSendController implements MessageSendController {
 			connection.start();
 
 			session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-			Destination sendDestination = jmsTemplate.getDestinationResolver().resolveDestinationName(session, queueNameSend.getId(), false);
+			Destination sendDestination = ActiveMqDestinationResolver.resolveDestination(jmsTemplate, session, queueNameSend);
 
 			TextMessage message = session.createTextMessage(messageDescriptor.getText());
 			ActiveMqMessageDescriptorHelper.setMessageHeaders(message, messageDescriptor);
