@@ -142,7 +142,6 @@
 										<fx:jvmarg value="-Xmx768m" />
 									</fx:platform>
 								</fx:deploy>
-
 							</target>
 						</configuration>
 					</execution>
@@ -151,110 +150,5 @@
 
 		</plugins>
 	</build>
-	
-	<profiles>
-		<profile>
-			<id>MacOSX_specific_package</id>
-			<activation>
-				<os>
-					<family>mac</family>
-				</os>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>Rename_DMG_Package</id>
-								<phase>package</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<target>
-										<move file="${project.build.directory}/bundles/${project.build.finalName}.dmg" tofile="${project.build.directory}/bundles/${project.build.finalName}-${project.version}.dmg" />
-									</target>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>deploy_dmg_bundle</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<executable>curl</executable>
-							<arguments>
-								<argument>-T</argument>
-								<argument>${project.build.directory}/bundles/${project.build.finalName}-${project.version}.dmg</argument>
-								<argument>-u${bintray.user}:${bintray.apikey}</argument>
-								<argument>https://api.bintray.com/content/cemartins/mqconsole/MQConsole/${project.version}/${project.build.finalName}-${project.version}.dmg</argument>
-							</arguments>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>Windows_specific_package</id>
-			<activation>
-				<os>
-					<family>windows</family>
-				</os>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>make-assembly</id>
-								<phase>install</phase>
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>src/main/assembly/win32.xml</descriptor>
-									</descriptors>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>deploy_dmg_bundle</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<executable>curl</executable>
-							<arguments>
-								<argument>-T</argument>
-								<argument>${project.build.directory}/${project.build.finalName}-x86.zip</argument>
-								<argument>-u${bintray.user}:${bintray.apikey}</argument>
-								<argument>https://api.bintray.com/content/cemartins/mqconsole/MQConsole/${project.version}/${project.build.finalName}-${project.version}.zip</argument>
-							</arguments>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 </project>
