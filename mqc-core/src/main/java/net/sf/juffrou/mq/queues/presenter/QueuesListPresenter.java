@@ -134,9 +134,16 @@ public class QueuesListPresenter {
 
 	@FXML
 	private void refreshButtonAction(ActionEvent event) {
-		ObservableList<QueueDescriptor> rows = FXCollections.observableArrayList();
-		rows.addAll(getQueues());
-		table.setItems(rows);
+		ObservableList<QueueDescriptor> rows = table.getItems();
+		for(QueueDescriptor queue : getQueues()) {
+			int index = rows.indexOf(queue);
+			if(index != -1) {
+				QueueDescriptor oldQueue = rows.get(index);
+				oldQueue.setDept(queue.getDept());
+			}
+			else
+				rows.add(queue);
+		}
 	}
 	
 	protected List<QueueDescriptor> getQueues() {

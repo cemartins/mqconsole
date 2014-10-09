@@ -59,4 +59,15 @@ public class QueueDescriptor {
 		this.isSherable = isSherable;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null)
+			return false;
+		if(! (obj instanceof QueueDescriptor) )
+			return false;
+		QueueDescriptor other = (QueueDescriptor) obj;
+		if(other.getId() == null)
+			return false;
+		return other.getId().equals(getId());
+	}
 }
