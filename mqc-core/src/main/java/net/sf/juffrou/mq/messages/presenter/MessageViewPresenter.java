@@ -7,6 +7,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
@@ -14,9 +16,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.scene.web.WebEvent;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.messages.MessageViewController;
+import net.sf.juffrou.mq.util.TextUtils;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -76,15 +80,13 @@ public class MessageViewPresenter implements MessageViewController {
 			            public void changed(ObservableValue ov, State oldState, State newState) {
 			                if (newState == State.SUCCEEDED) {
 			                	String text = messageDescriptor.getText();
-//			                	text = text.replaceAll(">\\s+<", "><");
+			                	text = TextUtils.escapeText(text);
+			                	/*
 			                	text = text.replaceAll("\\\n", "\\\\n");
 			                	text = text.replaceAll("\"", "\\\\\"");
+			                	*/
 			                	String script = SCRIPT_SET_TEXT_PREFIX + text + SCRIPT_SET_TEXT_SUFFIX;
 			                	engine.executeScript(script);
-//			                	script = "editor.getSession().setMode(\"ace/mode/xml\");";
-//			                	engine.executeScript(script);
-//			                	script = "editor.getSession().updateText()";
-//			                	engine.executeScript(script);
 			                	script = "editor.setReadOnly(true);";
 			                	engine.executeScript(script);
 			                }
@@ -103,6 +105,17 @@ public class MessageViewPresenter implements MessageViewController {
 		URL resource = getClass().getResource("AceEditor.html");
 		engine.load(resource.toString());
 
+	    // retrieve copy event via javascript:alert
+		engine.setOnAlert((WebEvent<String> we) -> {
+	        if(we.getData()!=null && we.getData().startsWith("copy: ")){
+	               // COPY
+	               final Clipboard clipboard = Clipboard.getSystemClipboard();
+	               final ClipboardContent content = new ClipboardContent();
+	               content.putString(we.getData().substring(6));
+	               clipboard.setContent(content);    
+	        }
+	    });
+		
 	}
 
 }

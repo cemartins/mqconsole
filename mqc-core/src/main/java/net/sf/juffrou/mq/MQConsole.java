@@ -103,6 +103,7 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 				@Override
 				public void handle(WindowEvent arg0) {
 					Platform.exit();
+					System.exit(0);
 				}
 				
 			});

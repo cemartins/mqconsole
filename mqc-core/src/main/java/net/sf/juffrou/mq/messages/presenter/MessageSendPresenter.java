@@ -40,6 +40,7 @@ import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.error.CannotSendMessageException;
 import net.sf.juffrou.mq.error.MissingReplyQueueException;
 import net.sf.juffrou.mq.messages.MessageSendController;
+import net.sf.juffrou.mq.util.TextUtils;
 
 import org.controlsfx.dialog.Dialogs;
 import org.slf4j.Logger;
@@ -153,9 +154,11 @@ public class MessageSendPresenter {
 			
 			WebEngine engine = receivePayload.getEngine();
         	String text = messageDescriptor.getText();
-//        	text = text.replaceAll(">\\s+<", "><");
+        	text = TextUtils.escapeText(text);
+        	/*
         	text = text.replaceAll("\\\n", "\\\\n");
         	text = text.replaceAll("\"", "\\\\\"");
+        	*/
         	String script = SCRIPT_SET_TEXT_PREFIX + text + SCRIPT_SET_TEXT_SUFFIX;
         	engine.executeScript(script);
 			engine.executeScript("editor.setReadOnly(true);");
@@ -349,8 +352,7 @@ public class MessageSendPresenter {
 	            // PASTE
 	            final Clipboard clipboard = Clipboard.getSystemClipboard();
 	            String content = (String) clipboard.getContent(DataFormat.PLAIN_TEXT);
-	            content = content.replaceAll("\\\n", "\\\\n");
-	            content = content.replaceAll("\"", "\\\\\"");
+	            content = TextUtils.escapeText(content);
 	            String script = SCRIPT_PASTE_TEXT_PREFIX + content + SCRIPT_SET_TEXT_SUFFIX;
 	            webEngine.executeScript(script);
 	        }
@@ -369,6 +371,6 @@ public class MessageSendPresenter {
 	               clipboard.setContent(content);    
 	        }
 		}
-		
 	}
+	
 }
