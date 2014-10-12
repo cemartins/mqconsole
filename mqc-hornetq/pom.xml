@@ -101,8 +101,10 @@
 								</fx:jar>
 
 								<!-- use a profile in maven settings.xml to define the following properties -->
+								<!-- 
 								<fx:signjar alias="${certificate.alias}" keypass="${certificate.pass}" keystore="${keystore.dir}/${keystore.file}" storepass="${keystore.pass}" storetype="${keystore.type}" destdir="${project.build.directory}">
 								</fx:signjar>
+								 -->
 
 								<fx:deploy outdir="${project.build.directory}" outfile="${project.build.finalName}" nativeBundles="all" verbose="true">
 									<fx:application refid="fxApp" />
@@ -156,9 +158,10 @@
 							<artifactId>${project.artifactId}</artifactId>
 							<groupId>${project.groupId}</groupId>
 							<version>${project.version}</version>
+							<repositoryId>bintray-repository</repositoryId>
 							<file>${project.build.directory}/bundles/${project.build.finalName}-${project.version}.dmg</file>
 							<generatePom>false</generatePom>
-							<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}/${project.version}/${project.build.finalName}-${project.version}.dmg</url>
+							<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}</url>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -203,9 +206,10 @@
 							<artifactId>${project.artifactId}</artifactId>
 							<groupId>${project.groupId}</groupId>
 							<version>${project.version}</version>
+							<repositoryId>bintray-repository</repositoryId>
 							<file>${project.build.directory}/bundles/${project.build.finalName}.zip</file>
 							<generatePom>false</generatePom>
-							<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}/${project.version}/${project.build.finalName}-${project.version}.zip</url>
+							<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}/${project.version}</url>
 						</configuration>
 					</plugin>
 				</plugins>
