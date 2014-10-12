@@ -38,7 +38,7 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 
 	public static void main(String[] args) {
 		if(args != null && args.length > 0 && "set_maven_path_to_broker_properties".equals(args[0])) {
-			System.setProperty("mq.console.dir", System.getProperty("user.dir") + File.separator + "../mqc-assembler/src" + File.separator
+			System.setProperty("mq.console.dir", System.getProperty("user.dir") + File.separator + "src" + File.separator
 					+ "main" + File.separator + "deploy" + File.separator + "package");
 		}
 		launch(args);

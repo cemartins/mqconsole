@@ -115,6 +115,8 @@
 								<taskdef uri="javafx:com.sun.javafx.tools.ant" resource="com/sun/javafx/tools/ant/antlib.xml" classpath="${basedir}/src/main/deploy:${javafx.tools.ant.jar}" />
 
 								<fx:application id="fxApp" name="${project.build.finalName}" mainClass="${exec.mainClass}" />
+								
+								<fx:preferences menu="false"/>
 
 								<fx:jar destfile="${project.build.directory}/${project.build.finalName}"> 
 									<fx:application refid="fxApp" /> 

@@ -37,7 +37,7 @@ From the main window with the list of available queues you can:
 - See the list the messages in a queue
 - View the details of specific message
 - Send a new message to a queue and wait for its response
-- Listen to new messages arriving at a queue and display them automatically.
+- Subscribe to a queue or topic and display messages as they arrive.
 
 
 No need to have administrative credentials, just configure the hostname where the broker is, 

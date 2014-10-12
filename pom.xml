@@ -84,7 +84,7 @@
 		<exec.mainClass>net.sf.juffrou.mq.MQConsole</exec.mainClass>
 		<javafx.version>8</javafx.version>
 		<javafx.tools.ant.jar>${java.home}/../lib/ant-javafx.jar</javafx.tools.ant.jar>
-		<github.global.server>github.com</github.global.server>
+		<github.global.server>github</github.global.server>
 		<bintray.user>cemartins</bintray.user>
 		<bintray.repo>mqconsole</bintray.repo>
 		<bintray.package>MQConsole</bintray.package>
@@ -92,9 +92,10 @@
 
 	<modules>
 		<module>mqc-core</module>
+		<!-- suspended until jar dependencies become public
 		<module>mqc-websphere</module>
+		 -->
 		<module>mqc-activemq</module>
-		<module>mqc-assembler</module>
 		<module>mqc-hornetq</module>
 	</modules>
 
@@ -147,7 +148,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.3</version>
+					<version>3.4</version>
 					<configuration>
 						<chmod>true</chmod>
 						<inputEncoding>UTF-8</inputEncoding>
@@ -157,18 +158,18 @@
 						<dependency>
 							<groupId>org.apache.maven.doxia</groupId>
 							<artifactId>doxia-module-xhtml</artifactId>
-							<version>1.5</version>
+							<version>1.6</version>
 						</dependency>
 						<dependency>
 							<groupId>org.apache.maven.doxia</groupId>
 							<artifactId>doxia-module-markdown</artifactId>
-							<version>1.5</version>
+							<version>1.6</version>
 						</dependency>
 						<!-- Needed By Reflow Skin -->
 						<dependency>
 							<groupId>lt.velykis.maven.skins</groupId>
 							<artifactId>reflow-velocity-tools</artifactId>
-							<version>1.1.0</version>
+							<version>1.1.1</version>
 						</dependency>
 						<!-- Reflow skin requires Velocity >= 1.7 -->
 						<dependency>
@@ -182,7 +183,7 @@
 				<plugin>
 					<groupId>com.github.github</groupId>
 					<artifactId>site-maven-plugin</artifactId>
-					<version>0.9</version>
+					<version>0.10</version>
 					<configuration>
 						<message>Creating site for ${project.artifactId},
 							${project.version}</message>
@@ -216,7 +217,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.8.1</version>
+					<version>2.8.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -260,7 +261,10 @@
 				<plugin>
 					<groupId>com.zenjava</groupId>
 					<artifactId>javafx-maven-plugin</artifactId>
-					<version>2.0</version>
+					<version>8.1.2</version>
+					<configuration>
+						<mainClass>exec.mainClass</mainClass>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
