@@ -1,5 +1,10 @@
 package net.sf.juffrou.mq.dom;
 
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  * @author cemartins
  *
@@ -7,12 +12,15 @@ package net.sf.juffrou.mq.dom;
 public class QueueDescriptor {
 
 	private String id;
-	private String name;
-	private String description;
-	private Long dept;
+	private StringProperty name;
+	private StringProperty description;
+	private LongProperty dept;
 	private Boolean isSherable;
 	
 	public QueueDescriptor() {
+		name = new SimpleStringProperty();
+		description = new SimpleStringProperty();
+		dept = new SimpleLongProperty();
 		isSherable = Boolean.FALSE;
 	}
 	
@@ -26,29 +34,40 @@ public class QueueDescriptor {
 	}
 
 	public String getName() {
-		return name;
+		return name.get();
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name.set(name);
+	}
+	
+	public StringProperty nameProperty() {
+		return name;
 	}
 
 	public String getDescription() {
-		return description;
+		return description.get();
 	}
 
 	public void setDescription(String description) {
-		this.description = description;
+		this.description.set(description);
+	}
+	
+	public StringProperty descriptionProperty() {
+		return description;
 	}
 
 	public Long getDept() {
-		return dept;
+		return dept.get();
 	}
 
 	public void setDept(Long dept) {
-		this.dept = dept;
+		this.dept.set(dept);
 	}
 
+	public LongProperty deptProperty() {
+		return dept;
+	}
 
 	public Boolean getIsSherable() {
 		return isSherable;
