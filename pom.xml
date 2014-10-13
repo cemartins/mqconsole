@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.sf.juffrou</groupId>
 	<artifactId>mq-console</artifactId>
-	<version>2.0.2-SNAPSHOT</version>
+	<version>2.0.2</version>
 	<packaging>pom</packaging>
 	<name>MQConsole</name>
 	<description>JavaFX 2 Application implementing a messaging broker console</description>
@@ -53,9 +53,9 @@
 
 	<distributionManagement>
 		<repository>
-			<id>bintray-repository</id>
-			<name>Bintray mqconsole repository</name>
-			<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}</url>
+			<id>dummy_repository</id>
+			<name>Temporary local folder</name>
+			<url>${distribution.url}</url>
 		</repository>
 		<site>
 			<id>github-pages-site</id>
@@ -400,6 +400,28 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<id>MacOSX_specific_package</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<properties>
+				<distribution.url>file:///tmp</distribution.url>
+			</properties>
+		</profile>
+		<profile>
+			<id>Windows_specific_package</id>
+			<activation>
+				<os>
+					<family>windows</family>
+				</os>
+			</activation>
+			<properties>
+				<distribution.url>file://C:/tmp</distribution.url>
+			</properties>
 		</profile>
 	</profiles>
 

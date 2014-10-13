@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>net.sf.juffrou</groupId>
 		<artifactId>mq-console</artifactId>
-		<version>2.0.2-SNAPSHOT</version>
+		<version>2.0.2</version>
 	</parent>
 	<artifactId>mqc-hornetq</artifactId>
 	<name>MQConsole for HornetQ</name>
@@ -13,7 +13,7 @@
 		<dependency>
 			<groupId>net.sf.juffrou</groupId>
 			<artifactId>mqc-core</artifactId>
-			<version>2.0.2-SNAPSHOT</version>
+			<version>2.0.2</version>
 		</dependency>
 
 		<dependency>
@@ -51,6 +51,24 @@
 						<argument>set_maven_path_to_broker_properties</argument>
 					</arguments>
 				</configuration>
+				<executions>
+					<execution>
+						<id>deploy_bundle_to_bintray</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>curl</executable>
+							<arguments>
+								<argument>-T</argument>
+								<argument>${project.build.directory}/bundles/${bundle.name}</argument>
+								<argument>-u${bintray.user}:${bintray.apikey}</argument>
+								<argument>https://api.bintray.com/content/cemartins/mqconsole/MQConsole/${project.version}/${bundle.name}</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -141,31 +159,9 @@
 					<family>mac</family>
 				</os>
 			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-deploy-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>deploy_dmg_bundle</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>deploy-file</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<artifactId>${project.artifactId}</artifactId>
-							<groupId>${project.groupId}</groupId>
-							<version>${project.version}</version>
-							<repositoryId>bintray-repository</repositoryId>
-							<file>${project.build.directory}/bundles/${project.build.finalName}-${project.version}.dmg</file>
-							<generatePom>false</generatePom>
-							<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}</url>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
+			<properties>
+				<bundle.name>${project.build.finalName}-${project.version}.dmg</bundle.name>
+			</properties>
 		</profile>
 		<profile>
 			<id>Windows_specific_package</id>
@@ -174,6 +170,9 @@
 					<family>windows</family>
 				</os>
 			</activation>
+			<properties>
+				<bundle.name>${project.build.finalName}-${project.version}.zip</bundle.name>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -181,36 +180,15 @@
 						<executions>
 							<execution>
 								<id>Windows_ZIP_package</id>
-								<phase>deploy</phase> 
+								<phase>package</phase> 
 								<goals> <goal>run</goal> </goals>
 								<configuration>
 									<target>
-										<zip destfile="${project.build.directory}/bundles/${project.build.finalName}.zip" basedir="${project.build.directory}/bundles/${project.build.finalName}" />
+										<zip destfile="${project.build.directory}/bundles/${bundle.name}" basedir="${project.build.directory}/bundles/${project.build.finalName}" />
 									</target>
 								</configuration>
 							</execution>
 						</executions>
-					</plugin>
-					<plugin>
-						<artifactId>maven-deploy-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>deploy_zip_bundle</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>deploy-file</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<artifactId>${project.artifactId}</artifactId>
-							<groupId>${project.groupId}</groupId>
-							<version>${project.version}</version>
-							<repositoryId>bintray-repository</repositoryId>
-							<file>${project.build.directory}/bundles/${project.build.finalName}.zip</file>
-							<generatePom>false</generatePom>
-							<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}/${project.version}</url>
-						</configuration>
 					</plugin>
 				</plugins>
 			</build>
