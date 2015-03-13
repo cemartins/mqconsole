@@ -8,13 +8,14 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import net.sf.juffrou.mq.queues.presenter.QueuesListPresenter;
 import net.sf.juffrou.mq.queues.presenter.QueuesListView;
 import net.sf.juffrou.mq.ui.ConsolePreloader;
+import net.sf.juffrou.mq.ui.ExceptionDialog;
 
-import org.controlsfx.dialog.Dialogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -114,11 +115,12 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 				log.error("MQConsole Cannot Start", e);
 			}
 
-			Dialogs.create()
-		      .owner( null )
-		      .title("MQConsole Cannot Start")
-		      .message( e.getMessage() )
-		      .showException(e);
+			ExceptionDialog alert = new ExceptionDialog();
+			alert.setTitle("Error Dialog");
+			alert.setHeaderText("MQConsole Cannot Start");
+			alert.setContentText(e.getMessage());
+			alert.setException(e);
+			alert.showAndWait();
 
 			throw e;
 		}

@@ -4,9 +4,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
-import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 
 import org.slf4j.Logger;
@@ -39,8 +40,13 @@ public abstract class AbstractMessageReceivingTask extends Task<MessageDescripto
 					MessageDescriptor messageDescriptor = new MessageDescriptor();
 					messageDescriptor.setText(getMessage());
 					handler.messageReceived(messageDescriptor);
-					NotificationPopup popup = new NotificationPopup(handler.getStage());
-					popup.display(getMessage());
+					
+					Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("Error Dialog");
+					alert.setHeaderText("Failed to receive message");
+					alert.setContentText(getMessage());
+					alert.showAndWait();
+
 					break;
 				case CANCELLED:
 					AbstractMessageReceivingTask.super.cancelled();

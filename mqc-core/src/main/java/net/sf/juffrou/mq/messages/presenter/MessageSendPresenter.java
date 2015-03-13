@@ -13,6 +13,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -37,12 +39,11 @@ import javafx.util.Callback;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
-import net.sf.juffrou.mq.error.CannotSendMessageException;
 import net.sf.juffrou.mq.error.MissingReplyQueueException;
 import net.sf.juffrou.mq.messages.MessageSendController;
+import net.sf.juffrou.mq.ui.ExceptionDialog;
 import net.sf.juffrou.mq.util.TextUtils;
 
-import org.controlsfx.dialog.Dialogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -319,11 +320,22 @@ public class MessageSendPresenter {
 		try {
 			messageSendController.sendMessage(this, messageDescriptor, queueNameSend, hasReply.isSelected(), queue);
 		} catch (MissingReplyQueueException e) {
-			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showInformation();
-		} catch(CannotSendMessageException e) {
-			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showException(e);
-		}  catch(Exception e) {
-			Dialogs.create().owner(getStage()).title("MQConsole Message").message(e.getMessage()).showException(e);
+			
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("MQConsole Message");
+			alert.setContentText(e.getMessage());
+			alert.showAndWait();
+			
+		} catch(Exception e) {
+
+			ExceptionDialog alert = new ExceptionDialog();
+			alert.setTitle("Error Dialog");
+			alert.setHeaderText("MQConsole Message");
+			alert.setContentText(e.getMessage());
+			alert.setException(e);
+			alert.showAndWait();
+
 		}
 	}
 

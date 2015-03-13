@@ -2,7 +2,7 @@ MQConsole - JavaFX Console for HornetQ, Apache ActiveMQ
 =======================================================
 
 requirements
-Java 8u20+
+Java 1.8.0_40+
 
 Before running, edit the broker.properties file and fill in the details of your message broker:
 
@@ -27,7 +27,7 @@ The project is configured as a maven project
 Deployment to bintray at https://bintray.com/cemartins/mqconsole/MQConsole/view
 
 build requirements
-JDK 8u20+
+JDK 1.8.0_40+
 Maven 3.1+
 
 Common maven goals:
