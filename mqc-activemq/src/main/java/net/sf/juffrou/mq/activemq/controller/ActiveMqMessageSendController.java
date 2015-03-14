@@ -26,7 +26,6 @@ import net.sf.juffrou.mq.util.MessageReceivedHandler;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
-import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,9 +99,6 @@ public class ActiveMqMessageSendController implements MessageSendController {
 				consumer = session.createConsumer(replyDestination, "JMSCorrelationID = '" + jmsMessageID + "'");
 				ActiveMqMessageReceivingTask task = new ActiveMqMessageReceivingTask(handler, connection, session,
 						consumer, queueNameReceive, brokerTimeout, queueNameSend);
-				
-				TaskProgressView<ActiveMqMessageReceivingTask> view = new TaskProgressView<>();
-				view.getTasks().add(task);
 				
 				// activate the consumer task thread
 				Thread responseReceivingThread = new Thread(task);
