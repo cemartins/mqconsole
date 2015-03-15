@@ -19,6 +19,14 @@ in the folder Contents/Java.
 
 On Windows the broker.properties file is located in the app folder.
 
+Binary Downloads
+================
+
+Please find Windows and OS X binary distributions at bintray with the following link
+
+[ ![Download](https://api.bintray.com/packages/cemartins/mqconsole/MQConsole/images/download.svg) ](https://bintray.com/cemartins/mqconsole/MQConsole/_latestVersion)
+
+
 Building
 ========
 
