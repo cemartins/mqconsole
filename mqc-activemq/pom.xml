@@ -114,12 +114,12 @@
 							<target xmlns:fx="javafx:com.sun.javafx.tools.ant">
 								<taskdef uri="javafx:com.sun.javafx.tools.ant" resource="com/sun/javafx/tools/ant/antlib.xml" classpath="${basedir}/src/main/deploy:${javafx.tools.ant.jar}" />
 
-								<fx:application id="fxApp" name="${project.build.finalName}" mainClass="${exec.mainClass}" version="${project.version}" />
+								<fx:application id="${project.artifactId}" name="${project.build.finalName}" mainClass="${exec.mainClass}" version="${project.version}" />
 								
 								<fx:preferences menu="false" />
 
 								<fx:jar destfile="${project.build.directory}/${project.build.finalName}"> 
-									<fx:application refid="fxApp" /> 
+									<fx:application refid="${project.artifactId}" /> 
 									<fx:fileset dir="${project.build.directory}/bin-jars/classes" /> 
 									<fx:resources> 
 										<fx:fileset dir="${project.build.directory}" includes="bin-jars/*.jar" />
@@ -138,7 +138,7 @@
 								 -->
 
 								<fx:deploy outdir="${project.build.directory}" outfile="${project.build.finalName}" nativeBundles="all" verbose="true">
-									<fx:application refid="fxApp" />
+									<fx:application refid="${project.artifactId}" />
 									<fx:resources>
 										<!-- If you changed <fx:jar> above, don't forget to modify the 
 											line below -->
@@ -146,6 +146,7 @@
 										<fx:fileset dir="${project.build.directory}" includes="bin-jars/*.jar" />
 										<fx:fileset dir="${basedir}/src/main/deploy/package" includes="*.properties" />
 									</fx:resources>
+									<fx:info title="MQ Console" vendor="Juffrou" category="Utilities" license="The Apache Software License, Version 2.0" description="${project.description}" />
 									<!-- 
 									<fx:bundleArgument arg="mac.signing-key-user-name" value="Carlos Martins" />
 									 -->

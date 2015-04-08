@@ -93,8 +93,8 @@
 	<modules>
 		<module>mqc-core</module>
 		<!-- suspended until jar dependencies become public
-		<module>mqc-websphere</module>
 		 -->
+		<module>mqc-websphere</module>
 		<module>mqc-activemq</module>
 		<module>mqc-hornetq</module>
 	</modules>

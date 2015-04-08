@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.error.BrokerSpecificException;
 import net.sf.juffrou.mq.messages.MessagesListController;
 import net.sf.juffrou.mq.messages.presenter.MessagesListPresenter;
-import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.websphere.util.MessageDescriptorHelper;
 
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public class WebsphereMessagesListControllerImpl implements MessagesListControll
 	}
 
 
-	public List<MessageDescriptor> listMessages(MessagesListPresenter presenter, String queueName) {
+	public List<MessageDescriptor> listMessages(MessagesListPresenter presenter, String queueName) throws IOException, BrokerSpecificException {
 		List<MessageDescriptor> messageList = new ArrayList<MessageDescriptor>();
 
 		try {
@@ -83,19 +83,13 @@ public class WebsphereMessagesListControllerImpl implements MessagesListControll
 			} else {
 				if (LOG.isErrorEnabled())
 					LOG.error(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
-				NotificationPopup popup = new NotificationPopup(presenter.getStage());
-				popup.display(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+				
+				throw new BrokerSpecificException(mqe.getMessage() + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode), mqe);
 			}
-		} catch (IOException e) {
-			if (LOG.isErrorEnabled())
-				LOG.error(e.getMessage());
-			NotificationPopup popup = new NotificationPopup(presenter.getStage());
-			popup.display(e.getMessage());
 		} catch (MQDataException e) {
 			if (LOG.isErrorEnabled())
 				LOG.error(e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
-			NotificationPopup popup = new NotificationPopup(presenter.getStage());
-			popup.display(e + ": " + PCFConstants.lookupReasonCode(e.reasonCode));
+			throw new BrokerSpecificException(e.getMessage() + ": " + PCFConstants.lookupReasonCode(e.reasonCode), e);
 		}
 
 		return messageList;

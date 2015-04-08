@@ -1,6 +1,8 @@
 package net.sf.juffrou.mq.messages.presenter;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -16,8 +18,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
+import net.sf.juffrou.mq.error.BrokerSpecificException;
 import net.sf.juffrou.mq.messages.MessageViewController;
 import net.sf.juffrou.mq.messages.MessagesListController;
+import net.sf.juffrou.mq.ui.ExceptionDialog;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +82,26 @@ public class MessagesListPresenter implements Initializable {
 	}
 
 	private List<MessageDescriptor> listMessages() {
-		return messagesListController.listMessages(this, queueName);
+		try {
+			
+			return messagesListController.listMessages(this, queueName);
+			
+		} catch (IOException e) {
+			ExceptionDialog alert = new ExceptionDialog();
+			alert.setTitle("List Messages Error");
+			alert.setHeaderText("I/O error while fetching the list of mesages.");
+			alert.setContentText(e.getMessage());
+			alert.setException(e);
+			alert.showAndWait();
+		} catch (BrokerSpecificException e) {
+			ExceptionDialog alert = new ExceptionDialog();
+			alert.setTitle("List Messages Error");
+			alert.setHeaderText("Broker specific error while fetching the list of mesages.");
+			alert.setContentText(e.getMessage());
+			alert.setException(e);
+			alert.showAndWait();
+		}
+		return Collections.emptyList();
 	}
 	
 	

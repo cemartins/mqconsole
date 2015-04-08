@@ -65,32 +65,16 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 			log.debug("mq.console.dir=" + System.getProperty("mq.console.dir"));
 			log.debug("mq.console.log.dir=" + System.getProperty("mq.console.log.dir"));
 		}
-		try {
-			applicationContext = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
-		} catch (Exception be) {
-			if (log.isErrorEnabled()) {
-				log.error("Cannot start application.");
-				log.error(be.getMessage());
-			}
-			/* Does not work because there is no javafx thread
-			Dialogs.create()
-		      .owner( null)
-		      .title("MQConsole Cannot Start")
-		      .message( "Spring Context could not be loaded. Is your \"broker.properties\" file in place?" )
-		      .showException(be);
-		      */
-			
-			throw be;
-		}
-		if (log.isDebugEnabled())
-			log.debug("Console context loaded");
 	}
 
 	@SuppressWarnings("restriction")
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
 		try {
+
+			applicationContext = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
+
+			QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
 			parentNode = queuesListView.getView();
 			mainController = (QueuesListPresenter) queuesListView.getPresenter();
 			mainController.setStage(primaryStage);
@@ -122,7 +106,8 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 			alert.setException(e);
 			alert.showAndWait();
 
-			throw e;
+			Platform.exit();
+			System.exit(1);
 		}
 
 		primaryStage.show();

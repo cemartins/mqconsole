@@ -6,10 +6,10 @@ import javafx.stage.Stage;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
 import net.sf.juffrou.mq.dom.QueueDescriptor;
+import net.sf.juffrou.mq.error.CannotSendMessageException;
 import net.sf.juffrou.mq.error.MissingReplyQueueException;
 import net.sf.juffrou.mq.messages.MessageSendController;
 import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
-import net.sf.juffrou.mq.ui.NotificationPopup;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
 import net.sf.juffrou.mq.websphere.task.WebsphereMessageReceivingTask;
 import net.sf.juffrou.mq.websphere.util.MessageDescriptorHelper;
@@ -47,7 +47,7 @@ public class WebsphereMessageSendController implements MessageSendController {
 	// This method called to send MQ message to the norma messaging server
 	// RECEIVES a message STRING and returns a message object (used as a
 	// reference for the reply)
-	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, QueueDescriptor queueNameSend, Boolean hasReply, QueueDescriptor queueNameReceive) throws MissingReplyQueueException {
+	public void sendMessage(MessageSendPresenter presenter, MessageDescriptor messageDescriptor, QueueDescriptor queueNameSend, Boolean hasReply, QueueDescriptor queueNameReceive) throws MissingReplyQueueException, CannotSendMessageException {
 
 		if (hasReply && queueNameReceive == null)
 			throw new MissingReplyQueueException();
@@ -76,6 +76,7 @@ public class WebsphereMessageSendController implements MessageSendController {
 				// Create new MQMessage object
 				sendMessage = new MQMessage();
 			} catch (NullPointerException e) {
+				LOG.error("Null Pointer error while preparing send queue", e);
 				e.printStackTrace();
 			}
 
@@ -173,17 +174,17 @@ public class WebsphereMessageSendController implements MessageSendController {
 		} catch (MQException ex) {
 			if (LOG.isErrorEnabled())
 				LOG.error(ex + ": " + PCFConstants.lookupReasonCode(ex.reasonCode));
-			NotificationPopup popup = new NotificationPopup(presenter.getStage());
-			popup.display(ex + ": " + PCFConstants.lookupReasonCode(ex.reasonCode));
+			
+			throw new CannotSendMessageException(ex.getMessage() + ". Reason code: " + PCFConstants.lookupReasonCode(ex.reasonCode), ex);
+			
 		} catch (java.io.IOException ex) {
 			if (LOG.isErrorEnabled())
 				LOG.error(ex.getMessage());
-			NotificationPopup popup = new NotificationPopup(presenter.getStage());
-			popup.display(ex.getMessage());
+			throw new CannotSendMessageException(ex.getMessage(), ex);
 		} catch (Exception ex) {
 			if (LOG.isErrorEnabled())
 				LOG.error(ex.getMessage());
-			NotificationPopup popup = new NotificationPopup(presenter.getStage());
+			throw new CannotSendMessageException(ex.getMessage(), ex);
 		}
 	}
 

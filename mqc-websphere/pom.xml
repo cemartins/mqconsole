@@ -4,7 +4,7 @@
 	<parent>
 	<groupId>net.sf.juffrou</groupId>
 	<artifactId>mq-console</artifactId>
-	<version>2.0.1</version>
+	<version>2.0.4-SNAPSHOT</version>
 	</parent>
 	<artifactId>mqc-websphere</artifactId>
 	<name>MQConsole for IBM WebsphereMQ</name>
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>net.sf.juffrou</groupId>
 			<artifactId>mqc-core</artifactId>
-			<version>2.0.1</version>
+			<version>2.0.4-SNAPSHOT</version>
 		</dependency>
 
 
@@ -80,6 +80,24 @@
 						<argument>set_maven_path_to_broker_properties</argument>
 					</arguments>
 				</configuration>
+				<executions>
+					<execution>
+						<id>deploy_bundle_to_bintray</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>curl</executable>
+							<arguments>
+								<argument>-T</argument>
+								<argument>${project.build.directory}/bundles/${bundle.name}</argument>
+								<argument>-u${bintray.user}:${bintray.apikey}</argument>
+								<argument>https://api.bintray.com/content/cemartins/mqconsole/MQConsole/${project.version}/${bundle.name}</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -114,12 +132,12 @@
 							<target xmlns:fx="javafx:com.sun.javafx.tools.ant">
 								<taskdef uri="javafx:com.sun.javafx.tools.ant" resource="com/sun/javafx/tools/ant/antlib.xml" classpath="${basedir}/src/main/deploy:${javafx.tools.ant.jar}" />
 
-								<fx:application id="fxApp" name="${project.build.finalName}" mainClass="${exec.mainClass}" />
+								<fx:application id="${project.artifactId}" name="${project.build.finalName}" mainClass="${exec.mainClass}" version="${project.version}" />
 								
 								<fx:preferences menu="false"/>
 
 								<fx:jar destfile="${project.build.directory}/${project.build.finalName}"> 
-									<fx:application refid="fxApp" /> 
+									<fx:application refid="${project.artifactId}" /> 
 									<fx:fileset dir="${project.build.directory}/bin-jars/classes" /> 
 									<fx:resources> 
 										<fx:fileset dir="${project.build.directory}" includes="bin-jars/*.jar" />
@@ -131,7 +149,7 @@
 									</manifest> 
 								</fx:jar>
 								<fx:deploy outdir="${project.build.directory}" outfile="${project.build.finalName}" nativeBundles="all" verbose="true">
-									<fx:application refid="fxApp" />
+									<fx:application refid="${project.artifactId}" />
 									<fx:resources>
 										<!-- If you changed <fx:jar> above, don't forget to modify the 
 											line below -->
@@ -139,6 +157,7 @@
 										<fx:fileset dir="${project.build.directory}" includes="bin-jars/*.jar" />
 										<fx:fileset dir="${basedir}/src/main/deploy/package" includes="*.properties" />
 									</fx:resources>
+									<fx:info title="MQ Console" vendor="Juffrou" category="Utilities" license="The Apache Software License, Version 2.0" description="${project.description}" />
 									<!-- <fx:platform> -->
 									<fx:platform basedir=""> <!-- Leave out the JRE -->
 										<fx:jvmarg value="-Xmx768m" />

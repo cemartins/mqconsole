@@ -8,9 +8,9 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import net.sf.juffrou.mq.dom.QueueDescriptor;
+import net.sf.juffrou.mq.error.CannotReadQueuesException;
 import net.sf.juffrou.mq.queues.QueuesListController;
 import net.sf.juffrou.mq.queues.presenter.QueuesListPresenter;
-import net.sf.juffrou.mq.ui.NotificationPopup;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.ibm.mq.MQException;
-import com.ibm.mq.MQQueue;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.CMQC;
@@ -50,25 +49,6 @@ public class WebsphereQueuesListControllerImpl implements QueuesListController {
 	@Qualifier("mqQueueManager")
 	private MQQueueManager qm;
 
-	
-	private boolean doMQSet(QueuesListPresenter presenter, QueueDescriptor queueDescriptor) {
-		
-		try {
-			int shareability = queueDescriptor.getIsSherable().booleanValue() ? MQConstants.MQQA_SHAREABLE : MQConstants.MQQA_NOT_SHAREABLE;
-			MQQueue queue = qm.accessQueue(queueDescriptor.getName(), MQConstants.MQOO_SET);
-			queue.set(new int[] {MQConstants.MQIA_SHAREABILITY}, new int[] {shareability}, new byte[] {});
-			queue.close();
-			return true;
-			
-		} catch (MQException mqe) {
-			if (LOG.isErrorEnabled())
-				LOG.error(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
-			NotificationPopup popup = new NotificationPopup(presenter.getStage());
-			popup.display(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
-			return false;
-		}
-	}
-	
 	public List<QueueDescriptor> getQueues(QueuesListPresenter presenter) {
 
 		List<QueueDescriptor> queueList = new ArrayList<QueueDescriptor>();
@@ -99,7 +79,8 @@ public class WebsphereQueuesListControllerImpl implements QueuesListController {
 					queue.setId(qName.trim());
 					queue.setName(qName.trim());
 					queue.setDescription(qDesc.trim());
-					queue.setDept((Long) response.getParameterValue(CMQC.MQIA_CURRENT_Q_DEPTH));
+					Long dept = new Long(response.getParameterValue(CMQC.MQIA_CURRENT_Q_DEPTH).toString());
+					queue.setDept(dept);
 					Integer sharability = (Integer) response.getParameterValue(CMQC.MQIA_SHAREABILITY); // CMQC.MQQA_NOT_SHAREABLE = 0 / CMQC.MQQA_SHAREABLE = 1;
 					if(sharability.intValue() == CMQC.MQQA_SHAREABLE)
 						queue.setIsSherable(Boolean.TRUE);
@@ -120,15 +101,13 @@ public class WebsphereQueuesListControllerImpl implements QueuesListController {
 		catch (MQException mqe) {
 			if (LOG.isErrorEnabled())
 				LOG.error(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
-			NotificationPopup popup = new NotificationPopup(presenter.getStage());
-			popup.display(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode));
+			throw new CannotReadQueuesException(mqe + ": " + PCFConstants.lookupReasonCode(mqe.reasonCode), mqe);
 		}
 
 		catch (IOException ioe) {
 			if (LOG.isErrorEnabled())
 				LOG.error(ioe.getMessage());
-			NotificationPopup popup = new NotificationPopup(presenter.getStage());
-			popup.display(ioe.getMessage());
+			throw new CannotReadQueuesException(ioe.getMessage(), ioe);
 		}
 
 		return queueList;
