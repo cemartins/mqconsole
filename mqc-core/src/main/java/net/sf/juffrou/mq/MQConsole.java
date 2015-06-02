@@ -41,16 +41,18 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class MQConsole extends Application implements ConsolePreloader.SharedScene {
 	
 	public static final String APPLICATION_ICON =
-            "http://cdn1.iconfinder.com/data/icons/Copenhagen/PNG/32/people.png";
+            "/images/mqconsole_01.png";
+//	public static final String SPLASH_IMAGE =
+//            "http://fxexperience.com/wp-content/uploads/2010/06/logo.png";
 	public static final String SPLASH_IMAGE =
-            "http://fxexperience.com/wp-content/uploads/2010/06/logo.png";
+            "/images/mqconsole_01.png";
 	
     private Pane splashLayout;
     private ProgressBar loadProgress;
     private Label progressText;
     private Stage mainStage;
-    private static final int SPLASH_WIDTH = 676;
-    private static final int SPLASH_HEIGHT = 227;
+    private static final int SPLASH_WIDTH = 350;
+    private static final int SPLASH_HEIGHT = 80;
 
 	private QueuesListPresenter mainController;
 
@@ -62,7 +64,7 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 			System.setProperty("mq.console.log.dir", System.getenv("APPDATA") + "/MQConsole");
 	}
 	private static final Logger log = LoggerFactory.getLogger(MQConsole.class);
-//	public static ApplicationContext applicationContext;
+	public static ApplicationContext applicationContext;
 
 	private Parent parentNode;
 
@@ -121,13 +123,13 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 	public void old_start(Stage primaryStage) throws Exception {
 		try {
 
-			ApplicationContext applicationContext = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
+			applicationContext = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
 
 			QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
 			parentNode = queuesListView.getView();
 			mainController = (QueuesListPresenter) queuesListView.getPresenter();
 			mainController.setStage(primaryStage);
-			Scene scene = new Scene(parentNode, 800, 480);
+			Scene scene = new Scene(parentNode, 326, 73);
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("MQ Queues");
 
@@ -165,9 +167,9 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 	
     @Override
     public void start(final Stage initStage) throws Exception {
-        final Task<ApplicationContext> friendTask = new Task<ApplicationContext>() {
+        final Task<QueuesListView> friendTask = new Task<QueuesListView>() {
             @Override
-            protected ApplicationContext call() throws InterruptedException {
+            protected QueuesListView call() throws InterruptedException {
                 ObservableList<String> foundFriends =
                         FXCollections.<String>observableArrayList();
                 ObservableList<String> availableFriends =
@@ -188,8 +190,13 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
                 Thread.sleep(400);
                 updateMessage("All friends found.");
  
-                ApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
-                return context;
+                applicationContext = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
+                
+                QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
+                // load the view to throw eventual controller initialization exceptions
+                queuesListView.getView();
+                
+                return queuesListView;
             }
         };
  
@@ -201,17 +208,15 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
         new Thread(friendTask).start();
     }
  
-    private void showMainStage(ReadOnlyObjectProperty<ApplicationContext> context) {
+    private void showMainStage(ReadOnlyObjectProperty<QueuesListView> context) {
         mainStage = new Stage(StageStyle.DECORATED);
         mainStage.getIcons().add(new Image(APPLICATION_ICON));
  
-		ApplicationContext applicationContext = context.get();
-
-		QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
+		QueuesListView queuesListView = context.get();
 		parentNode = queuesListView.getView();
 		mainController = (QueuesListPresenter) queuesListView.getPresenter();
 		mainController.setStage(mainStage);
-		Scene scene = new Scene(parentNode, 800, 480);
+		Scene scene = new Scene(parentNode, 326, 73);
 		mainStage.setScene(scene);
 		mainStage.setTitle("MQ Queues");
 

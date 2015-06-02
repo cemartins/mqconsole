@@ -134,7 +134,7 @@
 
 								<fx:application id="${project.artifactId}" name="${project.build.finalName}" mainClass="${exec.mainClass}" version="${project.version}" />
 								
-								<fx:preferences menu="false"/>
+								<fx:preferences menu="false" />
 
 								<fx:jar destfile="${project.build.directory}/${project.build.finalName}"> 
 									<fx:application refid="${project.artifactId}" /> 

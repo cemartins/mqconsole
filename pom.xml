@@ -73,7 +73,7 @@
 		<connection>scm:git:https://github.com/cemartins/mqconsole.git</connection>
 		<developerConnection>scm:git:https://github.com/cemartins/mqconsole.git</developerConnection>
 		<url>https://github.com/cemartins/mqconsole</url>
-	  <tag>HEAD</tag>
+	  <tag>mq-console-2.0.4</tag>
   </scm>
 
 	<properties>
