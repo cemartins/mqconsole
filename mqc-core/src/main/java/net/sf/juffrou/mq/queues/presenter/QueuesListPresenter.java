@@ -18,6 +18,7 @@ import net.sf.juffrou.mq.messages.presenter.MessageSendPresenter;
 import net.sf.juffrou.mq.messages.presenter.MessageSendView;
 import net.sf.juffrou.mq.messages.presenter.MessagesListPresenter;
 import net.sf.juffrou.mq.messages.presenter.MessagesListView;
+import net.sf.juffrou.mq.messages.task.AbstractQueueFetchingTask;
 import net.sf.juffrou.mq.queues.QueuesListController;
 
 import org.slf4j.Logger;
@@ -149,7 +150,11 @@ public class QueuesListPresenter {
 	protected List<QueueDescriptor> getQueues() {
 		return queuesListController.getQueues(this);
 	}
-	
+
+	protected AbstractQueueFetchingTask getQueueFetchingTask() {
+		return queuesListController.getQueueFetchingTask(this);
+	}
+
 	public MessageListener getMessageListener() {
 		return messageListener;
 	}

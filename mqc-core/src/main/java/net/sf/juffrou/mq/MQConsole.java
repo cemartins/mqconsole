@@ -216,7 +216,7 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 		parentNode = queuesListView.getView();
 		mainController = (QueuesListPresenter) queuesListView.getPresenter();
 		mainController.setStage(mainStage);
-		Scene scene = new Scene(parentNode, 326, 73);
+		Scene scene = new Scene(parentNode, 800, 480);
 		mainStage.setScene(scene);
 		mainStage.setTitle("MQ Queues");
 
