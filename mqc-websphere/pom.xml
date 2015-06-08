@@ -172,4 +172,48 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>MacOSX_specific_package</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<properties>
+				<bundle.name>${project.build.finalName}-${project.version}.dmg</bundle.name>
+			</properties>
+		</profile>
+		<profile>
+			<id>Windows_specific_package</id>
+			<activation>
+				<os>
+					<family>windows</family>
+				</os>
+			</activation>
+			<properties>
+				<bundle.name>${project.build.finalName}-${project.version}.zip</bundle.name>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>Windows_ZIP_package</id>
+								<phase>package</phase> 
+								<goals> <goal>run</goal> </goals>
+								<configuration>
+									<target>
+										<zip destfile="${project.build.directory}/bundles/${bundle.name}" basedir="${project.build.directory}/bundles/${project.build.finalName}" />
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 </project>
