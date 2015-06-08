@@ -3,6 +3,12 @@ package net.sf.juffrou.mq;
 import java.io.File;
 import java.net.URL;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -32,11 +38,6 @@ import net.sf.juffrou.mq.queues.presenter.QueuesListPresenter;
 import net.sf.juffrou.mq.queues.presenter.QueuesListView;
 import net.sf.juffrou.mq.ui.ConsolePreloader;
 import net.sf.juffrou.mq.ui.ExceptionDialog;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class MQConsole extends Application implements ConsolePreloader.SharedScene {
 	
@@ -170,29 +171,22 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
         final Task<QueuesListView> friendTask = new Task<QueuesListView>() {
             @Override
             protected QueuesListView call() throws InterruptedException {
-                ObservableList<String> foundFriends =
-                        FXCollections.<String>observableArrayList();
-                ObservableList<String> availableFriends =
-                        FXCollections.observableArrayList(
-                                "Fili", "Kili", "Oin", "Gloin", "Thorin",
-                                "Dwalin", "Balin", "Bifur", "Bofur",
-                                "Bombur", "Dori", "Nori", "Ori"
-                        );
- 
-                updateMessage("Finding friends . . .");
-                for (int i = 0; i < availableFriends.size(); i++) {
-                    Thread.sleep(400);
-                    updateProgress(i + 1, availableFriends.size());
-                    String nextFriend = availableFriends.get(i);
-                    foundFriends.add(nextFriend);
-                    updateMessage("Finding friends . . . found " + nextFriend);
-                }
+                updateMessage("Loading Application Context . . .");
                 Thread.sleep(400);
-                updateMessage("All friends found.");
- 
                 applicationContext = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
                 
+                Thread.sleep(400);
+                int beanDefinitionCount = applicationContext.getBeanDefinitionCount();
+                updateMessage("Loaded " + String.valueOf(beanDefinitionCount) + " beans . . .");
+                
+                ((AbstractApplicationContext) applicationContext).registerShutdownHook();
+                
+                Thread.sleep(400);
                 QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
+
+                Thread.sleep(400);
+                updateMessage("Reading available message queues . . .");
+
                 // load the view to throw eventual controller initialization exceptions
                 queuesListView.getView();
                 
