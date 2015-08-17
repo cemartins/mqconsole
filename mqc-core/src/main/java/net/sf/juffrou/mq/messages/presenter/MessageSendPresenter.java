@@ -3,6 +3,14 @@ package net.sf.juffrou.mq.messages.presenter;
 import java.net.URL;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -31,6 +39,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
@@ -42,15 +51,8 @@ import net.sf.juffrou.mq.dom.QueueDescriptor;
 import net.sf.juffrou.mq.error.MissingReplyQueueException;
 import net.sf.juffrou.mq.messages.MessageSendController;
 import net.sf.juffrou.mq.ui.ExceptionDialog;
+import net.sf.juffrou.mq.ui.XmlViewer;
 import net.sf.juffrou.mq.util.TextUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -94,7 +96,7 @@ public class MessageSendPresenter {
 	private WebView sendPayload;
 
 	@FXML
-	private WebView receivePayload;
+	private AnchorPane responsePayloadAnchorPane;
 	
 	@FXML
 	private CheckBox hasReply;
@@ -112,6 +114,8 @@ public class MessageSendPresenter {
 	private Integer brokerTimeout;
 
 	private QueueDescriptor queueNameSend;
+	
+	private XmlViewer responseXmlViewer;
 	
 	@Autowired
 	private MessageSendController messageSendController;
@@ -153,16 +157,7 @@ public class MessageSendPresenter {
 	public void setReceiveMessage(MessageDescriptor messageDescriptor) {
 		if(messageDescriptor.getText() != null && !messageDescriptor.getText().isEmpty()) {
 			
-			WebEngine engine = receivePayload.getEngine();
-        	String text = messageDescriptor.getText();
-        	text = TextUtils.escapeText(text);
-        	/*
-        	text = text.replaceAll("\\\n", "\\\\n");
-        	text = text.replaceAll("\"", "\\\\\"");
-        	*/
-        	String script = SCRIPT_SET_TEXT_PREFIX + text + SCRIPT_SET_TEXT_SUFFIX;
-        	engine.executeScript(script);
-			engine.executeScript("editor.setReadOnly(true);");
+			responseXmlViewer.replaceText(messageDescriptor.getText());
 		}
 
 		ObservableList<HeaderDescriptor> rows = FXCollections.observableArrayList();
@@ -250,18 +245,22 @@ public class MessageSendPresenter {
 
 		URL resource = getClass().getResource("AceEditor.html");
 		engine.load(resource.toString());
-		
-		// Load the javascript editor into the receving payload pane
-		WebEngine receveEngine = receivePayload.getEngine();
-		receveEngine.load(resource.toString());
-		
+
 		// set the copy and paste handlers
 		engine.setOnAlert(new ClipboardCopyHandler());
 		sendPayload.addEventFilter(KeyEvent.KEY_PRESSED, new ClipboardPasteHandler(engine));
 
-		receveEngine.setOnAlert(new ClipboardCopyHandler());
-		receivePayload.addEventFilter(KeyEvent.KEY_PRESSED, new ClipboardPasteHandler(receveEngine));
-
+		
+		// Prepare the response payload
+		responseXmlViewer = new XmlViewer();
+		responseXmlViewer.setEditable(false);
+		
+		responsePayloadAnchorPane.getStylesheets().add(XmlViewer.class.getResource("xml-highlighting.css").toExternalForm());
+		responsePayloadAnchorPane.getChildren().add(responseXmlViewer);
+		responsePayloadAnchorPane.setTopAnchor(responseXmlViewer, 0.0);
+		responsePayloadAnchorPane.setBottomAnchor(responseXmlViewer, 0.0);
+		responsePayloadAnchorPane.setLeftAnchor(responseXmlViewer, 0.0);
+		responsePayloadAnchorPane.setRightAnchor(responseXmlViewer, 0.0);
 	}
 
 	private static class QueueDescriptorCell extends ListCell<QueueDescriptor> {

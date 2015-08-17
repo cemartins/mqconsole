@@ -21,6 +21,13 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Syntax Highlighting -->
+		<dependency>
+			<groupId>org.fxmisc.richtext</groupId>
+			<artifactId>richtextfx</artifactId>
+			<version>0.6.5</version>
+		</dependency>
+
 		<!-- SPRING -->
 		<dependency>
 			<groupId>org.springframework</groupId>
