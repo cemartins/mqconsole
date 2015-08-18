@@ -80,6 +80,10 @@ public class ActiveMqMessageDescriptorHelper {
 		if (message != null) {
 			messageDescriptor.setMessageId(message.getJMSMessageID());
 			messageDescriptor.setCorrelationId(message.getJMSCorrelationID());
+
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_MESSAGE_ID, message.getJMSMessageID());
+			messageDescriptor.addHeader(HeaderDescriptor.HEADER_CORRELATION_ID, message.getJMSCorrelationID());
+
 			Enumeration propertyNames = message.getPropertyNames();
 			if (propertyNames != null)
 				while (propertyNames.hasMoreElements()) {
