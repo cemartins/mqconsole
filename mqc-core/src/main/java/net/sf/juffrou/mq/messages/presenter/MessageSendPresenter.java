@@ -1,6 +1,5 @@
 package net.sf.juffrou.mq.messages.presenter;
 
-import java.net.URL;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
@@ -16,7 +15,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Worker.State;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -34,15 +32,7 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebEvent;
-import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
@@ -52,7 +42,6 @@ import net.sf.juffrou.mq.error.MissingReplyQueueException;
 import net.sf.juffrou.mq.messages.MessageSendController;
 import net.sf.juffrou.mq.ui.ExceptionDialog;
 import net.sf.juffrou.mq.ui.XmlViewer;
-import net.sf.juffrou.mq.util.TextUtils;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -93,7 +82,7 @@ public class MessageSendPresenter {
 	private TableView<HeaderDescriptor> receiveHeadersTable;
 
 	@FXML
-	private WebView sendPayload;
+	private AnchorPane requestPayloadAnchorPane;
 
 	@FXML
 	private AnchorPane responsePayloadAnchorPane;
@@ -115,6 +104,7 @@ public class MessageSendPresenter {
 
 	private QueueDescriptor queueNameSend;
 	
+	private XmlViewer requestXmlViewer;
 	private XmlViewer responseXmlViewer;
 	
 	@Autowired
@@ -131,8 +121,7 @@ public class MessageSendPresenter {
 	public MessageDescriptor getSendMessage() {
 		MessageDescriptor messageDescriptor = new MessageDescriptor();
 
-		WebEngine engine = sendPayload.getEngine();
-		String text = (String) engine.executeScript(SCRIPT_GET_TEXT);
+		String text = requestXmlViewer.getText();
 		messageDescriptor.setText(text);
 
 		ObservableList<HeaderDescriptor> rows = sendHeadersTable.getItems();
@@ -225,31 +214,16 @@ public class MessageSendPresenter {
 
 		messageAccordionReceive.setExpandedPane(receivePayloadPane);
 		
-		// load the webview panel
-		final WebEngine engine = sendPayload.getEngine();
-		engine.setJavaScriptEnabled(true);
-		engine.getLoadWorker().stateProperty().addListener(
-		        new ChangeListener<State>() {
-		            public void changed(ObservableValue ov, State oldState, State newState) {
-		                if (newState == State.SUCCEEDED) {
-		                	
-		                	Platform.runLater( () -> {
-				                	String script = SCRIPT_SET_TEXT_PREFIX + "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>" + SCRIPT_SET_TEXT_SUFFIX;
-				                	engine.executeScript(script);
-				                	script = "editor.setReadOnly(false);";
-				                	engine.executeScript(script);
-		                	});
-		                }
-		            }
-		        });
 
-		URL resource = getClass().getResource("AceEditor.html");
-		engine.load(resource.toString());
-
-		// set the copy and paste handlers
-		engine.setOnAlert(new ClipboardCopyHandler());
-		sendPayload.addEventFilter(KeyEvent.KEY_PRESSED, new ClipboardPasteHandler(engine));
-
+		// Prepare the request payload
+		requestXmlViewer = new XmlViewer();
+		
+		requestPayloadAnchorPane.getStylesheets().add(XmlViewer.class.getResource("xml-highlighting.css").toExternalForm());
+		requestPayloadAnchorPane.getChildren().add(requestXmlViewer);
+		requestPayloadAnchorPane.setTopAnchor(requestXmlViewer, 0.0);
+		requestPayloadAnchorPane.setBottomAnchor(requestXmlViewer, 0.0);
+		requestPayloadAnchorPane.setLeftAnchor(requestXmlViewer, 0.0);
+		requestPayloadAnchorPane.setRightAnchor(requestXmlViewer, 0.0);
 		
 		// Prepare the response payload
 		responseXmlViewer = new XmlViewer();
@@ -347,41 +321,6 @@ public class MessageSendPresenter {
 	
 	public Stage getStage() {
 		return (Stage) messageAccordionSend.getScene().getWindow();
-	}
-	
-	private class ClipboardPasteHandler implements EventHandler<KeyEvent> {
-		
-		private final WebEngine webEngine;
-		
-		public ClipboardPasteHandler(WebEngine webEngine) {
-			this.webEngine = webEngine;
-		}
-
-		@Override
-		public void handle(KeyEvent keyEvent) {
-	        if ((keyEvent.isControlDown() || keyEvent.isMetaDown()) && keyEvent.getCode() == KeyCode.V){
-	            // PASTE
-	            final Clipboard clipboard = Clipboard.getSystemClipboard();
-	            String content = (String) clipboard.getContent(DataFormat.PLAIN_TEXT);
-	            content = TextUtils.escapeText(content);
-	            String script = SCRIPT_PASTE_TEXT_PREFIX + content + SCRIPT_SET_TEXT_SUFFIX;
-	            webEngine.executeScript(script);
-	        }
-		}
-	}
-	
-	private class ClipboardCopyHandler implements EventHandler<WebEvent<String>> {
-
-		@Override
-		public void handle(WebEvent<String> we) {
-	        if(we.getData()!=null && we.getData().startsWith("copy: ")){
-	               // COPY
-	               final Clipboard clipboard = Clipboard.getSystemClipboard();
-	               final ClipboardContent content = new ClipboardContent();
-	               content.putString(we.getData().substring(6));
-	               clipboard.setContent(content);    
-	        }
-		}
 	}
 	
 }
