@@ -1,14 +1,22 @@
 package net.sf.juffrou.mq.ui;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.PlainTextChange;
 import org.fxmisc.richtext.StyleSpans;
 import org.fxmisc.richtext.StyleSpansBuilder;
+import org.reactfx.EventStream;
+import org.reactfx.util.Try;
+
+import javafx.concurrent.Task;
 
 public class XmlViewer extends CodeArea {
 
@@ -25,15 +33,39 @@ public class XmlViewer extends CodeArea {
     private static final int GROUP_EQUAL_SYMBOL = 2;
     private static final int GROUP_ATTRIBUTE_VALUE = 3;
 
+    private ExecutorService executor;
     
 	public XmlViewer() {
 
-		setParagraphGraphicFactory(LineNumberFactory.get(this));
+		executor = Executors.newSingleThreadExecutor();
 		
-		textProperty().addListener((obs, oldText, newText) -> {
-            setStyleSpans(0, computeHighlighting(newText));
-        });
+		setParagraphGraphicFactory(LineNumberFactory.get(this));
+
+		EventStream<PlainTextChange> textChanges = plainTextChanges();
+        
+		textChanges
+        .successionEnds(Duration.ofMillis(500))
+        .supplyTask(this::computeHighlightingAsync)
+        .awaitLatest(textChanges)
+        .map(Try::get)
+        .subscribe(this::applyHighlighting);
 	}
+
+    private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
+        String text = getText();
+        Task<StyleSpans<Collection<String>>> task = new Task<StyleSpans<Collection<String>>>() {
+            @Override
+            protected StyleSpans<Collection<String>> call() throws Exception {
+                return computeHighlighting(text);
+            }
+        };
+        executor.execute(task);
+        return task;
+    }
+
+    private void applyHighlighting(StyleSpans<Collection<String>> highlighting) {
+        setStyleSpans(0, highlighting);
+    }
 
     private static StyleSpans<Collection<String>> computeHighlighting(String text) {
     	
