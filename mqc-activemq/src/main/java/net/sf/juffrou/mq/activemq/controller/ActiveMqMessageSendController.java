@@ -107,6 +107,9 @@ public class ActiveMqMessageSendController implements MessageSendController {
 				// get the response in a different thread
 				responseReceivingThread.start();
 			}
+			else {
+				connection.close();
+			}
 			
 			// display the updated Sent Message Descriptor on the presenter window
 			messageDescriptor.addHeader(HeaderDescriptor.HEADER_MESSAGE_ID, message.getJMSMessageID() == null ? ""
