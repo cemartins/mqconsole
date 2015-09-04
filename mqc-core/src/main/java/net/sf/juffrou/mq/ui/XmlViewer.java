@@ -33,11 +33,12 @@ public class XmlViewer extends CodeArea {
     private static final int GROUP_EQUAL_SYMBOL = 2;
     private static final int GROUP_ATTRIBUTE_VALUE = 3;
 
-    private ExecutorService executor;
+    private final ExecutorService executor;
     
-	public XmlViewer() {
+	public XmlViewer(ExecutorService executor) {
 
-		executor = Executors.newSingleThreadExecutor();
+		//executor = Executors.newSingleThreadExecutor();
+		this.executor = executor;
 		
 		setParagraphGraphicFactory(LineNumberFactory.get(this));
 

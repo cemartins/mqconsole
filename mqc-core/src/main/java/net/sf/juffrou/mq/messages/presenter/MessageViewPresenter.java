@@ -1,5 +1,9 @@
 package net.sf.juffrou.mq.messages.presenter;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -21,7 +25,7 @@ import net.sf.juffrou.mq.ui.XmlViewer;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MessageViewPresenter implements MessageViewController {
+public class MessageViewPresenter implements MessageViewController, DisposableBean {
 
 	private static final String SCRIPT_SET_TEXT_PREFIX = "editor.setValue(\"";
 	private static final String SCRIPT_SET_TEXT_SUFFIX = "\");";
@@ -37,6 +41,8 @@ public class MessageViewPresenter implements MessageViewController {
 
 	@FXML
 	private AnchorPane payloadAnchorPane;
+	
+	private ExecutorService executor = null; // Executor service for XML Viewer
 	
 	private MessageDescriptor messageDescriptor;
 
@@ -62,7 +68,10 @@ public class MessageViewPresenter implements MessageViewController {
 
 		messageAccordion.setExpandedPane(payloadPane);
 
-		XmlViewer xmlViewer = new XmlViewer();
+		if(executor == null)
+			executor = Executors.newSingleThreadExecutor();
+		
+		XmlViewer xmlViewer = new XmlViewer(executor);
 		xmlViewer.setEditable(false);
 		
 		
@@ -86,6 +95,12 @@ public class MessageViewPresenter implements MessageViewController {
 			payloadPane.setExpanded(true);
 		}
 		
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		executor.shutdownNow();
+		executor = null;
 	}
 
 }

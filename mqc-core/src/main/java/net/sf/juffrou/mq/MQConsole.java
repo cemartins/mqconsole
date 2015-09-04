@@ -13,8 +13,6 @@ import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.event.EventHandler;
@@ -120,52 +118,6 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 
 	}
 
-	@SuppressWarnings("restriction")
-	public void old_start(Stage primaryStage) throws Exception {
-		try {
-
-			applicationContext = new ClassPathXmlApplicationContext(new String[] { "classpath*:context/*-context.xml" });
-
-			QueuesListView queuesListView = applicationContext.getBean(QueuesListView.class);
-			parentNode = queuesListView.getView();
-			mainController = (QueuesListPresenter) queuesListView.getPresenter();
-			mainController.setStage(primaryStage);
-			Scene scene = new Scene(parentNode, 326, 73);
-			primaryStage.setScene(scene);
-			primaryStage.setTitle("MQ Queues");
-
-			// Terminate application upon main window closing
-			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-
-				@Override
-				public void handle(WindowEvent arg0) {
-					Platform.exit();
-					System.exit(0);
-				}
-				
-			});
-		}
-		catch (Exception e) {
-
-			if (log.isErrorEnabled()) {
-				log.error("MQConsole Cannot Start", e);
-			}
-
-			ExceptionDialog alert = new ExceptionDialog();
-			alert.setTitle("Error Dialog");
-			alert.setHeaderText("MQConsole Cannot Start");
-			alert.setContentText(e.getMessage());
-			alert.setException(e);
-			alert.showAndWait();
-
-			Platform.exit();
-			System.exit(1);
-		}
-
-		primaryStage.show();
-	}
-	
-	
     @Override
     public void start(final Stage initStage) throws Exception {
         final Task<QueuesListView> friendTask = new Task<QueuesListView>() {

@@ -1,9 +1,12 @@
 package net.sf.juffrou.mq.messages.presenter;
 
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -34,6 +37,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import net.sf.juffrou.mq.dom.HeaderDescriptor;
 import net.sf.juffrou.mq.dom.MessageDescriptor;
@@ -45,7 +49,7 @@ import net.sf.juffrou.mq.ui.XmlViewer;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MessageSendPresenter {
+public class MessageSendPresenter implements DisposableBean {
 
 	protected static final Logger LOG = LoggerFactory.getLogger(MessageSendPresenter.class);
 	
@@ -104,6 +108,7 @@ public class MessageSendPresenter {
 
 	private QueueDescriptor queueNameSend;
 	
+	private ExecutorService executor = null; // Executor service for XML Viewer
 	private XmlViewer requestXmlViewer;
 	private XmlViewer responseXmlViewer;
 	
@@ -214,9 +219,11 @@ public class MessageSendPresenter {
 
 		messageAccordionReceive.setExpandedPane(receivePayloadPane);
 		
+		if(executor == null)
+			executor = Executors.newSingleThreadExecutor();
 
 		// Prepare the request payload
-		requestXmlViewer = new XmlViewer();
+		requestXmlViewer = new XmlViewer(executor);
 		
 		requestPayloadAnchorPane.getStylesheets().add(XmlViewer.class.getResource("xml-highlighting.css").toExternalForm());
 		requestPayloadAnchorPane.getChildren().add(requestXmlViewer);
@@ -226,7 +233,7 @@ public class MessageSendPresenter {
 		requestPayloadAnchorPane.setRightAnchor(requestXmlViewer, 0.0);
 		
 		// Prepare the response payload
-		responseXmlViewer = new XmlViewer();
+		responseXmlViewer = new XmlViewer(executor);
 		responseXmlViewer.setEditable(false);
 		
 		responsePayloadAnchorPane.getStylesheets().add(XmlViewer.class.getResource("xml-highlighting.css").toExternalForm());
@@ -235,6 +242,22 @@ public class MessageSendPresenter {
 		responsePayloadAnchorPane.setBottomAnchor(responseXmlViewer, 0.0);
 		responsePayloadAnchorPane.setLeftAnchor(responseXmlViewer, 0.0);
 		responsePayloadAnchorPane.setRightAnchor(responseXmlViewer, 0.0);
+		
+		
+		// set the disposable bean
+		/*
+		responsePayloadAnchorPane.getScene().getWindow().setOnCloseRequest( new EventHandler<WindowEvent>() {
+
+			@Override
+			public void handle(WindowEvent event) {
+				try {
+					destroy();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		*/
 	}
 
 	private static class QueueDescriptorCell extends ListCell<QueueDescriptor> {
@@ -321,6 +344,12 @@ public class MessageSendPresenter {
 	
 	public Stage getStage() {
 		return (Stage) messageAccordionSend.getScene().getWindow();
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		executor.shutdownNow();
+		executor = null;
 	}
 	
 }
