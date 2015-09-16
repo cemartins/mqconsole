@@ -29,6 +29,8 @@
     <!-- Activemq connection factory -->
     <bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
         <constructor-arg index="0" value="tcp://${broker_hostname}:${broker_port}"/>
+        <property name="userName" value="${broker_username}" />
+        <property name="password" value="${broker_userpwd}" />
     </bean>
  
     <!-- ConnectionFactory Definition -->
