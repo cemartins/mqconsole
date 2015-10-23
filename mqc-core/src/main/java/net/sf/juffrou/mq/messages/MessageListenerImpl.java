@@ -1,5 +1,11 @@
 package net.sf.juffrou.mq.messages;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -8,9 +14,6 @@ import net.sf.juffrou.mq.messages.presenter.MessageViewView;
 import net.sf.juffrou.mq.messages.task.AbstractMessageListenerTask;
 import net.sf.juffrou.mq.messages.task.MessageListenerTaskFactory;
 import net.sf.juffrou.mq.util.MessageReceivedHandler;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 public class MessageListenerImpl implements MessageListener {
@@ -22,22 +25,22 @@ public class MessageListenerImpl implements MessageListener {
 	private MessageViewView messageViewView;
 	
 	private AbstractMessageListenerTask currentListeningTask;
-	private Thread currentListeningThread = null;
+	private ExecutorService currentListeningThread = null;
 	private String currentListeningQueue;
 
 	public void startMessageListener(Stage parentStage, String listeningQueue) {
 		
 		if (currentListeningThread != null) {
 			currentListeningTask.cancel(true);
-			currentListeningThread.interrupt(); // cannot have more than one active listener
+			currentListeningThread.shutdownNow(); // cannot have more than one active listener
 		}
 
 		IncomingMessageHandler handler = new IncomingMessageHandler(parentStage, listeningQueue);
 		currentListeningTask = messageListenerTaskFactory.createMessageListenerTask(handler, listeningQueue);
 
 		currentListeningQueue = listeningQueue;
-		currentListeningThread = new Thread(currentListeningTask, "Message listening task");
-		currentListeningThread.start();
+		currentListeningThread = Executors.newSingleThreadExecutor();//new Thread(currentListeningTask, "Message listening task");
+		currentListeningThread.execute(currentListeningTask);
 	}
 
 	public boolean isCurrentListeningQueue(String listeningQueue) {
@@ -47,7 +50,7 @@ public class MessageListenerImpl implements MessageListener {
 	public void stopMessageListener() {
 		if (currentListeningThread != null) {
 			currentListeningTask.cancel(true);
-			currentListeningThread.interrupt(); // cannot have more than one active listener
+			currentListeningThread.shutdownNow(); // cannot have more than one active listener
 		}
 
 		currentListeningQueue = null;
