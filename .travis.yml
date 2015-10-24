@@ -5,5 +5,5 @@ os:
   - linux
   - osx
 matrix:
-  allow_failures_
+  allow_failures:
     -os: linux
