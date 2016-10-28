@@ -60,6 +60,10 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 			System.setProperty("mq.console.log.dir", System.getProperty("user.home")
 					+ "/Library/Application Support/MQConsole");
 		else
+		if (System.getProperty("os.name").toLowerCase().equals("linux"))
+			System.setProperty("mq.console.log.dir", System.getProperty("user.home")
+					+ "/var/log/MQConsole");
+		else
 			System.setProperty("mq.console.log.dir", System.getenv("APPDATA") + "/MQConsole");
 	}
 	private static final Logger log = LoggerFactory.getLogger(MQConsole.class);
@@ -76,8 +80,12 @@ public class MQConsole extends Application implements ConsolePreloader.SharedSce
 	}
 
 	private static void setMQConsoleDir() {
-		String mqConsoleDir = System.getProperty("user.dir") + File.separator;
+ 		String mqConsoleDir = System.getProperty("user.dir") + File.separator;
 		if (System.getProperty("os.name").startsWith("Mac")) {
+			URL mySource = MQConsole.class.getProtectionDomain().getCodeSource().getLocation();
+			mqConsoleDir = mySource.getPath().substring(0, mySource.getPath().lastIndexOf('/'));
+		}
+		else if (System.getProperty("os.name").toLowerCase().equals("linux")) {
 			URL mySource = MQConsole.class.getProtectionDomain().getCodeSource().getLocation();
 			mqConsoleDir = mySource.getPath().substring(0, mySource.getPath().lastIndexOf('/'));
 		}

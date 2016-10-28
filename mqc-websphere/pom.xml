@@ -185,6 +185,37 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>Linux_specific_package</id>
+			<activation>
+				<os>
+					<family>unix</family>
+					<name>linux</name>
+				</os>
+			</activation>
+			<properties>
+				<bundle.name>${project.build.finalName}-${project.version}.zip</bundle.name>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>Linux_ZIP_package</id>
+								<phase>package</phase>
+								<goals> <goal>run</goal> </goals>
+								<configuration>
+									<target>
+										<zip destfile="${project.build.directory}/bundles/${bundle.name}" basedir="${project.build.directory}/bundles/${project.build.finalName}" />
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>Windows_specific_package</id>
 			<activation>
 				<os>
