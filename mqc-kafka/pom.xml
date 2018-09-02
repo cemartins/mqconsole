@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>mq-console</artifactId>
+        <groupId>net.sf.juffrou</groupId>
+        <version>2.0.7-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>mqc-kafka</artifactId>
+
+    <properties>
+        <kafka.version>2.0.0</kafka.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.juffrou</groupId>
+            <artifactId>mqc-core</artifactId>
+            <version>2.0.7-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>2.1.9.RELEASE</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>MQConsole_kafka</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>${exec.mainClass}</mainClass>
+                    <arguments>
+                        <argument>set_maven_path_to_broker_properties</argument>
+                    </arguments>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>deploy_bundle_to_bintray</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>curl</executable>
+                            <arguments>
+                                <argument>-T</argument>
+                                <argument>${project.build.directory}/bundles/${bundle.name}</argument>
+                                <argument>-u${bintray.user}:${bintray.apikey}</argument>
+                                <argument>https://api.bintray.com/content/cemartins/mqconsole/MQConsole/${project.version}/${bundle.name}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-jars</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>bin</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/copyjars.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>JavaFx-Packaging</id>
+                        <phase>package</phase>
+                        <goals> <goal>run</goal> </goals>
+                        <configuration>
+                            <target xmlns:fx="javafx:com.sun.javafx.tools.ant">
+                                <taskdef uri="javafx:com.sun.javafx.tools.ant" resource="com/sun/javafx/tools/ant/antlib.xml" classpath="${basedir}/src/main/deploy:${javafx.tools.ant.jar}" />
+
+                                <fx:application id="${project.artifactId}" name="${project.build.finalName}" mainClass="${exec.mainClass}" version="${project.version}" />
+
+                                <fx:preferences menu="false" />
+
+                                <fx:jar destfile="${project.build.directory}/${project.build.finalName}">
+                                    <fx:application refid="${project.artifactId}" />
+                                    <fx:fileset dir="${project.build.directory}/bin-jars/classes" />
+                                    <fx:resources>
+                                        <fx:fileset dir="${project.build.directory}" includes="bin-jars/*.jar" />
+                                    </fx:resources>
+                                    <manifest>
+                                        <attribute name="Implementation-Vendor" value="Juffrou" />
+                                        <attribute name="Implementation-Version" value="${project.version}" />
+                                        <attribute name="Main-Class" value="${exec.mainClass}" />
+                                    </manifest>
+                                </fx:jar>
+
+                                <!-- use a profile in maven settings.xml to define the following properties -->
+                                <!--
+                                <fx:signjar alias="${certificate.alias}" keypass="${certificate.pass}" keystore="${keystore.dir}/${keystore.file}" storepass="${keystore.pass}" storetype="${keystore.type}" destdir="${project.build.directory}">
+                                </fx:signjar>
+                                 -->
+
+                                <fx:deploy outdir="${project.build.directory}" outfile="${project.build.finalName}" nativeBundles="all" verbose="true">
+                                    <fx:application refid="${project.artifactId}" />
+                                    <fx:resources>
+                                        <!-- If you changed <fx:jar> above, don't forget to modify the
+                                            line below -->
+                                        <fx:fileset dir="${project.build.directory}" includes="${project.build.finalName}.jar" />
+                                        <fx:fileset dir="${project.build.directory}" includes="bin-jars/*.jar" />
+                                        <fx:fileset dir="${basedir}/src/main/deploy/package" includes="*.properties" />
+                                    </fx:resources>
+                                    <fx:info title="MQ Console" vendor="Juffrou" category="Utilities" license="The Apache Software License, Version 2.0" description="${project.description}" />
+                                    <!--
+                                    <fx:bundleArgument arg="mac.signing-key-user-name" value="Carlos Martins" />
+                                     -->
+                                    <!-- <fx:platform> -->
+                                    <fx:platform basedir=""> <!-- Leave out the JRE -->
+                                        <fx:jvmarg value="-Xmx768m" />
+                                    </fx:platform>
+                                </fx:deploy>
+
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>MacOSX_specific_package</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <bundle.name>${project.build.finalName}-${project.version}.dmg</bundle.name>
+            </properties>
+        </profile>
+        <profile>
+            <id>Linux_specific_package</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                    <name>linux</name>
+                </os>
+            </activation>
+            <properties>
+                <bundle.name>${project.build.finalName}-${project.version}.zip</bundle.name>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>Linux_ZIP_package</id>
+                                <phase>package</phase>
+                                <goals> <goal>run</goal> </goals>
+                                <configuration>
+                                    <target>
+                                        <zip destfile="${project.build.directory}/bundles/${bundle.name}" basedir="${project.build.directory}/bundles/${project.build.finalName}" />
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>Windows_specific_package</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <bundle.name>${project.build.finalName}-${project.version}.zip</bundle.name>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>Windows_ZIP_package</id>
+                                <phase>package</phase>
+                                <goals> <goal>run</goal> </goals>
+                                <configuration>
+                                    <target>
+                                        <zip destfile="${project.build.directory}/bundles/${bundle.name}" basedir="${project.build.directory}/bundles/${project.build.finalName}" />
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

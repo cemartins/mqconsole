@@ -97,6 +97,7 @@
 		<module>mqc-websphere</module>
 		<module>mqc-activemq</module>
 		<module>mqc-hornetq</module>
+		<module>mqc-kafka</module>
 	</modules>
 
 	<reporting>
