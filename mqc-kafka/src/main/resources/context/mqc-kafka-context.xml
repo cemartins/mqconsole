@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:amq="http://activemq.apache.org/schema/core"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+		http://www.springframework.org/schema/beans/spring-beans.xsd  
+		http://www.springframework.org/schema/context  
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util.xsd
+		http://activemq.apache.org/schema/core 
+		http://activemq.apache.org/schema/core/activemq-core-5.7.0.xsd">
+
+
+	<!-- configuration properties -->
+	<context:property-placeholder location="file:${mq.console.dir}/broker.properties" />
+
+	<util:map id="mqQueueManagerOptions" map-class="java.util.HashMap">
+		<entry key="hostname" value="${broker_hostname}" />
+		<entry key="port">
+			<value type="java.lang.Integer">${broker_port}</value>
+		</entry>
+		<entry key="channel" value="${broker_channel}" />
+		<entry key="transport" value="ActiveMQ Client" />
+	</util:map>
+
+
+    <!-- Activemq connection factory -->
+    <bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <constructor-arg index="0" value="tcp://${broker_hostname}:${broker_port}"/>
+        <property name="userName" value="${broker_username}" />
+        <property name="password" value="${broker_userpwd}" />
+    </bean>
+ 
+    <!-- ConnectionFactory Definition -->
+    <bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <constructor-arg ref="amqConnectionFactory" />
+    </bean>
+ 
+    <!-- JmsTemplate Definition -->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory" />
+    </bean>
+ 
+</beans>
